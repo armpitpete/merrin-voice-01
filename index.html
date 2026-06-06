@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-link-mode="linked">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Merrin Voice 01 — Interactive Signal Guide</title>
-  <meta name="description" content="A v0.1 interactive guide to the Merrin Voice 01 Constrained Grief Eurorack voice.">
+  <meta name="description" content="Interactive guide to the Merrin Voice 01 Constrained Grief Eurorack voice.">
   <style>
     :root {
       color-scheme: dark;
@@ -16,9 +16,8 @@
       --quiet: #827b70;
       --line: rgba(242, 240, 234, 0.18);
       --accent: #caa06a;
-      --accent-2: #8fa7c4;
+      --blue: #8fa7c4;
       --radius: 22px;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
       --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
@@ -29,15 +28,17 @@
       margin: 0;
       min-height: 100vh;
       font-family: var(--font);
+      line-height: 1.5;
+      color: var(--ink);
       background:
         radial-gradient(circle at top left, rgba(143, 167, 196, 0.16), transparent 35rem),
         radial-gradient(circle at bottom right, rgba(202, 160, 106, 0.12), transparent 34rem),
         var(--bg);
-      color: var(--ink);
-      line-height: 1.5;
     }
 
     button { font: inherit; }
+
+    code { font-family: var(--mono); }
 
     .app {
       width: min(1180px, calc(100% - 32px));
@@ -74,87 +75,61 @@
       font-size: clamp(1rem, 2vw, 1.18rem);
     }
 
-    .summary-strip {
+    .pills {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 8px;
     }
 
-    .summary-strip span {
+    .pills span,
+    .jack,
+    .status {
       border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
       background: rgba(255, 255, 255, 0.035);
       color: var(--muted);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
+      font-family: var(--mono);
     }
 
-    .play-strip,
-    .mode-strip {
+    .pills span { font-family: var(--font); padding: 8px 12px; }
+
+    .strip {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       flex-wrap: wrap;
       gap: 12px;
-      margin-top: 6px;
       padding: 14px;
       border-radius: 18px;
-    }
-
-    .play-strip {
-      border: 1px solid rgba(202, 160, 106, 0.34);
-      background: rgba(202, 160, 106, 0.07);
-    }
-
-    .play-button {
-      border: 1px solid rgba(202, 160, 106, 0.8);
-      background: linear-gradient(180deg, rgba(202,160,106,0.28), rgba(202,160,106,0.12));
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .play-button:hover,
-    .play-button:focus-visible {
-      outline: none;
-      border-color: var(--ink);
-    }
-
-    .play-status {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .mode-strip {
-      justify-content: space-between;
       border: 1px solid rgba(143, 167, 196, 0.34);
       background: rgba(143, 167, 196, 0.07);
     }
 
-    .mode-copy {
+    .play-strip {
+      border-color: rgba(202, 160, 106, 0.34);
+      background: rgba(202, 160, 106, 0.07);
+    }
+
+    .strip-copy {
       display: grid;
       gap: 2px;
       min-width: min(100%, 420px);
     }
 
-    .mode-copy strong {
-      color: var(--ink);
-    }
-
-    .mode-state {
+    .strip-copy span {
       color: var(--muted);
       font-size: 0.92rem;
     }
 
-    .mode-buttons {
+    .button-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
+    .button,
     .mode-button {
       border: 1px solid var(--line);
       background: rgba(255,255,255,0.05);
@@ -164,32 +139,42 @@
       cursor: pointer;
     }
 
+    .button:hover,
+    .button:focus-visible,
     .mode-button:hover,
     .mode-button:focus-visible {
       outline: none;
-      border-color: var(--accent-2);
+      border-color: var(--accent);
       color: var(--ink);
     }
 
     .mode-button[aria-pressed="true"] {
-      border-color: var(--accent-2);
+      border-color: var(--blue);
       color: var(--ink);
       background: rgba(143, 167, 196, 0.18);
     }
 
-    .rack-panel {
-      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    .play-button {
+      border-color: rgba(202, 160, 106, 0.8);
+      background: linear-gradient(180deg, rgba(202,160,106,0.28), rgba(202,160,106,0.12));
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .rack-panel,
+    .card {
       border: 1px solid var(--line);
       border-radius: calc(var(--radius) + 8px);
-      box-shadow: var(--shadow);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
       padding: 18px;
-      overflow: hidden;
     }
 
     .signal-label {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: 12px;
       margin-bottom: 14px;
       color: var(--muted);
@@ -197,20 +182,17 @@
     }
 
     .signal-label code {
-      font-family: var(--mono);
       color: var(--ink);
       background: rgba(0, 0, 0, 0.22);
       border: 1px solid var(--line);
       border-radius: 999px;
       padding: 5px 9px;
-      white-space: nowrap;
     }
 
     .rack {
       display: grid;
       grid-template-columns: repeat(5, minmax(140px, 1fr));
       gap: 10px;
-      position: relative;
     }
 
     .module {
@@ -222,11 +204,11 @@
       color: var(--ink);
       text-align: left;
       cursor: pointer;
-      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
-      position: relative;
       display: grid;
       grid-template-rows: auto auto 1fr auto auto;
       gap: 10px;
+      position: relative;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     }
 
     .module:hover,
@@ -275,12 +257,11 @@
       margin: 0;
       font-size: 1.15rem;
       line-height: 1.08;
-      letter-spacing: -0.02em;
     }
 
-    .module .role {
-      color: var(--muted);
+    .role {
       margin: 0;
+      color: var(--muted);
       font-size: 0.95rem;
     }
 
@@ -288,34 +269,22 @@
       margin: 0;
       border-top: 1px solid var(--line);
       padding-top: 8px;
-      color: var(--accent-2);
+      color: var(--blue);
       font-family: var(--mono);
       font-size: 0.7rem;
       line-height: 1.35;
     }
 
-    html[data-link-mode="independent"] .jumper-note {
-      color: var(--quiet);
-    }
+    html[data-link-mode="independent"] .jumper-note { color: var(--quiet); }
 
-    .mini-jacks {
+    .jacks {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       align-self: end;
     }
 
-    .mini-jacks span {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--muted);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 4px 6px;
-      background: rgba(0,0,0,0.16);
-    }
-
-    .detail-grid {
+    .main-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 310px;
       gap: 18px;
@@ -323,16 +292,10 @@
       align-items: start;
     }
 
-    .detail-card,
-    .bus-card,
-    .next-card {
-      background: rgba(22, 25, 34, 0.92);
-      border: 1px solid var(--line);
+    .card {
       border-radius: var(--radius);
-      padding: 20px;
-    }
-
-    .detail-card {
+      background: rgba(22, 25, 34, 0.92);
+      box-shadow: none;
       align-self: start;
     }
 
@@ -358,32 +321,29 @@
       font-family: var(--mono);
       font-weight: 800;
       font-size: 0.9rem;
-      white-space: nowrap;
     }
 
-    .plain-job {
-      font-size: 1.18rem;
-      margin: 0 0 18px;
-      color: var(--ink);
-    }
+    .plain-job { font-size: 1.18rem; margin: 0 0 18px; }
 
-    .detail-columns {
+    .detail-columns,
+    .example-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-bottom: 18px;
     }
 
-    .info-box {
+    .box,
+    .example {
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 13px;
       background: rgba(255,255,255,0.035);
     }
 
-    .info-box h3,
-    .bus-card h3,
-    .next-card h3 {
+    .box h3,
+    .card h3,
+    .example h3 {
       margin: 0 0 8px;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -391,46 +351,18 @@
       color: var(--quiet);
     }
 
-    .info-box p,
-    .bus-card p,
-    .next-card p {
-      margin: 0;
-      color: var(--muted);
-    }
+    .box p,
+    .card p,
+    .example p { margin: 0; color: var(--muted); }
 
-    .emotional-line {
+    .emotional-line,
+    .override-note {
       margin: 0;
       border-left: 4px solid var(--accent);
+      border-radius: 10px;
       padding: 10px 0 10px 14px;
       color: var(--ink);
-      font-size: 1.05rem;
       background: linear-gradient(90deg, rgba(202,160,106,0.12), transparent);
-      border-radius: 10px;
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-
-    .nav-buttons button,
-    .bus-toggle {
-      border: 1px solid var(--line);
-      color: var(--ink);
-      background: rgba(255,255,255,0.05);
-      border-radius: 999px;
-      padding: 9px 12px;
-      cursor: pointer;
-    }
-
-    .nav-buttons button:hover,
-    .nav-buttons button:focus-visible,
-    .bus-toggle:hover,
-    .bus-toggle:focus-visible {
-      border-color: var(--accent);
-      outline: none;
     }
 
     .bus-list {
@@ -441,7 +373,7 @@
 
     .bus-line {
       display: grid;
-      grid-template-columns: 86px 1fr auto;
+      grid-template-columns: 78px 1fr auto;
       gap: 8px;
       align-items: center;
       border: 1px solid var(--line);
@@ -450,46 +382,14 @@
       background: rgba(0,0,0,0.16);
     }
 
-    .bus-line code {
-      color: var(--accent-2);
-      font-family: var(--mono);
-      font-size: 0.82rem;
-    }
+    .bus-line code { color: var(--blue); font-size: 0.82rem; }
+    .bus-line span { color: var(--muted); font-size: 0.9rem; }
+    .bus-line[data-state="inactive"] { opacity: 0.52; }
+    .bus-line[data-state="active"] { border-color: rgba(143, 167, 196, 0.45); }
+    .bus-line[data-state="active"] .status { color: var(--ink); background: rgba(143, 167, 196, 0.18); }
+    .bus-line[data-state="inactive"] .status { color: var(--quiet); background: rgba(255,255,255,0.03); }
 
-    .bus-line span {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .bus-line[data-state="inactive"] {
-      opacity: 0.52;
-    }
-
-    .bus-line[data-state="active"] {
-      border-color: rgba(143, 167, 196, 0.45);
-    }
-
-    .bus-status {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 4px 6px;
-      white-space: nowrap;
-    }
-
-    .bus-line[data-state="active"] .bus-status {
-      color: var(--ink);
-      background: rgba(143, 167, 196, 0.18);
-    }
-
-    .bus-line[data-state="inactive"] .bus-status {
-      color: var(--quiet);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .mode-note,
-    .override-note {
+    .mode-note {
       margin-top: 12px;
       border-top: 1px solid var(--line);
       padding-top: 12px;
@@ -498,12 +398,30 @@
     }
 
     .override-note {
+      margin-top: 12px;
       border: 1px solid rgba(202,160,106,0.32);
       border-left: 4px solid var(--accent);
       border-radius: 14px;
       padding: 10px 12px;
-      background: rgba(202,160,106,0.06);
+      color: var(--muted);
     }
+
+    .examples-card {
+      margin-top: 18px;
+    }
+
+    .example-grid {
+      grid-template-columns: repeat(2, 1fr);
+      margin-bottom: 0;
+    }
+
+    .example ol {
+      margin: 8px 0 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+    }
+
+    .example li + li { margin-top: 6px; }
 
     .next-card {
       margin-top: 18px;
@@ -518,13 +436,11 @@
       font-size: 0.88rem;
     }
 
-    footer code {
-      font-family: var(--mono);
-      color: var(--muted);
-    }
-
     @media (max-width: 960px) {
-      .rack { grid-template-columns: 1fr; }
+      .rack,
+      .main-grid,
+      .detail-columns,
+      .example-grid { grid-template-columns: 1fr; }
       .module { min-height: 0; }
       .module::after {
         content: "↓";
@@ -533,39 +449,34 @@
         bottom: -22px;
       }
       .module:last-child::after { content: ""; }
-      .detail-grid,
-      .detail-columns { grid-template-columns: 1fr; }
-      .signal-label {
-        align-items: flex-start;
-        flex-direction: column;
-      }
     }
   </style>
 </head>
 <body>
   <main class="app">
     <header>
-      <p class="eyebrow">Merrin Voice 01 App v0.1</p>
+      <p class="eyebrow">Merrin Voice 01 App v0.3</p>
       <h1>Constrained Grief</h1>
-      <p class="intro">
-        A clickable guide to the five-module Merrin Voice 01 system. It explains the signal path, the practical job of each module, and the emotional role each stage adds to the voice.
-      </p>
-      <div class="summary-strip" aria-label="System summary">
+      <p class="intro">A clickable guide to the five-module Merrin Voice 01 system. It explains the signal path, the practical job of each module, the Merrin Link bus, and how front-panel patching can override the hidden rear normals.</p>
+      <div class="pills" aria-label="System summary">
         <span>Scale → Tone → Envelope → Room → Memory</span>
         <span>5 modules</span>
         <span>30 HP</span>
         <span>Tiny audio preview</span>
       </div>
-      <div class="play-strip" aria-label="Audio preview">
-        <button class="play-button" id="playButton" type="button">▶ Play voice sample</button>
-        <p class="play-status" id="playStatus">Soft sine/sub note with slow fade and dark echoes.</p>
-      </div>
-      <section class="mode-strip" aria-label="Merrin Link mode">
-        <div class="mode-copy">
-          <strong>Merrin Link mode</strong>
-          <span class="mode-state" id="modeState">Linked voice mode: rear normals connect the five modules as one pre-wired voice.</span>
+      <section class="strip play-strip" aria-label="Audio preview">
+        <div class="strip-copy">
+          <strong>Voice sample</strong>
+          <span id="playStatus">Soft sine/sub note with slow fade and dark echoes.</span>
         </div>
-        <div class="mode-buttons" role="group" aria-label="Choose Merrin Link mode">
+        <button class="button play-button" id="playButton" type="button">▶ Play voice sample</button>
+      </section>
+      <section class="strip" aria-label="Merrin Link mode">
+        <div class="strip-copy">
+          <strong>Merrin Link mode</strong>
+          <span id="modeState">Linked voice mode: rear normals connect the five modules as one pre-wired voice.</span>
+        </div>
+        <div class="button-row" role="group" aria-label="Choose Merrin Link mode">
           <button class="mode-button" type="button" data-link-mode="linked" aria-pressed="true">Linked voice mode</button>
           <button class="mode-button" type="button" data-link-mode="independent" aria-pressed="false">Independent module mode</button>
         </div>
@@ -580,120 +491,69 @@
       <div class="rack" id="rack" aria-label="Merrin Voice 01 module row"></div>
     </section>
 
-    <section class="detail-grid" aria-label="Selected module details">
-      <article class="detail-card" id="detail" aria-live="polite"></article>
+    <section class="main-grid" aria-label="Selected module and Merrin Link details">
+      <article class="card" id="detail" aria-live="polite"></article>
 
       <aside>
-        <section class="bus-card">
+        <section class="card">
           <h3>Merrin Link Bus</h3>
           <p>The rear bus lets the five modules behave as one pre-patched mono voice when the jumpers are enabled.</p>
-          <button class="bus-toggle" id="busToggle" type="button" aria-expanded="true">Hide bus lines</button>
-          <div class="bus-list" id="busList">
-            <div class="bus-line" data-bus-line="PITCH" data-state="active"><code>PITCH</code><span>Quantizer pitch to oscillator</span><strong class="bus-status">active</strong></div>
-            <div class="bus-line" data-bus-line="GATE" data-state="active"><code>GATE</code><span>Gate signal to Lingering Voice</span><strong class="bus-status">active</strong></div>
-            <div class="bus-line" data-bus-line="AUD_A" data-state="active"><code>AUD_A</code><span>Oscillator to VCA</span><strong class="bus-status">active</strong></div>
-            <div class="bus-line" data-bus-line="AUD_B" data-state="active"><code>AUD_B</code><span>VCA to reverb</span><strong class="bus-status">active</strong></div>
-            <div class="bus-line" data-bus-line="AUD_C" data-state="active"><code>AUD_C</code><span>Reverb to delay</span><strong class="bus-status">active</strong></div>
-            <div class="bus-line" data-bus-line="GND" data-state="active"><code>GND</code><span>Shared reference ground</span><strong class="bus-status">always</strong></div>
-          </div>
+          <button class="button" id="busToggle" type="button" aria-expanded="true">Hide bus lines</button>
+          <div class="bus-list" id="busList"></div>
           <p class="mode-note" id="busModeNote">Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus.</p>
           <p class="override-note"><strong>Front patch rule:</strong> if a front-panel cable is inserted, it can override the hidden Merrin Link connection.</p>
         </section>
 
-        <section class="next-card">
-          <h3>v0.1 boundary</h3>
-          <p>This version explains the instrument and includes one tiny audio preview. It does not yet save patches or simulate full electronics.</p>
+        <section class="card next-card">
+          <h3>Current boundary</h3>
+          <p>This app explains the instrument and includes one tiny audio preview. It does not save patches or simulate full electronics.</p>
         </section>
       </aside>
     </section>
 
-    <footer>
-      Prototype file: <code>index.html</code>. Single static page. No build step.
-    </footer>
+    <section class="card examples-card" aria-labelledby="examples-title">
+      <p class="eyebrow">v0.3</p>
+      <h2 id="examples-title" class="detail-title">Front-panel override examples</h2>
+      <p class="intro">Merrin Link gives the default path. A front-panel cable can deliberately replace part of that path.</p>
+      <div class="example-grid">
+        <article class="example">
+          <h3>Example 1 — External pitch overrides Merrin pitch</h3>
+          <ol>
+            <li><strong>Default:</strong> <code>MV-02 → PITCH → MV-01</code></li>
+            <li><strong>Front patch:</strong> plug external pitch into <code>MV-01 1V/OCT</code>.</li>
+            <li><strong>Result:</strong> MV-01 follows the external pitch instead of the Merrin Link pitch normal.</li>
+          </ol>
+        </article>
+        <article class="example">
+          <h3>Example 2 — External audio enters the space stage</h3>
+          <ol>
+            <li><strong>Default:</strong> <code>MV-03 → AUD_B → MF-01</code></li>
+            <li><strong>Front patch:</strong> plug external audio into <code>MF-01 AUDIO IN</code>.</li>
+            <li><strong>Result:</strong> MF-01 processes the external audio instead of the normal Merrin Voice path.</li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <footer>Prototype file: <code>index.html</code>. Single static page. No build step.</footer>
   </main>
 
   <script>
     const modules = [
-      {
-        id: "mv-02",
-        code: "MV-02",
-        name: "Melancholy Quantizer",
-        hp: "4 HP",
-        stage: "SCALE",
-        role: "Pitch source / conditioner",
-        plain: "Chooses which notes are allowed.",
-        input: "Unquantized pitch CV from a sequencer, keyboard, random source, or other CV source.",
-        output: "Quantized 1V/oct pitch CV to the oscillator and PITCH_BUS.",
-        emotional: "It keeps the music inside a sad pitch world: natural minor, harmonic minor, or chromatic.",
-        jumperOn: "Jumper on: sends PITCH_BUS",
-        jumperOff: "Jumper off: use Q OUT jack",
-        jacks: ["CV IN", "Q OUT"],
-        line: "You can move, but only inside this sorrow-biased musical space."
-      },
-      {
-        id: "mv-01",
-        code: "MV-01",
-        name: "Somber Oscillator",
-        hp: "8 HP",
-        stage: "TONE",
-        role: "Sound source",
-        plain: "Makes the actual sound.",
-        input: "1V/oct pitch from MV-02, plus optional soft FM.",
-        output: "Pure sine and sub audio to Lingering Voice.",
-        emotional: "It gives the voice its soft, low, slightly unstable tone.",
-        jumperOn: "Jumper on: reads PITCH, sends AUD_A",
-        jumperOff: "Jumper off: patch pitch/audio manually",
-        jacks: ["1V/OCT", "FM IN", "SINE", "SUB"],
-        line: "The voice itself: soft, low, unstable, and unable to jump sharply."
-      },
-      {
-        id: "mv-03",
-        code: "MV-03",
-        name: "Lingering Voice",
-        hp: "6 HP",
-        stage: "ENVELOPE",
-        role: "Dynamic shape",
-        plain: "Controls how the sound appears, trembles, and fades.",
-        input: "Audio from MV-01 and gate signal from the sequencer or GATE_BUS.",
-        output: "Post-envelope audio to Desolate Space, plus EG and Wither outputs.",
-        emotional: "It makes the sound breathe in slowly, linger, and fade instead of snapping on and off.",
-        jumperOn: "Jumper on: reads GATE/AUD_A, sends AUD_B",
-        jumperOff: "Jumper off: patch gate/audio manually",
-        jacks: ["GATE", "EG", "WITHER", "VCA IN", "VCA OUT"],
-        line: "The sound must breathe in, linger, tremble, and fade away."
-      },
-      {
-        id: "mf-01",
-        code: "MF-01",
-        name: "Desolate Space",
-        hp: "6 HP",
-        stage: "ROOM",
-        role: "Reverb / environment",
-        plain: "Places the voice inside a dark space.",
-        input: "Shaped voice audio from MV-03.",
-        output: "Dark reverberant audio to Fading Echoes.",
-        emotional: "It makes the voice feel distant, cold, smeared, and heavy.",
-        jumperOn: "Jumper on: reads AUD_B, sends AUD_C",
-        jumperOff: "Jumper off: use audio jacks",
-        jacks: ["AUDIO IN", "AUDIO OUT"],
-        line: "This voice is not in a normal room. It is somewhere empty."
-      },
-      {
-        id: "mf-02",
-        code: "MF-02",
-        name: "Fading Echoes",
-        hp: "6 HP",
-        stage: "MEMORY",
-        role: "Delay / repeats",
-        plain: "Repeats the voice as it disappears.",
-        input: "Reverbed audio from Desolate Space.",
-        output: "Final Merrin Voice 01 output.",
-        emotional: "Each repeat loses brightness and detail, like memory dissolving.",
-        jumperOn: "Jumper on: reads AUD_C to final output",
-        jumperOff: "Jumper off: use audio jacks",
-        jacks: ["AUDIO IN", "AUDIO OUT"],
-        line: "The sound has gone, but traces of it remain."
-      }
+      { code: "MV-02", name: "Melancholy Quantizer", hp: "4 HP", stage: "SCALE", role: "Pitch source / conditioner", plain: "Chooses which notes are allowed.", input: "Unquantized pitch CV from a sequencer, keyboard, random source, or other CV source.", output: "Quantized 1V/oct pitch CV to the oscillator and PITCH bus.", emotional: "Keeps the music inside a sad pitch world: natural minor, harmonic minor, or chromatic.", jumperOn: "Jumper on: sends PITCH", jumperOff: "Jumper off: use Q OUT jack", jacks: ["CV IN", "Q OUT"], line: "You can move, but only inside this sorrow-biased musical space." },
+      { code: "MV-01", name: "Somber Oscillator", hp: "8 HP", stage: "TONE", role: "Sound source", plain: "Makes the actual sound.", input: "1V/oct pitch from MV-02, plus optional soft FM.", output: "Pure sine and sub audio to Lingering Voice.", emotional: "Gives the voice its soft, low, slightly unstable tone.", jumperOn: "Jumper on: reads PITCH, sends AUD_A", jumperOff: "Jumper off: patch pitch/audio manually", jacks: ["1V/OCT", "FM IN", "SINE", "SUB"], line: "The voice itself: soft, low, unstable, and unable to jump sharply." },
+      { code: "MV-03", name: "Lingering Voice", hp: "6 HP", stage: "ENVELOPE", role: "Dynamic shape", plain: "Controls how the sound appears, trembles, and fades.", input: "Audio from MV-01 and gate signal from the sequencer or GATE bus.", output: "Post-envelope audio to Desolate Space, plus EG and Wither outputs.", emotional: "Makes the sound breathe in slowly, linger, and fade instead of snapping on and off.", jumperOn: "Jumper on: reads GATE/AUD_A, sends AUD_B", jumperOff: "Jumper off: patch gate/audio manually", jacks: ["GATE", "EG", "WITHER", "VCA IN", "VCA OUT"], line: "The sound must breathe in, linger, tremble, and fade away." },
+      { code: "MF-01", name: "Desolate Space", hp: "6 HP", stage: "ROOM", role: "Reverb / environment", plain: "Places the voice inside a dark space.", input: "Shaped voice audio from MV-03.", output: "Dark reverberant audio to Fading Echoes.", emotional: "Makes the voice feel distant, cold, smeared, and heavy.", jumperOn: "Jumper on: reads AUD_B, sends AUD_C", jumperOff: "Jumper off: use audio jacks", jacks: ["AUDIO IN", "AUDIO OUT"], line: "This voice is not in a normal room. It is somewhere empty." },
+      { code: "MF-02", name: "Fading Echoes", hp: "6 HP", stage: "MEMORY", role: "Delay / repeats", plain: "Repeats the voice as it disappears.", input: "Reverbed audio from Desolate Space.", output: "Final Merrin Voice 01 output.", emotional: "Each repeat loses brightness and detail, like memory dissolving.", jumperOn: "Jumper on: reads AUD_C to final output", jumperOff: "Jumper off: use audio jacks", jacks: ["AUDIO IN", "AUDIO OUT"], line: "The sound has gone, but traces of it remain." }
+    ];
+
+    const busLines = [
+      { key: "PITCH", text: "Quantizer pitch to oscillator" },
+      { key: "GATE", text: "Gate signal to Lingering Voice" },
+      { key: "AUD_A", text: "Oscillator to VCA" },
+      { key: "AUD_B", text: "VCA to reverb" },
+      { key: "AUD_C", text: "Reverb to delay" },
+      { key: "GND", text: "Shared reference ground", always: true }
     ];
 
     let selectedIndex = 0;
@@ -702,36 +562,30 @@
 
     const rack = document.getElementById("rack");
     const detail = document.getElementById("detail");
-    const busToggle = document.getElementById("busToggle");
     const busList = document.getElementById("busList");
+    const busToggle = document.getElementById("busToggle");
+    const modeState = document.getElementById("modeState");
+    const busModeNote = document.getElementById("busModeNote");
+    const modeButtons = document.querySelectorAll("[data-link-mode]");
     const playButton = document.getElementById("playButton");
     const playStatus = document.getElementById("playStatus");
-    const modeState = document.getElementById("modeState");
-    const modeButtons = document.querySelectorAll("[data-link-mode]");
-    const busLines = document.querySelectorAll("[data-bus-line]");
-    const busModeNote = document.getElementById("busModeNote");
 
     function renderRack() {
-      rack.innerHTML = "";
-      modules.forEach((module, index) => {
+      rack.innerHTML = modules.map((module, index) => {
         const jumperText = linkMode === "linked" ? module.jumperOn : module.jumperOff;
-        const button = document.createElement("button");
-        button.className = "module";
-        button.type = "button";
-        button.setAttribute("aria-pressed", index === selectedIndex ? "true" : "false");
-        button.setAttribute("aria-label", `${module.code} ${module.name}. ${module.role}. ${jumperText}. Click for details.`);
-        button.innerHTML = `
-          <span class="hp">${module.hp}</span>
-          <div>
-            <div class="module-code">${module.code}</div>
-            <h2>${module.name}</h2>
-          </div>
-          <p class="role">${module.stage}<br>${module.role}</p>
-          <p class="jumper-note">${jumperText}</p>
-          <div class="mini-jacks">${module.jacks.map(jack => `<span>${jack}</span>`).join("")}</div>
+        return `
+          <button class="module" type="button" data-index="${index}" aria-pressed="${index === selectedIndex}" aria-label="${module.code} ${module.name}. ${module.role}. ${jumperText}. Click for details.">
+            <span class="hp">${module.hp}</span>
+            <div><div class="module-code">${module.code}</div><h2>${module.name}</h2></div>
+            <p class="role">${module.stage}<br>${module.role}</p>
+            <p class="jumper-note">${jumperText}</p>
+            <div class="jacks">${module.jacks.map((jack) => `<span class="jack">${jack}</span>`).join("")}</div>
+          </button>
         `;
-        button.addEventListener("click", () => selectModule(index));
-        rack.appendChild(button);
+      }).join("");
+
+      rack.querySelectorAll(".module").forEach((button) => {
+        button.addEventListener("click", () => selectModule(Number(button.dataset.index)));
       });
     }
 
@@ -739,45 +593,35 @@
       const module = modules[selectedIndex];
       detail.innerHTML = `
         <div class="detail-top">
-          <div>
-            <p class="eyebrow">${module.code}</p>
-            <h2 class="detail-title">${module.name}</h2>
-          </div>
+          <div><p class="eyebrow">${module.code}</p><h2 class="detail-title">${module.name}</h2></div>
           <span class="stage">${module.stage}</span>
         </div>
-
         <p class="plain-job"><strong>Plain job:</strong> ${module.plain}</p>
-
         <div class="detail-columns">
-          <div class="info-box">
-            <h3>Input</h3>
-            <p>${module.input}</p>
-          </div>
-          <div class="info-box">
-            <h3>Output</h3>
-            <p>${module.output}</p>
-          </div>
-          <div class="info-box">
-            <h3>Emotional job</h3>
-            <p>${module.emotional}</p>
-          </div>
+          <div class="box"><h3>Input</h3><p>${module.input}</p></div>
+          <div class="box"><h3>Output</h3><p>${module.output}</p></div>
+          <div class="box"><h3>Emotional job</h3><p>${module.emotional}</p></div>
         </div>
-
         <p class="emotional-line">${module.line}</p>
-
-        <div class="nav-buttons" aria-label="Module navigation">
-          <button type="button" id="prevButton">Previous module</button>
-          <button type="button" id="nextButton">Next module</button>
+        <div class="button-row" aria-label="Module navigation" style="margin-top:16px">
+          <button class="button" type="button" id="prevButton">Previous module</button>
+          <button class="button" type="button" id="nextButton">Next module</button>
         </div>
       `;
+      document.getElementById("prevButton").addEventListener("click", () => selectModule((selectedIndex - 1 + modules.length) % modules.length));
+      document.getElementById("nextButton").addEventListener("click", () => selectModule((selectedIndex + 1) % modules.length));
+    }
 
-      document.getElementById("prevButton").addEventListener("click", () => {
-        selectModule((selectedIndex - 1 + modules.length) % modules.length);
-      });
-
-      document.getElementById("nextButton").addEventListener("click", () => {
-        selectModule((selectedIndex + 1) % modules.length);
-      });
+    function renderBusLines() {
+      busList.innerHTML = busLines.map((line) => {
+        const active = linkMode === "linked" || line.always;
+        const status = line.always ? "always" : active ? "active" : "inactive";
+        return `
+          <div class="bus-line" data-state="${active ? "active" : "inactive"}">
+            <code>${line.key}</code><span>${line.text}</span><strong class="status">${status}</strong>
+          </div>
+        `;
+      }).join("");
     }
 
     function selectModule(index) {
@@ -786,45 +630,24 @@
       renderDetail();
     }
 
-    function updateBusLineStates() {
-      busLines.forEach((line) => {
-        const busName = line.dataset.busLine;
-        const status = line.querySelector(".bus-status");
-        const isAlwaysOn = busName === "GND";
-        const isActive = linkMode === "linked" || isAlwaysOn;
-
-        line.dataset.state = isActive ? "active" : "inactive";
-        status.textContent = isAlwaysOn ? "always" : isActive ? "active" : "inactive";
-      });
-
-      busModeNote.textContent = linkMode === "linked"
-        ? "Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus."
-        : "Independent mode: pitch, gate, and audio normals are disabled; GND remains a shared reference.";
-    }
-
     function setLinkMode(mode) {
       linkMode = mode;
       document.documentElement.dataset.linkMode = linkMode;
-
-      modeButtons.forEach((button) => {
-        button.setAttribute("aria-pressed", String(button.dataset.linkMode === linkMode));
-      });
-
-      if (linkMode === "linked") {
-        modeState.textContent = "Linked voice mode: rear normals connect the five modules as one pre-wired voice.";
-      } else {
-        modeState.textContent = "Independent module mode: the modules are treated as separate Eurorack units using their front-panel jacks.";
-      }
-
-      updateBusLineStates();
+      modeButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.linkMode === linkMode)));
+      modeState.textContent = linkMode === "linked"
+        ? "Linked voice mode: rear normals connect the five modules as one pre-wired voice."
+        : "Independent module mode: the modules are treated as separate Eurorack units using their front-panel jacks.";
+      busModeNote.textContent = linkMode === "linked"
+        ? "Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus."
+        : "Independent mode: pitch, gate, and audio normals are disabled; GND remains a shared reference.";
       renderRack();
+      renderBusLines();
     }
 
     function buildNoiseBuffer(context) {
       const seconds = 1.6;
       const length = context.sampleRate * seconds;
       const buffer = context.createBuffer(2, length, context.sampleRate);
-
       for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
         const data = buffer.getChannelData(channel);
         for (let i = 0; i < length; i += 1) {
@@ -832,29 +655,20 @@
           data[i] = (Math.random() * 2 - 1) * fade * fade;
         }
       }
-
       return buffer;
     }
 
     async function playVoiceSample() {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
       if (!AudioContextClass) {
         playStatus.textContent = "This browser does not support Web Audio.";
         return;
       }
-
-      if (!audioContext) {
-        audioContext = new AudioContextClass();
-      }
-
-      if (audioContext.state === "suspended") {
-        await audioContext.resume();
-      }
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === "suspended") await audioContext.resume();
 
       const now = audioContext.currentTime;
       const endTime = now + 4.7;
-
       const master = audioContext.createGain();
       master.gain.setValueAtTime(0.72, now);
       master.connect(audioContext.destination);
@@ -867,14 +681,11 @@
 
       const delay = audioContext.createDelay(2.0);
       delay.delayTime.setValueAtTime(0.42, now);
-
       const feedback = audioContext.createGain();
       feedback.gain.setValueAtTime(0.38, now);
-
       const delayTone = audioContext.createBiquadFilter();
       delayTone.type = "lowpass";
       delayTone.frequency.setValueAtTime(650, now);
-
       delay.connect(delayTone);
       delayTone.connect(feedback);
       feedback.connect(delay);
@@ -882,7 +693,6 @@
 
       const reverb = audioContext.createConvolver();
       reverb.buffer = buildNoiseBuffer(audioContext);
-
       const wetGain = audioContext.createGain();
       wetGain.gain.setValueAtTime(0.16, now);
       reverb.connect(wetGain);
@@ -893,55 +703,42 @@
       voiceGain.gain.exponentialRampToValueAtTime(0.34, now + 0.55);
       voiceGain.gain.linearRampToValueAtTime(0.25, now + 1.5);
       voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
-
       voiceGain.connect(lowpass);
       voiceGain.connect(delay);
       voiceGain.connect(reverb);
 
       const sine = audioContext.createOscillator();
+      const sub = audioContext.createOscillator();
+      const sigh = audioContext.createOscillator();
       sine.type = "sine";
+      sub.type = "sine";
+      sigh.type = "sine";
       sine.frequency.setValueAtTime(220, now);
       sine.frequency.exponentialRampToValueAtTime(207.65, now + 0.18);
-
-      const sub = audioContext.createOscillator();
-      sub.type = "sine";
       sub.frequency.setValueAtTime(110, now);
       sub.frequency.exponentialRampToValueAtTime(103.82, now + 0.18);
-
-      const sigh = audioContext.createOscillator();
-      sigh.type = "sine";
       sigh.frequency.setValueAtTime(0.28, now);
 
       const sighDepth = audioContext.createGain();
       sighDepth.gain.setValueAtTime(7, now);
-
       const sineLevel = audioContext.createGain();
-      sineLevel.gain.setValueAtTime(0.58, now);
-
       const subLevel = audioContext.createGain();
+      sineLevel.gain.setValueAtTime(0.58, now);
       subLevel.gain.setValueAtTime(0.22, now);
-
       sigh.connect(sighDepth);
       sighDepth.connect(sine.detune);
       sighDepth.connect(sub.detune);
-
       sine.connect(sineLevel);
       sub.connect(subLevel);
       sineLevel.connect(voiceGain);
       subLevel.connect(voiceGain);
 
-      sine.start(now);
-      sub.start(now);
-      sigh.start(now);
-
-      sine.stop(endTime);
-      sub.stop(endTime);
-      sigh.stop(endTime);
+      sine.start(now); sub.start(now); sigh.start(now);
+      sine.stop(endTime); sub.stop(endTime); sigh.stop(endTime);
 
       playStatus.textContent = "Playing: slow sine/sub voice with dark fading echoes.";
       playButton.disabled = true;
       playButton.textContent = "Playing…";
-
       window.setTimeout(() => {
         playButton.disabled = false;
         playButton.textContent = "▶ Play voice sample";
@@ -955,11 +752,7 @@
       busToggle.textContent = isHidden ? "Hide bus lines" : "Show bus lines";
       busToggle.setAttribute("aria-expanded", String(isHidden));
     });
-
-    modeButtons.forEach((button) => {
-      button.addEventListener("click", () => setLinkMode(button.dataset.linkMode));
-    });
-
+    modeButtons.forEach((button) => button.addEventListener("click", () => setLinkMode(button.dataset.linkMode)));
     playButton.addEventListener("click", playVoiceSample);
 
     setLinkMode("linked");
