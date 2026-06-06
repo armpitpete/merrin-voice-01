@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.7
+## Good enough for v0.8
 
-A person can open the app, step through the five-module signal path, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
+A person can open the app, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
 
 ## Current app
 
@@ -31,6 +31,7 @@ A person can open the app, step through the five-module signal path, switch betw
 - Improves page flow and bus readability for v0.5
 - Highlights relevant Merrin Link bus lines for the selected module in v0.6
 - Adds Previous stage / Next stage walkthrough controls in v0.7
+- Adds a clickable five-stage progress strip in v0.8
 
 ## Locked signal path
 
@@ -55,7 +56,7 @@ SCALE → TONE → ENVELOPE → ROOM → MEMORY
 
 ## Guided walkthrough
 
-The app includes `Previous stage` and `Next stage` controls.
+The app includes `Previous stage` and `Next stage` controls, plus a clickable five-stage progress strip.
 
 Walkthrough order:
 
@@ -71,6 +72,7 @@ Each walkthrough step updates:
 - module detail panel
 - Merrin Link bus focus
 - current-stage sentence
+- active stage chip
 
 ## Merrin Link modes
 
@@ -212,6 +214,18 @@ Adds guided signal path walkthrough controls:
 - `Next stage`
 - selected module follows the walkthrough
 - module detail and bus focus update with the current stage
+
+### v0.8
+
+Adds a clickable walkthrough stage progress strip:
+
+- `Scale`
+- `Tone`
+- `Envelope`
+- `Room`
+- `Memory`
+- active chip follows the selected stage
+- clicking a chip jumps directly to that stage
 
 ## Current boundary
 
