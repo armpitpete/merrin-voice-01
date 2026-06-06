@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.4
+## Good enough for v0.5
 
-A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, and slightly change the voice sample while it remains constrained.
+A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and read the page smoothly without a large layout gap.
 
 ## Current app
 
@@ -28,6 +28,7 @@ A person can open the app, click through the five modules, switch between linked
 - Shows small module jumper notes
 - Explains that front-panel patching can override the hidden rear link
 - Shows two front-panel override examples
+- Improves page flow and bus readability for v0.5
 
 ## Locked signal path
 
@@ -113,6 +114,17 @@ This changes the low-pass filtering on the voice preview.
 
 This changes the delay timing and feedback on the voice preview.
 
+## v0.5 readability pass
+
+v0.5 improves mobile/page flow and bus readability.
+
+Changes:
+
+- Moves the `Current boundary` card out of the right sidebar
+- Makes the boundary card a full-width transition section
+- Shortens bus-line descriptions so they are easier to read
+- Reduces the large empty gap before the front-panel override examples
+
 ## Version notes
 
 ### v0.1
@@ -141,6 +153,15 @@ Adds tiny sound controls for the existing Web Audio preview:
 
 - `Brightness`: dark / darker
 - `Echo`: short / long
+
+### v0.5
+
+Improves mobile/page flow and bus readability:
+
+- smoother top-to-bottom page flow
+- full-width boundary card
+- shorter bus-line wording
+- reduced empty space before override examples
 
 ## Current boundary
 
