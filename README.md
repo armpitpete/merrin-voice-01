@@ -8,11 +8,11 @@ https://armpitpete.github.io/merrin-voice-01/
 
 ## Purpose
 
-Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
+Explain how the Constrained Grief voice works by showing each module, the signal path, the emotional job of every stage, and a small set of educational playable controls.
 
-## Good enough for v1.0
+## Good enough for v2.1
 
-A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
+A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, and use Tone, Fade, and Echo controls that are both playable and educational.
 
 ## Current app
 
@@ -21,8 +21,8 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - No build step
 - Opens directly in a browser
 - Explains the five modules and Merrin Link bus
-- Includes one tiny Web Audio preview button
-- Includes tiny sound controls: `Brightness` and `Echo`
+- Includes one Web Audio voice sample button
+- Includes educational playable controls: `Tone`, `Fade`, and `Echo`
 - Shows linked voice mode vs independent module mode
 - Shows active / inactive rear bus line states
 - Shows small module jumper notes
@@ -33,7 +33,8 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Adds Previous stage / Next stage walkthrough controls
 - Adds a clickable five-stage progress strip
 - Adds a compact Whole voice path summary panel
-- Release wording is frozen at v1.0
+- Release wording was frozen at v1.0
+- v2.1 adds the first playable educational control set
 
 ## Locked signal path
 
@@ -147,21 +148,37 @@ If a front-panel cable is inserted, it can override the hidden Merrin Link conne
 - Front patch: external audio cable into `MF-01 AUDIO IN`
 - Result: MF-01 processes the external audio instead of the normal Merrin Voice path
 
-## Tiny sound controls
+## Educational playable controls
 
-### Brightness
+### Tone
+
+Choices:
 
 - `Dark`
-- `Darker`
+- `Soft`
+- `Bright`
 
-This changes the low-pass filtering on the voice preview.
+Tone changes how much brightness survives before the voice enters the space stage.
+
+### Fade
+
+Choices:
+
+- `Short`
+- `Linger`
+- `Long`
+
+Fade changes how long the voice lingers before it disappears.
 
 ### Echo
 
-- `Short`
-- `Long`
+Choices:
 
-This changes the delay timing and feedback on the voice preview.
+- `Near`
+- `Deep`
+- `Memory`
+
+Echo changes how much of the voice remains as memory.
 
 ## Version notes
 
@@ -248,13 +265,31 @@ Release check and freeze:
 - README updated to v1.0
 - current feature scope frozen
 
+### v2.0
+
+Design decision:
+
+- full controls should be educational and playable
+- v1.0 teaching guide remains preserved as the baseline
+- first playable build should stay small
+
+### v2.1
+
+Adds educational playable controls:
+
+- `Tone`: dark / soft / bright
+- `Fade`: short / linger / long
+- `Echo`: near / deep / memory
+- controls affect the Web Audio voice sample
+- each control has a plain explanation sentence
+
 ## Current boundary
 
-This app explains the instrument and includes one tiny audio preview with simple controls.
+This app explains the instrument and includes one playable audio preview with simple educational controls.
 
 It does **not** yet:
 
-- provide full synth controls
+- provide a full modular control surface
 - save patches
 - simulate electronics
 - design PCBs
