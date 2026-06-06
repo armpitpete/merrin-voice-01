@@ -90,15 +90,19 @@
       font-size: 0.9rem;
     }
 
-    .play-strip {
+    .play-strip,
+    .mode-strip {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
       margin-top: 6px;
       padding: 14px;
-      border: 1px solid rgba(202, 160, 106, 0.34);
       border-radius: 18px;
+    }
+
+    .play-strip {
+      border: 1px solid rgba(202, 160, 106, 0.34);
       background: rgba(202, 160, 106, 0.07);
     }
 
@@ -122,6 +126,55 @@
       margin: 0;
       color: var(--muted);
       font-size: 0.95rem;
+    }
+
+    .mode-strip {
+      justify-content: space-between;
+      border: 1px solid rgba(143, 167, 196, 0.34);
+      background: rgba(143, 167, 196, 0.07);
+    }
+
+    .mode-copy {
+      display: grid;
+      gap: 2px;
+      min-width: min(100%, 420px);
+    }
+
+    .mode-copy strong {
+      color: var(--ink);
+    }
+
+    .mode-state {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .mode-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-button {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+
+    .mode-button:hover,
+    .mode-button:focus-visible {
+      outline: none;
+      border-color: var(--accent-2);
+      color: var(--ink);
+    }
+
+    .mode-button[aria-pressed="true"] {
+      border-color: var(--accent-2);
+      color: var(--ink);
+      background: rgba(143, 167, 196, 0.18);
     }
 
     .rack-panel {
@@ -456,6 +509,16 @@
         <button class="play-button" id="playButton" type="button">▶ Play voice sample</button>
         <p class="play-status" id="playStatus">Soft sine/sub note with slow fade and dark echoes.</p>
       </div>
+      <section class="mode-strip" aria-label="Merrin Link mode">
+        <div class="mode-copy">
+          <strong>Merrin Link mode</strong>
+          <span class="mode-state" id="modeState">Linked voice mode: rear normals connect the five modules as one pre-wired voice.</span>
+        </div>
+        <div class="mode-buttons" role="group" aria-label="Choose Merrin Link mode">
+          <button class="mode-button" type="button" data-link-mode="linked" aria-pressed="true">Linked voice mode</button>
+          <button class="mode-button" type="button" data-link-mode="independent" aria-pressed="false">Independent module mode</button>
+        </div>
+      </section>
     </header>
 
     <section class="rack-panel" aria-labelledby="rack-title">
@@ -572,6 +635,7 @@
     ];
 
     let selectedIndex = 0;
+    let linkMode = "linked";
     let audioContext;
 
     const rack = document.getElementById("rack");
@@ -580,6 +644,8 @@
     const busList = document.getElementById("busList");
     const playButton = document.getElementById("playButton");
     const playStatus = document.getElementById("playStatus");
+    const modeState = document.getElementById("modeState");
+    const modeButtons = document.querySelectorAll("[data-link-mode]");
 
     function renderRack() {
       rack.innerHTML = "";
@@ -652,6 +718,21 @@
       selectedIndex = index;
       renderRack();
       renderDetail();
+    }
+
+    function setLinkMode(mode) {
+      linkMode = mode;
+      document.documentElement.dataset.linkMode = linkMode;
+
+      modeButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.linkMode === linkMode));
+      });
+
+      if (linkMode === "linked") {
+        modeState.textContent = "Linked voice mode: rear normals connect the five modules as one pre-wired voice.";
+      } else {
+        modeState.textContent = "Independent module mode: the modules are treated as separate Eurorack units using their front-panel jacks.";
+      }
     }
 
     function buildNoiseBuffer(context) {
@@ -790,8 +871,13 @@
       busToggle.setAttribute("aria-expanded", String(isHidden));
     });
 
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setLinkMode(button.dataset.linkMode));
+    });
+
     playButton.addEventListener("click", playVoiceSample);
 
+    setLinkMode("linked");
     renderRack();
     renderDetail();
   </script>
