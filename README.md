@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.3
+## Good enough for v0.4
 
-A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, and understand that front-panel patching can deliberately replace part of the hidden Merrin Link path.
+A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, and slightly change the voice sample while it remains constrained.
 
 ## Current app
 
@@ -22,6 +22,7 @@ A person can open the app, click through the five modules, switch between linked
 - Opens directly in a browser
 - Explains the five modules and Merrin Link bus
 - Includes one tiny Web Audio preview button
+- Includes tiny sound controls: `Brightness` and `Echo`
 - Shows linked voice mode vs independent module mode
 - Shows active / inactive rear bus line states
 - Shows small module jumper notes
@@ -96,6 +97,22 @@ If a front-panel cable is inserted, it can override the hidden Merrin Link conne
 - Front patch: external audio cable into `MF-01 AUDIO IN`
 - Result: MF-01 processes the external audio instead of the normal Merrin Voice path
 
+## Tiny sound controls
+
+### Brightness
+
+- `Dark`
+- `Darker`
+
+This changes the low-pass filtering on the voice preview.
+
+### Echo
+
+- `Short`
+- `Long`
+
+This changes the delay timing and feedback on the voice preview.
+
 ## Version notes
 
 ### v0.1
@@ -118,9 +135,16 @@ Adds front-panel override examples:
 - external pitch overrides the Merrin Link pitch normal
 - external audio enters the space stage instead of the normal Merrin Voice path
 
+### v0.4
+
+Adds tiny sound controls for the existing Web Audio preview:
+
+- `Brightness`: dark / darker
+- `Echo`: short / long
+
 ## Current boundary
 
-This app explains the instrument and includes one tiny audio preview.
+This app explains the instrument and includes one tiny audio preview with simple controls.
 
 It does **not** yet:
 
