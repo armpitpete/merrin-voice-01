@@ -10,7 +10,7 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.9
+## Good enough for v1.0
 
 A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
 
@@ -28,11 +28,12 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Shows small module jumper notes
 - Explains that front-panel patching can override the hidden rear link
 - Shows two front-panel override examples
-- Improves page flow and bus readability for v0.5
-- Highlights relevant Merrin Link bus lines for the selected module in v0.6
-- Adds Previous stage / Next stage walkthrough controls in v0.7
-- Adds a clickable five-stage progress strip in v0.8
-- Adds a compact Whole voice path summary panel in v0.9
+- Improves page flow and bus readability
+- Highlights relevant Merrin Link bus lines for the selected module
+- Adds Previous stage / Next stage walkthrough controls
+- Adds a clickable five-stage progress strip
+- Adds a compact Whole voice path summary panel
+- Release wording is frozen at v1.0
 
 ## Locked signal path
 
@@ -162,17 +163,6 @@ This changes the low-pass filtering on the voice preview.
 
 This changes the delay timing and feedback on the voice preview.
 
-## v0.5 readability pass
-
-v0.5 improves mobile/page flow and bus readability.
-
-Changes:
-
-- Moves the `Current boundary` card out of the right sidebar
-- Makes the boundary card a full-width transition section
-- Shortens bus-line descriptions so they are easier to read
-- Reduces the large empty gap before the front-panel override examples
-
 ## Version notes
 
 ### v0.1
@@ -247,6 +237,16 @@ Adds a compact whole-voice summary panel:
 - shows `Scale → Tone → Envelope → Room → Memory`
 - gives each stage a plain one-line explanation
 - helps the user understand the full voice path at a glance
+
+### v1.0
+
+Release check and freeze:
+
+- visible app label updated to v1.0
+- footer updated to v1.0
+- summary card label updated to v1.0
+- README updated to v1.0
+- current feature scope frozen
 
 ## Current boundary
 
