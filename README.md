@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.5
+## Good enough for v0.6
 
-A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and read the page smoothly without a large layout gap.
+A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
 
 ## Current app
 
@@ -29,6 +29,7 @@ A person can open the app, click through the five modules, switch between linked
 - Explains that front-panel patching can override the hidden rear link
 - Shows two front-panel override examples
 - Improves page flow and bus readability for v0.5
+- Highlights relevant Merrin Link bus lines for the selected module in v0.6
 
 ## Locked signal path
 
@@ -79,6 +80,18 @@ Inactive bus lines:
 - `AUD_C`
 
 `GND` remains always active as the shared reference.
+
+## Selected module bus focus
+
+When a module is selected, its relevant Merrin Link bus lines are highlighted.
+
+Mapping:
+
+- `MV-02` → `PITCH`
+- `MV-01` → `PITCH`, `AUD_A`
+- `MV-03` → `GATE`, `AUD_A`, `AUD_B`
+- `MF-01` → `AUD_B`, `AUD_C`
+- `MF-02` → `AUD_C`
 
 ## Front patch rule
 
@@ -162,6 +175,14 @@ Improves mobile/page flow and bus readability:
 - full-width boundary card
 - shorter bus-line wording
 - reduced empty space before override examples
+
+### v0.6
+
+Adds selected module bus focus:
+
+- highlights relevant Merrin Link bus lines when a module is selected
+- adds a short focus note showing which bus lines the selected module uses
+- keeps the app as a teaching page, not a patch simulator
 
 ## Current boundary
 
