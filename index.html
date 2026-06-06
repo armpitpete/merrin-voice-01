@@ -427,8 +427,9 @@
 
     .bus-line {
       display: grid;
-      grid-template-columns: 86px 1fr;
+      grid-template-columns: 86px 1fr auto;
       gap: 8px;
+      align-items: center;
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 10px;
@@ -444,6 +445,33 @@
     .bus-line span {
       color: var(--muted);
       font-size: 0.9rem;
+    }
+
+    .bus-line[data-state="inactive"] {
+      opacity: 0.52;
+    }
+
+    .bus-line[data-state="active"] {
+      border-color: rgba(143, 167, 196, 0.45);
+    }
+
+    .bus-status {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 6px;
+      white-space: nowrap;
+    }
+
+    .bus-line[data-state="active"] .bus-status {
+      color: var(--ink);
+      background: rgba(143, 167, 196, 0.18);
+    }
+
+    .bus-line[data-state="inactive"] .bus-status {
+      color: var(--quiet);
+      background: rgba(255, 255, 255, 0.03);
     }
 
     .mode-note {
@@ -538,14 +566,14 @@
           <p>The rear bus lets the five modules behave as one pre-patched mono voice when the jumpers are enabled.</p>
           <button class="bus-toggle" id="busToggle" type="button" aria-expanded="true">Hide bus lines</button>
           <div class="bus-list" id="busList">
-            <div class="bus-line"><code>PITCH</code><span>Quantizer pitch to oscillator</span></div>
-            <div class="bus-line"><code>GATE</code><span>Gate signal to Lingering Voice</span></div>
-            <div class="bus-line"><code>AUD_A</code><span>Oscillator to VCA</span></div>
-            <div class="bus-line"><code>AUD_B</code><span>VCA to reverb</span></div>
-            <div class="bus-line"><code>AUD_C</code><span>Reverb to delay</span></div>
-            <div class="bus-line"><code>GND</code><span>Shared reference ground</span></div>
+            <div class="bus-line" data-bus-line="PITCH" data-state="active"><code>PITCH</code><span>Quantizer pitch to oscillator</span><strong class="bus-status">active</strong></div>
+            <div class="bus-line" data-bus-line="GATE" data-state="active"><code>GATE</code><span>Gate signal to Lingering Voice</span><strong class="bus-status">active</strong></div>
+            <div class="bus-line" data-bus-line="AUD_A" data-state="active"><code>AUD_A</code><span>Oscillator to VCA</span><strong class="bus-status">active</strong></div>
+            <div class="bus-line" data-bus-line="AUD_B" data-state="active"><code>AUD_B</code><span>VCA to reverb</span><strong class="bus-status">active</strong></div>
+            <div class="bus-line" data-bus-line="AUD_C" data-state="active"><code>AUD_C</code><span>Reverb to delay</span><strong class="bus-status">active</strong></div>
+            <div class="bus-line" data-bus-line="GND" data-state="active"><code>GND</code><span>Shared reference ground</span><strong class="bus-status">always</strong></div>
           </div>
-          <p class="mode-note">Jumpers on: linked voice mode. Jumpers off: each module works independently through its front-panel jacks.</p>
+          <p class="mode-note" id="busModeNote">Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus.</p>
         </section>
 
         <section class="next-card">
@@ -646,6 +674,8 @@
     const playStatus = document.getElementById("playStatus");
     const modeState = document.getElementById("modeState");
     const modeButtons = document.querySelectorAll("[data-link-mode]");
+    const busLines = document.querySelectorAll("[data-bus-line]");
+    const busModeNote = document.getElementById("busModeNote");
 
     function renderRack() {
       rack.innerHTML = "";
@@ -720,6 +750,22 @@
       renderDetail();
     }
 
+    function updateBusLineStates() {
+      busLines.forEach((line) => {
+        const busName = line.dataset.busLine;
+        const status = line.querySelector(".bus-status");
+        const isAlwaysOn = busName === "GND";
+        const isActive = linkMode === "linked" || isAlwaysOn;
+
+        line.dataset.state = isActive ? "active" : "inactive";
+        status.textContent = isAlwaysOn ? "always" : isActive ? "active" : "inactive";
+      });
+
+      busModeNote.textContent = linkMode === "linked"
+        ? "Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus."
+        : "Independent mode: pitch, gate, and audio normals are disabled; GND remains a shared reference."
+    }
+
     function setLinkMode(mode) {
       linkMode = mode;
       document.documentElement.dataset.linkMode = linkMode;
@@ -733,6 +779,8 @@
       } else {
         modeState.textContent = "Independent module mode: the modules are treated as separate Eurorack units using their front-panel jacks.";
       }
+
+      updateBusLineStates();
     }
 
     function buildNoiseBuffer(context) {
