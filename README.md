@@ -8,7 +8,7 @@ Explain how the Constrained Grief voice works by showing each module, the signal
 
 ## Good enough for v0.1
 
-A person can open the app, click through the five modules, and understand what each part does without reading the full technical spec.
+A person can open the app, click through the five modules, press one play button, and understand what each part does without reading the full technical spec.
 
 ## Current app
 
@@ -17,6 +17,7 @@ A person can open the app, click through the five modules, and understand what e
 - No build step
 - Opens directly in a browser
 - Explains the five modules and Merrin Link bus
+- Includes one tiny Web Audio preview button
 
 ## Locked signal path
 
@@ -41,11 +42,11 @@ SCALE → TONE → ENVELOPE → ROOM → MEMORY
 
 ## v0.1 boundary
 
-This version explains the instrument.
+This version explains the instrument and includes one tiny audio preview.
 
 It does **not** yet:
 
-- generate audio
+- provide full synth controls
 - save patches
 - simulate electronics
 - design PCBs
