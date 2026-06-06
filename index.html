@@ -225,7 +225,7 @@
       transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
       position: relative;
       display: grid;
-      grid-template-rows: auto auto 1fr auto;
+      grid-template-rows: auto auto 1fr auto auto;
       gap: 10px;
     }
 
@@ -282,6 +282,20 @@
       color: var(--muted);
       margin: 0;
       font-size: 0.95rem;
+    }
+
+    .jumper-note {
+      margin: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      line-height: 1.35;
+    }
+
+    html[data-link-mode="independent"] .jumper-note {
+      color: var(--quiet);
     }
 
     .mini-jacks {
@@ -601,6 +615,8 @@
         input: "Unquantized pitch CV from a sequencer, keyboard, random source, or other CV source.",
         output: "Quantized 1V/oct pitch CV to the oscillator and PITCH_BUS.",
         emotional: "It keeps the music inside a sad pitch world: natural minor, harmonic minor, or chromatic.",
+        jumperOn: "Jumper on: sends PITCH_BUS",
+        jumperOff: "Jumper off: use Q OUT jack",
         jacks: ["CV IN", "Q OUT"],
         line: "You can move, but only inside this sorrow-biased musical space."
       },
@@ -615,6 +631,8 @@
         input: "1V/oct pitch from MV-02, plus optional soft FM.",
         output: "Pure sine and sub audio to Lingering Voice.",
         emotional: "It gives the voice its soft, low, slightly unstable tone.",
+        jumperOn: "Jumper on: reads PITCH, sends AUD_A",
+        jumperOff: "Jumper off: patch pitch/audio manually",
         jacks: ["1V/OCT", "FM IN", "SINE", "SUB"],
         line: "The voice itself: soft, low, unstable, and unable to jump sharply."
       },
@@ -629,6 +647,8 @@
         input: "Audio from MV-01 and gate signal from the sequencer or GATE_BUS.",
         output: "Post-envelope audio to Desolate Space, plus EG and Wither outputs.",
         emotional: "It makes the sound breathe in slowly, linger, and fade instead of snapping on and off.",
+        jumperOn: "Jumper on: reads GATE/AUD_A, sends AUD_B",
+        jumperOff: "Jumper off: patch gate/audio manually",
         jacks: ["GATE", "EG", "WITHER", "VCA IN", "VCA OUT"],
         line: "The sound must breathe in, linger, tremble, and fade away."
       },
@@ -643,6 +663,8 @@
         input: "Shaped voice audio from MV-03.",
         output: "Dark reverberant audio to Fading Echoes.",
         emotional: "It makes the voice feel distant, cold, smeared, and heavy.",
+        jumperOn: "Jumper on: reads AUD_B, sends AUD_C",
+        jumperOff: "Jumper off: use audio jacks",
         jacks: ["AUDIO IN", "AUDIO OUT"],
         line: "This voice is not in a normal room. It is somewhere empty."
       },
@@ -657,6 +679,8 @@
         input: "Reverbed audio from Desolate Space.",
         output: "Final Merrin Voice 01 output.",
         emotional: "Each repeat loses brightness and detail, like memory dissolving.",
+        jumperOn: "Jumper on: reads AUD_C to final output",
+        jumperOff: "Jumper off: use audio jacks",
         jacks: ["AUDIO IN", "AUDIO OUT"],
         line: "The sound has gone, but traces of it remain."
       }
@@ -680,11 +704,12 @@
     function renderRack() {
       rack.innerHTML = "";
       modules.forEach((module, index) => {
+        const jumperText = linkMode === "linked" ? module.jumperOn : module.jumperOff;
         const button = document.createElement("button");
         button.className = "module";
         button.type = "button";
         button.setAttribute("aria-pressed", index === selectedIndex ? "true" : "false");
-        button.setAttribute("aria-label", `${module.code} ${module.name}. ${module.role}. Click for details.`);
+        button.setAttribute("aria-label", `${module.code} ${module.name}. ${module.role}. ${jumperText}. Click for details.`);
         button.innerHTML = `
           <span class="hp">${module.hp}</span>
           <div>
@@ -692,6 +717,7 @@
             <h2>${module.name}</h2>
           </div>
           <p class="role">${module.stage}<br>${module.role}</p>
+          <p class="jumper-note">${jumperText}</p>
           <div class="mini-jacks">${module.jacks.map(jack => `<span>${jack}</span>`).join("")}</div>
         `;
         button.addEventListener("click", () => selectModule(index));
@@ -763,7 +789,7 @@
 
       busModeNote.textContent = linkMode === "linked"
         ? "Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus."
-        : "Independent mode: pitch, gate, and audio normals are disabled; GND remains a shared reference."
+        : "Independent mode: pitch, gate, and audio normals are disabled; GND remains a shared reference.";
     }
 
     function setLinkMode(mode) {
@@ -781,6 +807,7 @@
       }
 
       updateBusLineStates();
+      renderRack();
     }
 
     function buildNoiseBuffer(context) {
@@ -926,7 +953,6 @@
     playButton.addEventListener("click", playVoiceSample);
 
     setLinkMode("linked");
-    renderRack();
     renderDetail();
   </script>
 </body>
