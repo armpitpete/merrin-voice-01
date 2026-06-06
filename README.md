@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.2
+## Good enough for v0.3
 
-A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, and understand what the rear Merrin Link bus does without reading the full technical spec.
+A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, and understand that front-panel patching can deliberately replace part of the hidden Merrin Link path.
 
 ## Current app
 
@@ -26,6 +26,7 @@ A person can open the app, click through the five modules, switch between linked
 - Shows active / inactive rear bus line states
 - Shows small module jumper notes
 - Explains that front-panel patching can override the hidden rear link
+- Shows two front-panel override examples
 
 ## Locked signal path
 
@@ -81,6 +82,20 @@ Inactive bus lines:
 
 If a front-panel cable is inserted, it can override the hidden Merrin Link connection.
 
+## Front-panel override examples
+
+### External pitch overrides Merrin pitch
+
+- Default linked path: `MV-02 → PITCH → MV-01`
+- Front patch: external pitch cable into `MV-01 1V/OCT`
+- Result: MV-01 follows the external pitch instead of the Merrin Link pitch normal
+
+### External audio enters the space stage
+
+- Default linked path: `MV-03 → AUD_B → MF-01`
+- Front patch: external audio cable into `MF-01 AUDIO IN`
+- Result: MF-01 processes the external audio instead of the normal Merrin Voice path
+
 ## Version notes
 
 ### v0.1
@@ -95,6 +110,13 @@ Adds the Merrin Link jumper view:
 - active / inactive bus line states
 - module jumper notes
 - front-panel patch override explanation
+
+### v0.3
+
+Adds front-panel override examples:
+
+- external pitch overrides the Merrin Link pitch normal
+- external audio enters the space stage instead of the normal Merrin Voice path
 
 ## Current boundary
 
