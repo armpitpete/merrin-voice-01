@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, and the emotional job of every stage.
 
-## Good enough for v0.6
+## Good enough for v0.7
 
-A person can open the app, click through the five modules, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
+A person can open the app, step through the five-module signal path, switch between linked voice mode and independent module mode, understand front-panel override examples, slightly change the voice sample, and see which Merrin Link bus lines each selected module uses.
 
 ## Current app
 
@@ -30,6 +30,7 @@ A person can open the app, click through the five modules, switch between linked
 - Shows two front-panel override examples
 - Improves page flow and bus readability for v0.5
 - Highlights relevant Merrin Link bus lines for the selected module in v0.6
+- Adds Previous stage / Next stage walkthrough controls in v0.7
 
 ## Locked signal path
 
@@ -51,6 +52,25 @@ SCALE → TONE → ENVELOPE → ROOM → MEMORY
 3. `MV-03` — Lingering Voice
 4. `MF-01` — Desolate Space
 5. `MF-02` — Fading Echoes
+
+## Guided walkthrough
+
+The app includes `Previous stage` and `Next stage` controls.
+
+Walkthrough order:
+
+1. `MV-02` — Scale
+2. `MV-01` — Tone
+3. `MV-03` — Envelope
+4. `MF-01` — Room
+5. `MF-02` — Memory
+
+Each walkthrough step updates:
+
+- selected module
+- module detail panel
+- Merrin Link bus focus
+- current-stage sentence
 
 ## Merrin Link modes
 
@@ -183,6 +203,15 @@ Adds selected module bus focus:
 - highlights relevant Merrin Link bus lines when a module is selected
 - adds a short focus note showing which bus lines the selected module uses
 - keeps the app as a teaching page, not a patch simulator
+
+### v0.7
+
+Adds guided signal path walkthrough controls:
+
+- `Previous stage`
+- `Next stage`
+- selected module follows the walkthrough
+- module detail and bus focus update with the current stage
 
 ## Current boundary
 
