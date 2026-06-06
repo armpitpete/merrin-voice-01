@@ -90,6 +90,40 @@
       font-size: 0.9rem;
     }
 
+    .play-strip {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+      padding: 14px;
+      border: 1px solid rgba(202, 160, 106, 0.34);
+      border-radius: 18px;
+      background: rgba(202, 160, 106, 0.07);
+    }
+
+    .play-button {
+      border: 1px solid rgba(202, 160, 106, 0.8);
+      background: linear-gradient(180deg, rgba(202,160,106,0.28), rgba(202,160,106,0.12));
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .play-button:hover,
+    .play-button:focus-visible {
+      outline: none;
+      border-color: var(--ink);
+    }
+
+    .play-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
     .rack-panel {
       background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
       border: 1px solid var(--line);
@@ -411,7 +445,11 @@
         <span>Scale → Tone → Envelope → Room → Memory</span>
         <span>5 modules</span>
         <span>30 HP</span>
-        <span>No audio engine yet</span>
+        <span>Tiny audio preview</span>
+      </div>
+      <div class="play-strip" aria-label="Audio preview">
+        <button class="play-button" id="playButton" type="button">▶ Play voice sample</button>
+        <p class="play-status" id="playStatus">Soft sine/sub note with slow fade and dark echoes.</p>
       </div>
     </header>
 
@@ -444,7 +482,7 @@
 
         <section class="next-card">
           <h3>v0.1 boundary</h3>
-          <p>This version explains the instrument. It does not yet generate sound, save patches, or simulate electronics.</p>
+          <p>This version explains the instrument and includes one tiny audio preview. It does not yet save patches or simulate full electronics.</p>
         </section>
       </aside>
     </section>
@@ -529,11 +567,14 @@
     ];
 
     let selectedIndex = 0;
+    let audioContext;
 
     const rack = document.getElementById("rack");
     const detail = document.getElementById("detail");
     const busToggle = document.getElementById("busToggle");
     const busList = document.getElementById("busList");
+    const playButton = document.getElementById("playButton");
+    const playStatus = document.getElementById("playStatus");
 
     function renderRack() {
       rack.innerHTML = "";
@@ -608,12 +649,143 @@
       renderDetail();
     }
 
+    function buildNoiseBuffer(context) {
+      const seconds = 1.6;
+      const length = context.sampleRate * seconds;
+      const buffer = context.createBuffer(2, length, context.sampleRate);
+
+      for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+        const data = buffer.getChannelData(channel);
+        for (let i = 0; i < length; i += 1) {
+          const fade = 1 - i / length;
+          data[i] = (Math.random() * 2 - 1) * fade * fade;
+        }
+      }
+
+      return buffer;
+    }
+
+    async function playVoiceSample() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+        playStatus.textContent = "This browser does not support Web Audio.";
+        return;
+      }
+
+      if (!audioContext) {
+        audioContext = new AudioContextClass();
+      }
+
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+
+      const now = audioContext.currentTime;
+      const endTime = now + 4.7;
+
+      const master = audioContext.createGain();
+      master.gain.setValueAtTime(0.72, now);
+      master.connect(audioContext.destination);
+
+      const lowpass = audioContext.createBiquadFilter();
+      lowpass.type = "lowpass";
+      lowpass.frequency.setValueAtTime(900, now);
+      lowpass.Q.setValueAtTime(0.7, now);
+      lowpass.connect(master);
+
+      const delay = audioContext.createDelay(2.0);
+      delay.delayTime.setValueAtTime(0.42, now);
+
+      const feedback = audioContext.createGain();
+      feedback.gain.setValueAtTime(0.38, now);
+
+      const delayTone = audioContext.createBiquadFilter();
+      delayTone.type = "lowpass";
+      delayTone.frequency.setValueAtTime(650, now);
+
+      delay.connect(delayTone);
+      delayTone.connect(feedback);
+      feedback.connect(delay);
+      delayTone.connect(lowpass);
+
+      const reverb = audioContext.createConvolver();
+      reverb.buffer = buildNoiseBuffer(audioContext);
+
+      const wetGain = audioContext.createGain();
+      wetGain.gain.setValueAtTime(0.16, now);
+      reverb.connect(wetGain);
+      wetGain.connect(lowpass);
+
+      const voiceGain = audioContext.createGain();
+      voiceGain.gain.setValueAtTime(0.0001, now);
+      voiceGain.gain.exponentialRampToValueAtTime(0.34, now + 0.55);
+      voiceGain.gain.linearRampToValueAtTime(0.25, now + 1.5);
+      voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+
+      voiceGain.connect(lowpass);
+      voiceGain.connect(delay);
+      voiceGain.connect(reverb);
+
+      const sine = audioContext.createOscillator();
+      sine.type = "sine";
+      sine.frequency.setValueAtTime(220, now);
+      sine.frequency.exponentialRampToValueAtTime(207.65, now + 0.18);
+
+      const sub = audioContext.createOscillator();
+      sub.type = "sine";
+      sub.frequency.setValueAtTime(110, now);
+      sub.frequency.exponentialRampToValueAtTime(103.82, now + 0.18);
+
+      const sigh = audioContext.createOscillator();
+      sigh.type = "sine";
+      sigh.frequency.setValueAtTime(0.28, now);
+
+      const sighDepth = audioContext.createGain();
+      sighDepth.gain.setValueAtTime(7, now);
+
+      const sineLevel = audioContext.createGain();
+      sineLevel.gain.setValueAtTime(0.58, now);
+
+      const subLevel = audioContext.createGain();
+      subLevel.gain.setValueAtTime(0.22, now);
+
+      sigh.connect(sighDepth);
+      sighDepth.connect(sine.detune);
+      sighDepth.connect(sub.detune);
+
+      sine.connect(sineLevel);
+      sub.connect(subLevel);
+      sineLevel.connect(voiceGain);
+      subLevel.connect(voiceGain);
+
+      sine.start(now);
+      sub.start(now);
+      sigh.start(now);
+
+      sine.stop(endTime);
+      sub.stop(endTime);
+      sigh.stop(endTime);
+
+      playStatus.textContent = "Playing: slow sine/sub voice with dark fading echoes.";
+      playButton.disabled = true;
+      playButton.textContent = "Playing…";
+
+      window.setTimeout(() => {
+        playButton.disabled = false;
+        playButton.textContent = "▶ Play voice sample";
+        playStatus.textContent = "Soft sine/sub note with slow fade and dark echoes.";
+      }, 4300);
+    }
+
     busToggle.addEventListener("click", () => {
       const isHidden = busList.hidden;
       busList.hidden = !isHidden;
       busToggle.textContent = isHidden ? "Hide bus lines" : "Show bus lines";
       busToggle.setAttribute("aria-expanded", String(isHidden));
     });
+
+    playButton.addEventListener("click", playVoiceSample);
 
     renderRack();
     renderDetail();
