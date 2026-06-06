@@ -488,12 +488,21 @@
       background: rgba(255, 255, 255, 0.03);
     }
 
-    .mode-note {
+    .mode-note,
+    .override-note {
       margin-top: 12px;
       border-top: 1px solid var(--line);
       padding-top: 12px;
       color: var(--muted);
       font-size: 0.92rem;
+    }
+
+    .override-note {
+      border: 1px solid rgba(202,160,106,0.32);
+      border-left: 4px solid var(--accent);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(202,160,106,0.06);
     }
 
     .next-card {
@@ -588,6 +597,7 @@
             <div class="bus-line" data-bus-line="GND" data-state="active"><code>GND</code><span>Shared reference ground</span><strong class="bus-status">always</strong></div>
           </div>
           <p class="mode-note" id="busModeNote">Linked mode: pitch, gate, and audio normals are active through the rear Merrin Link bus.</p>
+          <p class="override-note"><strong>Front patch rule:</strong> if a front-panel cable is inserted, it can override the hidden Merrin Link connection.</p>
         </section>
 
         <section class="next-card">
