@@ -1,0 +1,21 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Dependency/build folders if the project later gains tooling
+node_modules/
+dist/
+build/
+.cache/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
