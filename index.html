@@ -34,6 +34,7 @@
     .pill{padding:8px 12px}
     .strip{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px;border-radius:18px;border:1px solid rgba(143,167,196,.34);background:rgba(143,167,196,.07)}
     .play-strip,.controls-strip,.keyboard-strip,.emotion-strip{border-color:rgba(202,160,106,.34);background:rgba(202,160,106,.07)}
+    .scope-strip{border-color:rgba(143,167,196,.42);background:rgba(143,167,196,.08)}
     .walkthrough-strip{border-color:rgba(143,167,196,.5);background:linear-gradient(90deg,rgba(143,167,196,.12),rgba(202,160,106,.06))}
     .strip-copy{display:grid;gap:2px;min-width:min(100%,420px)}
     .strip-copy span{color:var(--muted);font-size:.92rem}
@@ -49,6 +50,8 @@
     .key:hover,.key:focus-visible{outline:none;border-color:var(--accent);background:linear-gradient(180deg,rgba(202,160,106,.28),rgba(255,255,255,.06))}
     .key:active{transform:translateY(1px)}
     .key span{display:block;color:var(--muted);font-family:var(--mono);font-size:.68rem;font-weight:600;margin-top:3px}
+    .scope-wrap{flex-basis:100%;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.22);padding:10px;overflow:hidden}
+    .scope{display:block;width:100%;height:160px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.18))}
     .stage-progress{flex-basis:100%;border-top:1px solid var(--line);padding-top:12px}
     .stage-chip{border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted);border-radius:999px;padding:8px 11px;cursor:pointer;font-size:.88rem}
     .stage-chip:hover,.stage-chip:focus-visible,.button:hover,.button:focus-visible,.mode-button:hover,.mode-button:focus-visible{outline:none;border-color:var(--accent);color:var(--ink)}
@@ -122,6 +125,7 @@
       <section class="strip controls-strip" aria-label="Playable controls"><div class="strip-copy"><strong>Playable controls</strong><span id="soundStatus">Tone: dark · Fade: linger · Echo: deep</span><span class="control-stage-note" id="controlStageNote">Change a control to focus the matching stage.</span></div><div class="control-grid" id="playableControls"></div></section>
       <section class="strip emotion-strip" aria-label="Emotion-shaped controls"><div class="strip-copy"><strong>Emotion-shaped controls</strong><span id="emotionStatus">Scale: Natural Minor · Glide: Slow · Weight: Weighted · Wither: Tremble</span><span class="control-stage-note" id="emotionStageNote">These controls deepen the same emotion; they do not make the voice generic.</span></div><div class="emotion-grid" id="emotionControls"></div></section>
       <section class="strip keyboard-strip" aria-label="Play the voice"><div class="strip-copy"><strong>Play the voice</strong><span id="keyboardStatus">One fixed octave. Click or tap a note.</span></div><div class="keyboard" id="keyboard" aria-label="One-octave playable keyboard"></div></section>
+      <section class="strip scope-strip" aria-label="Oscilloscope"><div class="strip-copy"><strong>Oscilloscope</strong><span id="scopeStatus">Waveform appears when the voice plays.</span></div><div class="scope-wrap"><canvas class="scope" id="scopeCanvas" width="900" height="180" aria-label="Live waveform display"></canvas></div></section>
       <section class="strip" aria-label="Merrin Link mode"><div class="strip-copy"><strong>Merrin Link mode</strong><span id="modeState">Linked voice mode: rear normals connect the five modules as one pre-wired voice.</span></div><div class="button-row" role="group" aria-label="Choose Merrin Link mode"><button class="mode-button" type="button" data-link-mode="linked" aria-pressed="true">Linked voice mode</button><button class="mode-button" type="button" data-link-mode="independent" aria-pressed="false">Independent module mode</button></div></section>
       <section class="strip walkthrough-strip" aria-label="Guided signal path walkthrough"><div class="strip-copy"><strong>Guided signal path walkthrough</strong><span id="walkStatus">Stage 1 of 5 — Scale: choose which notes are allowed.</span></div><div class="button-row" role="group" aria-label="Walk through the signal path"><button class="button" id="prevStage" type="button">Previous stage</button><button class="button" id="nextStage" type="button">Next stage</button></div><div class="stage-progress" aria-label="Jump to a signal path stage"><button class="stage-chip" type="button" data-walk-stage="0" aria-pressed="true">Scale</button><button class="stage-chip" type="button" data-walk-stage="1" aria-pressed="false">Tone</button><button class="stage-chip" type="button" data-walk-stage="2" aria-pressed="false">Envelope</button><button class="stage-chip" type="button" data-walk-stage="3" aria-pressed="false">Room</button><button class="stage-chip" type="button" data-walk-stage="4" aria-pressed="false">Memory</button></div></section>
     </header>
@@ -164,6 +168,9 @@
     let selectedIndex=0;
     let linkMode="linked";
     let audioContext;
+    let analyser;
+    let scopeData;
+    let scopeRunning=false;
     let lastFrequency=null;
     const rack=document.getElementById("rack");
     const detail=document.getElementById("detail");
@@ -184,6 +191,9 @@
     const emotionStageNote=document.getElementById("emotionStageNote");
     const keyboard=document.getElementById("keyboard");
     const keyboardStatus=document.getElementById("keyboardStatus");
+    const scopeCanvas=document.getElementById("scopeCanvas");
+    const scopeCtx=scopeCanvas.getContext("2d");
+    const scopeStatus=document.getElementById("scopeStatus");
     const walkStatus=document.getElementById("walkStatus");
     const prevStage=document.getElementById("prevStage");
     const nextStage=document.getElementById("nextStage");
@@ -210,6 +220,9 @@
     function getWeightSettings(state=synthState){return {light:{sub:.45},weighted:{sub:1.05},deep:{sub:2.05}}[state.weight]}
     function getWitherSettings(state=synthState){return {still:{depth:0,rate:.1},tremble:{depth:.1,rate:.85},frail:{depth:.15,rate:1.05}}[state.wither]}
     function noiseBuffer(ctx,duration){const len=ctx.sampleRate*duration;const buf=ctx.createBuffer(2,len,ctx.sampleRate);for(let c=0;c<buf.numberOfChannels;c++){const data=buf.getChannelData(c);for(let i=0;i<len;i++){const fade=1-i/len;data[i]=(Math.random()*2-1)*fade*fade}}return buf}
+    function getAnalyser(){if(!audioContext)return null;if(!analyser){analyser=audioContext.createAnalyser();analyser.fftSize=1024;analyser.smoothingTimeConstant=.72;scopeData=new Uint8Array(analyser.fftSize)}return analyser}
+    function startScope(){if(scopeRunning)return;scopeRunning=true;drawScope()}
+    function drawScope(){const w=scopeCanvas.width;const h=scopeCanvas.height;scopeCtx.clearRect(0,0,w,h);scopeCtx.fillStyle="rgba(13,15,20,.96)";scopeCtx.fillRect(0,0,w,h);scopeCtx.strokeStyle="rgba(143,167,196,.16)";scopeCtx.lineWidth=1;for(let x=0;x<=w;x+=w/8){scopeCtx.beginPath();scopeCtx.moveTo(x,0);scopeCtx.lineTo(x,h);scopeCtx.stroke()}for(let y=0;y<=h;y+=h/4){scopeCtx.beginPath();scopeCtx.moveTo(0,y);scopeCtx.lineTo(w,y);scopeCtx.stroke()}scopeCtx.strokeStyle="rgba(202,160,106,.28)";scopeCtx.beginPath();scopeCtx.moveTo(0,h/2);scopeCtx.lineTo(w,h/2);scopeCtx.stroke();scopeCtx.strokeStyle="rgba(242,240,234,.92)";scopeCtx.lineWidth=2;scopeCtx.beginPath();if(analyser&&scopeData){analyser.getByteTimeDomainData(scopeData);const step=w/(scopeData.length-1);for(let i=0;i<scopeData.length;i++){const v=scopeData[i]/128;const y=(v*h)/2;const x=i*step;if(i===0)scopeCtx.moveTo(x,y);else scopeCtx.lineTo(x,y)}}else{scopeCtx.moveTo(0,h/2);scopeCtx.lineTo(w,h/2)}scopeCtx.stroke();requestAnimationFrame(drawScope)}
     async function triggerVoice(note){
       const AC=window.AudioContext||window.webkitAudioContext;
       if(!AC){playStatus.textContent="This browser does not support Web Audio.";return}
@@ -228,6 +241,9 @@
       const master=audioContext.createGain();
       master.gain.setValueAtTime(.72,now);
       master.connect(audioContext.destination);
+      const liveAnalyser=getAnalyser();
+      if(liveAnalyser)master.connect(liveAnalyser);
+      startScope();
       const low=audioContext.createBiquadFilter();
       low.type="lowpass";
       low.frequency.setValueAtTime(tone.cut,now);
@@ -320,6 +336,7 @@
       witherLfo.stop(stopAt);
       playStatus.textContent=`Playing ${note.name} — ${synthState.tone} tone, ${synthState.fade} fade, ${synthState.echo} echo.`;
       keyboardStatus.textContent=`Last note: ${note.name}. ${displayLabels[synthState.scale]} is shaping the keyboard.`;
+      scopeStatus.textContent=`Showing ${note.name} waveform from the current voice output.`;
       selectModule(1);
     }
     function playVoiceSample(){triggerVoice(getCurrentNotes()[0])}
@@ -339,6 +356,7 @@
     emotionStatus.textContent=getEmotionStatusText();
     renderDetail();
     renderWalkthrough();
+    drawScope();
   </script>
 </body>
 </html>
