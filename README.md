@@ -10,9 +10,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 Explain how the Constrained Grief voice works by showing each module, the signal path, the emotional job of every stage, and a small playable browser synth layer.
 
-## Good enough for v3.1
+## Good enough for v3.2
 
-A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, change Tone / Fade / Echo, and play one octave of notes with clear pitch changes.
+A person can open the app, play one octave of notes with clear pitch changes, use Tone / Fade / Echo, and the synth code now has one shared `synthState` plus clean setting functions before future plugin or hardware work.
 
 ## Current app
 
@@ -26,6 +26,9 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Includes a one-octave playable note engine
 - Supports click/tap note playback
 - Supports computer keyboard playback: `A S D F G H J K`
+- Uses one shared `synthState` object
+- Uses clean tone, fade, and echo setting functions
+- Uses one shared `triggerVoice(note)` function for sample and keyboard playback
 - Shows linked voice mode vs independent module mode
 - Shows active / inactive rear bus line states
 - Shows small module jumper notes
@@ -36,7 +39,7 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Adds Previous stage / Next stage walkthrough controls
 - Adds a clickable five-stage progress strip
 - Adds a compact Whole voice path summary panel
-- v3.1 adds the first real playable note engine
+- v3.2 adds the cleaner synth engine state needed for later plugin and hardware work
 
 ## Locked signal path
 
@@ -184,7 +187,7 @@ Echo changes how much of the voice remains as memory.
 
 ## Playable note engine
 
-v3.1 adds a fixed one-octave keyboard.
+The app includes a fixed one-octave keyboard.
 
 On-screen notes:
 
@@ -206,6 +209,29 @@ Each note:
 - uses the current Fade setting
 - uses the current Echo setting
 - updates the play status text with the note name
+
+## Synth engine state
+
+v3.2 refactors the sound code around one shared synth state:
+
+```js
+const synthState = {
+  tone: 'dark',
+  fade: 'linger',
+  echo: 'deep'
+};
+```
+
+The audio engine now uses:
+
+```text
+getToneSettings()
+getFadeSettings()
+getEchoSettings()
+triggerVoice(note)
+```
+
+This keeps the current browser synth working while creating a cleaner boundary for later plugin and hardware development.
 
 ## Version notes
 
@@ -339,6 +365,18 @@ Adds the first real playable note engine:
 - pitch changes per note
 - envelope triggers per note
 - Tone / Fade / Echo still affect the sound
+
+### v3.2
+
+Refactors the browser synth into a cleaner engine shape:
+
+- one shared `synthState` object
+- clean tone settings function
+- clean fade settings function
+- clean echo settings function
+- one shared `triggerVoice(note)` function
+- voice sample button and keyboard both use the same note engine
+- existing sound and controls remain in place
 
 ## Current boundary
 
