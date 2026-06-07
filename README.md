@@ -1,6 +1,6 @@
 # Merrin Voice 01
 
-Interactive app prototype for explaining the **Merrin Voice 01 — Constrained Grief** Eurorack voice.
+Interactive app prototype for explaining and playing the **Merrin Voice 01 — Constrained Grief** Eurorack voice.
 
 ## Live app
 
@@ -8,11 +8,11 @@ https://armpitpete.github.io/merrin-voice-01/
 
 ## Purpose
 
-Explain how the Constrained Grief voice works by showing each module, the signal path, the emotional job of every stage, and a small set of educational playable controls.
+Explain how the Constrained Grief voice works by showing each module, the signal path, the emotional job of every stage, and a small playable browser synth layer.
 
-## Good enough for v2.1
+## Good enough for v3.1
 
-A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, and use Tone, Fade, and Echo controls that are both playable and educational.
+A person can open the app, understand the whole voice path at a glance, step through or jump directly between the five signal-path stages, switch between linked voice mode and independent module mode, understand front-panel override examples, change Tone / Fade / Echo, and play one octave of notes with clear pitch changes.
 
 ## Current app
 
@@ -22,7 +22,10 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Opens directly in a browser
 - Explains the five modules and Merrin Link bus
 - Includes one Web Audio voice sample button
-- Includes educational playable controls: `Tone`, `Fade`, and `Echo`
+- Includes playable controls: `Tone`, `Fade`, and `Echo`
+- Includes a one-octave playable note engine
+- Supports click/tap note playback
+- Supports computer keyboard playback: `A S D F G H J K`
 - Shows linked voice mode vs independent module mode
 - Shows active / inactive rear bus line states
 - Shows small module jumper notes
@@ -33,8 +36,7 @@ A person can open the app, understand the whole voice path at a glance, step thr
 - Adds Previous stage / Next stage walkthrough controls
 - Adds a clickable five-stage progress strip
 - Adds a compact Whole voice path summary panel
-- Release wording was frozen at v1.0
-- v2.1 adds the first playable educational control set
+- v3.1 adds the first real playable note engine
 
 ## Locked signal path
 
@@ -148,7 +150,7 @@ If a front-panel cable is inserted, it can override the hidden Merrin Link conne
 - Front patch: external audio cable into `MF-01 AUDIO IN`
 - Result: MF-01 processes the external audio instead of the normal Merrin Voice path
 
-## Educational playable controls
+## Playable controls
 
 ### Tone
 
@@ -179,6 +181,31 @@ Choices:
 - `Memory`
 
 Echo changes how much of the voice remains as memory.
+
+## Playable note engine
+
+v3.1 adds a fixed one-octave keyboard.
+
+On-screen notes:
+
+```text
+C D E F G A B C
+```
+
+Computer keyboard mapping:
+
+```text
+A S D F G H J K
+```
+
+Each note:
+
+- triggers the voice
+- changes oscillator pitch
+- uses the current Tone setting
+- uses the current Fade setting
+- uses the current Echo setting
+- updates the play status text with the note name
 
 ## Version notes
 
@@ -263,19 +290,19 @@ Release check and freeze:
 - footer updated to v1.0
 - summary card label updated to v1.0
 - README updated to v1.0
-- current feature scope frozen
+- stable teaching baseline preserved
 
 ### v2.0
 
 Design decision:
 
-- full controls should be educational and playable
+- full controls should be playable and still support understanding
 - v1.0 teaching guide remains preserved as the baseline
 - first playable build should stay small
 
 ### v2.1
 
-Adds educational playable controls:
+Adds playable controls:
 
 - `Tone`: dark / soft / bright
 - `Fade`: short / linger / long
@@ -283,9 +310,39 @@ Adds educational playable controls:
 - controls affect the Web Audio voice sample
 - each control has a plain explanation sentence
 
+### v2.2
+
+Links playable controls to teaching stages:
+
+- `Tone` focuses `MV-01` / Tone
+- `Fade` focuses `MV-03` / Envelope
+- `Echo` focuses `MF-02` / Memory
+- walkthrough sentence, stage chip, and bus focus update with the matching stage
+
+### v3.0
+
+Creates the fully working synth roadmap:
+
+- v3.1 real playable note engine
+- v3.2 proper synth engine state
+- v3.3 full core controls
+- v3.4 presets / patch memory
+- v3.5 performance polish
+
+### v3.1
+
+Adds the first real playable note engine:
+
+- fixed one-octave on-screen keyboard
+- click/tap note playback
+- computer keyboard support: `A S D F G H J K`
+- pitch changes per note
+- envelope triggers per note
+- Tone / Fade / Echo still affect the sound
+
 ## Current boundary
 
-This app explains the instrument and includes one playable audio preview with simple educational controls.
+This app explains the instrument and includes one fixed-octave playable note engine with simple playable controls.
 
 It does **not** yet:
 
@@ -295,3 +352,7 @@ It does **not** yet:
 - design PCBs
 - act as a VCV Rack module
 - simulate patch cables
+- include MIDI
+- include a sequencer
+- include polyphony
+- include octave switching
