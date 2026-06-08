@@ -1,0 +1,56 @@
+@media (min-width: 900px) and (orientation: landscape) {
+  html,
+  body {
+    overflow-y: auto !important;
+  }
+
+  .app {
+    height: auto !important;
+    min-height: 100dvh !important;
+    align-items: start !important;
+    grid-auto-rows: auto !important;
+  }
+
+  .app > section {
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .app > section:nth-of-type(1) .row {
+    display: grid !important;
+    grid-template-columns: max-content max-content max-content minmax(0, 1fr) !important;
+    width: 100% !important;
+    align-items: center !important;
+  }
+
+  #playStatus {
+    display: block !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .app > section:nth-of-type(2),
+  .app > section:nth-of-type(3),
+  .app > section:nth-of-type(4),
+  .app > section:nth-of-type(5) {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .app > section:nth-of-type(2) {
+    padding-bottom: 7px !important;
+  }
+
+  .app > section:nth-of-type(3) {
+    padding-bottom: 7px !important;
+  }
+
+  .app > section:nth-of-type(6) {
+    min-height: 0 !important;
+    margin-bottom: 12px !important;
+  }
+}
