@@ -95,10 +95,36 @@ function addShapeSourceToVoice(voice){
   voice.shapeSourceAdded=true;
 }
 
+function addSlightDriftToVoice(voice){
+  if(!ctx||!voice||voice.driftAdded)return;
+  const shape=state.shape||'pure';
+  const now=ctx.currentTime;
+  const depth=shape==='pressed'?1.6:shape==='hollow'?1.1:0.7;
+  const rate=shape==='pressed'?0.18:shape==='hollow'?0.13:0.09;
+
+  voice.oscillators.forEach((osc,index)=>{
+    if(!osc||!osc.frequency||index>2)return;
+    const drift=ctx.createOscillator();
+    const driftGain=ctx.createGain();
+    drift.type='sine';
+    drift.frequency.setValueAtTime(rate+(index*.017),now);
+    driftGain.gain.setValueAtTime(depth/(index===1?2:1),now);
+    drift.connect(driftGain);
+    driftGain.connect(osc.frequency);
+    drift.start(now);
+    try{drift.stop(now+12)}catch(e){}
+    voice.oscillators.push(drift);
+  });
+
+  voice.driftAdded=true;
+}
+
 const originalShapeStartNote=startNote;
 startNote=async function shapedStartNote(note){
   await originalShapeStartNote(note);
-  addShapeSourceToVoice(voices[note.index]);
+  const voice=voices[note.index];
+  addShapeSourceToVoice(voice);
+  addSlightDriftToVoice(voice);
 };
 
 const originalShapeHandleControlChange=handleControlChange;
