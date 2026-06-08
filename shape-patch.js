@@ -38,7 +38,7 @@ function addShapeSourceToVoice(voice){
 
   body.type='triangle';
   body.frequency.setValueAtTime(voice.note.freq,now);
-  bodyGain.gain.setValueAtTime(shape==='hollow'?0.34:0.42,now);
+  bodyGain.gain.setValueAtTime(shape==='hollow'?0.55:0.68,now);
   body.connect(bodyGain);
   bodyGain.connect(voice.amp);
   body.start(now);
@@ -50,7 +50,7 @@ function addShapeSourceToVoice(voice){
     const hollowGain=ctx.createGain();
     hollow.type='sine';
     hollow.frequency.setValueAtTime(voice.note.freq*1.5,now);
-    hollowGain.gain.setValueAtTime(0.08,now);
+    hollowGain.gain.setValueAtTime(0.16,now);
     hollow.connect(hollowGain);
     hollowGain.connect(voice.amp);
     hollow.start(now);
@@ -63,7 +63,7 @@ function addShapeSourceToVoice(voice){
     const acheGain=ctx.createGain();
     ache.type='triangle';
     ache.frequency.setValueAtTime(voice.note.freq*2,now);
-    acheGain.gain.setValueAtTime(0.18,now);
+    acheGain.gain.setValueAtTime(0.34,now);
     ache.connect(acheGain);
     acheGain.connect(voice.amp);
     ache.start(now);
@@ -78,6 +78,14 @@ const originalShapeStartNote=startNote;
 startNote=async function shapedStartNote(note){
   await originalShapeStartNote(note);
   addShapeSourceToVoice(voices[note.index]);
+};
+
+const originalShapeHandleControlChange=handleControlChange;
+handleControlChange=function shapeAwareControlChange(key,value){
+  if(key==='shape'&&state.shape!==value){
+    releaseAllNotes('Shape changed. Press a note again to hear the new source shape.');
+  }
+  originalShapeHandleControlChange(key,value);
 };
 
 const hasShapeControl=playDefs.some(([key])=>key==='shape');
