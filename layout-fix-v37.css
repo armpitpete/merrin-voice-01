@@ -41,12 +41,25 @@
     min-height: 0 !important;
   }
 
-  .app > section:nth-of-type(2) {
+  .app > section:nth-of-type(2),
+  .app > section:nth-of-type(3) {
     padding-bottom: 7px !important;
   }
 
-  .app > section:nth-of-type(3) {
-    padding-bottom: 7px !important;
+  .app > section:nth-of-type(3) #playControls.grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .app > section:nth-of-type(3) .control {
+    min-height: 0 !important;
+  }
+
+  .app > section:nth-of-type(3) .control[style] {
+    margin-top: 5px !important;
+  }
+
+  .app > section:nth-of-type(4) .grid4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 
   .app > section:nth-of-type(6) {
