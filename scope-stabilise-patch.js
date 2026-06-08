@@ -29,9 +29,7 @@ function drawStableDryVoiceScope(){
   const w=canvas.width,h=canvas.height;
   const currentTone=tone();
   const subWeight=weightLevel();
-  const minFreq=Math.max(55,Math.min(...activeVoices.map(voice=>voice.note.freq)));
-  const visibleCycles=4;
-  const duration=visibleCycles/minFreq;
+  const duration=.018;
   const samples=[];
   let peak=0;
 
