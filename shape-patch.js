@@ -10,18 +10,18 @@ tone=function shapedTone(){
   const shaped={...base};
 
   if(shape==='hollow'){
-    shaped.sine=base.sine*.84;
-    shaped.sub=base.sub*.84;
-    shaped.over=base.over+0.1;
-    shaped.cut=base.cut*1.04;
+    shaped.sine=base.sine*.72;
+    shaped.sub=base.sub*.78;
+    shaped.over=base.over+0.16;
+    shaped.cut=base.cut*1.08;
   }
 
   if(shape==='pressed'){
-    shaped.sine=base.sine*.74;
-    shaped.sub=base.sub*.74;
-    shaped.over=base.over+0.18;
-    shaped.cut=base.cut*1.1;
-    shaped.q=base.q*.92;
+    shaped.sine=base.sine*.58;
+    shaped.sub=base.sub*.66;
+    shaped.over=base.over+0.28;
+    shaped.cut=base.cut*1.18;
+    shaped.q=base.q*.88;
   }
 
   return shaped;
@@ -33,25 +33,37 @@ function addShapeSourceToVoice(voice){
   if(shape==='pure')return;
 
   const now=ctx.currentTime;
-  const osc=ctx.createOscillator();
-  const gain=ctx.createGain();
-  const upper=null;
+  const body=ctx.createOscillator();
+  const bodyGain=ctx.createGain();
 
-  osc.type='triangle';
-  osc.frequency.setValueAtTime(voice.note.freq,now);
-  gain.gain.setValueAtTime(shape==='hollow'?0.16:0.24,now);
-  osc.connect(gain);
-  gain.connect(voice.amp);
-  osc.start(now);
-  try{osc.stop(now+12)}catch(e){}
-  voice.oscillators.push(osc);
+  body.type='triangle';
+  body.frequency.setValueAtTime(voice.note.freq,now);
+  bodyGain.gain.setValueAtTime(shape==='hollow'?0.34:0.42,now);
+  body.connect(bodyGain);
+  bodyGain.connect(voice.amp);
+  body.start(now);
+  try{body.stop(now+12)}catch(e){}
+  voice.oscillators.push(body);
+
+  if(shape==='hollow'){
+    const hollow=ctx.createOscillator();
+    const hollowGain=ctx.createGain();
+    hollow.type='sine';
+    hollow.frequency.setValueAtTime(voice.note.freq*1.5,now);
+    hollowGain.gain.setValueAtTime(0.08,now);
+    hollow.connect(hollowGain);
+    hollowGain.connect(voice.amp);
+    hollow.start(now);
+    try{hollow.stop(now+12)}catch(e){}
+    voice.oscillators.push(hollow);
+  }
 
   if(shape==='pressed'){
     const ache=ctx.createOscillator();
     const acheGain=ctx.createGain();
     ache.type='triangle';
     ache.frequency.setValueAtTime(voice.note.freq*2,now);
-    acheGain.gain.setValueAtTime(0.07,now);
+    acheGain.gain.setValueAtTime(0.18,now);
     ache.connect(acheGain);
     acheGain.connect(voice.amp);
     ache.start(now);
