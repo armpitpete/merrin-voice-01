@@ -66,7 +66,8 @@
 
   .app > section,
   .landscape-column > section {
-    align-self: start !important;
+    align-self: stretch !important;
+    width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
   }
@@ -90,6 +91,10 @@
   .playable-controls #playControls.grid,
   .emotion-controls .grid4 {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .voice-keyboard .keys {
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   }
 
   .playable-controls .control[style],
