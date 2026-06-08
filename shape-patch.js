@@ -11,18 +11,33 @@ tone=function shapedTone(){
 
   if(shape==='hollow'){
     shaped.sine=base.sine*.72;
-    shaped.sub=base.sub*.78;
+    shaped.sub=base.sub*.68;
     shaped.over=base.over+0.16;
     shaped.cut=base.cut*1.08;
   }
 
   if(shape==='pressed'){
     shaped.sine=base.sine*.58;
-    shaped.sub=base.sub*.66;
+    shaped.sub=base.sub*.48;
     shaped.over=base.over+0.28;
     shaped.cut=base.cut*1.18;
     shaped.q=base.q*.88;
   }
+
+  return shaped;
+};
+
+const originalWeightLevel=weightLevel;
+weightLevel=function shapedWeightLevel(){
+  const base=originalWeightLevel();
+  const shape=state.shape||'pure';
+  const heldCount=Object.values(voices).filter(voice=>voice&&!voice.released).length;
+  let shaped=base;
+
+  if(shape==='hollow')shaped*=0.9;
+  if(shape==='pressed')shaped*=0.72;
+  if(heldCount>=2)shaped*=0.82;
+  if(heldCount>=3)shaped*=0.72;
 
   return shaped;
 };
