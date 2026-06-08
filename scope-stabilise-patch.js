@@ -1,6 +1,4 @@
 const originalDrawScope=drawScope;
-let lastScopeImage=null;
-let lastScopeDrawAt=0;
 let smoothedScopeGain=1;
 
 function drawHeldScopeGrid(){
@@ -22,41 +20,16 @@ function liveStats(data){
   return {lo,hi,span:hi-lo,mid:(lo+hi)/2};
 }
 
-function findLiveTrigger(data,stats,visible){
-  if(stats.span<3)return null;
-  const limit=Math.max(24,data.length-visible-2);
-  const threshold=stats.mid;
-  const minSlope=Math.max(1,stats.span*.04);
-  for(let i=16;i<limit;i++){
-    const rising=data[i-1]<threshold&&data[i]>=threshold;
-    const slope=data[Math.min(i+3,data.length-1)]-data[Math.max(i-3,0)];
-    if(rising&&slope>=minSlope)return i;
-  }
-  return null;
-}
-
 function drawTrueLiveScope(){
-  const nowMs=performance.now();
-  if(lastScopeImage&&nowMs-lastScopeDrawAt<90){
-    g.putImageData(lastScopeImage,0,0);
-    return;
-  }
-
   if(!analyser||!scopeData){originalDrawScope();return}
+
   analyser.getByteTimeDomainData(scopeData);
   const w=canvas.width,h=canvas.height;
-  const visible=Math.min(scopeData.length-32,Math.max(256,Math.round((ctx?.sampleRate||48000)*.018)));
+  const visible=Math.min(scopeData.length,Math.max(256,Math.round((ctx?.sampleRate||48000)*.018)));
   const stats=liveStats(scopeData);
-  const start=findLiveTrigger(scopeData,stats,visible);
-
-  if(start===null){
-    if(lastScopeImage){g.putImageData(lastScopeImage,0,0);return}
-    originalDrawScope();
-    return;
-  }
-
+  const start=0;
   const targetGain=(h*.34)/Math.max(4,stats.span/2);
-  smoothedScopeGain=(smoothedScopeGain*.82)+(targetGain*.18);
+  smoothedScopeGain=(smoothedScopeGain*.94)+(targetGain*.06);
 
   drawHeldScopeGrid();
   g.strokeStyle='rgba(242,240,234,.92)';
@@ -70,8 +43,6 @@ function drawTrueLiveScope(){
   }
 
   g.stroke();
-  lastScopeImage=g.getImageData(0,0,w,h);
-  lastScopeDrawAt=nowMs;
 }
 
 drawScope=function patchedDrawScope(){
@@ -81,6 +52,5 @@ drawScope=function patchedDrawScope(){
     requestAnimationFrame(drawScope);
     return;
   }
-  lastScopeImage=null;
   originalDrawScope();
 };
