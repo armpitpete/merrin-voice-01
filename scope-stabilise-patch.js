@@ -20,14 +20,26 @@ function liveStats(data){
   return {lo,hi,span:hi-lo,mid:(lo+hi)/2};
 }
 
+function findPhaseLockStart(data,stats,visible){
+  if(stats.span<4)return 0;
+  const limit=Math.max(16,data.length-visible-2);
+  const minSlope=Math.max(1,stats.span*.05);
+  for(let i=8;i<limit;i++){
+    const crosses=data[i-1]<stats.mid&&data[i]>=stats.mid;
+    const slope=data[Math.min(i+2,data.length-1)]-data[Math.max(i-2,0)];
+    if(crosses&&slope>=minSlope)return i;
+  }
+  return 0;
+}
+
 function drawTrueLiveScope(){
   if(!analyser||!scopeData){originalDrawScope();return}
 
   analyser.getByteTimeDomainData(scopeData);
   const w=canvas.width,h=canvas.height;
-  const visible=Math.min(scopeData.length,Math.max(256,Math.round((ctx?.sampleRate||48000)*.018)));
+  const visible=Math.min(scopeData.length-32,Math.max(256,Math.round((ctx?.sampleRate||48000)*.018)));
   const stats=liveStats(scopeData);
-  const start=0;
+  const start=findPhaseLockStart(scopeData,stats,visible);
   const targetGain=(h*.34)/Math.max(4,stats.span/2);
   smoothedScopeGain=(smoothedScopeGain*.94)+(targetGain*.06);
 
