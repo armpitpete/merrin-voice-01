@@ -12,16 +12,22 @@ tone=function shapedTone(){
   if(shape==='hollow'){
     shaped.sine=base.sine*.72;
     shaped.sub=base.sub*.68;
-    shaped.over=base.over+0.16;
-    shaped.cut=base.cut*1.08;
+    shaped.over=base.over+0.13;
+    shaped.cut=base.cut*(effects.overtone?0.96:1.08);
+    shaped.q=base.q*.96;
   }
 
   if(shape==='pressed'){
     shaped.sine=base.sine*.58;
     shaped.sub=base.sub*.48;
-    shaped.over=base.over+0.28;
-    shaped.cut=base.cut*1.18;
-    shaped.q=base.q*.88;
+    shaped.over=base.over+0.22;
+    shaped.cut=base.cut*(effects.overtone?0.92:1.12);
+    shaped.q=base.q*.84;
+  }
+
+  if(effects.overtone){
+    shaped.over*=shape==='pressed'?0.92:0.86;
+    shaped.cut*=state.tone==='bright'?0.82:0.92;
   }
 
   return shaped;
@@ -78,7 +84,7 @@ function addShapeSourceToVoice(voice){
     const acheGain=ctx.createGain();
     ache.type='triangle';
     ache.frequency.setValueAtTime(voice.note.freq*2,now);
-    acheGain.gain.setValueAtTime(0.34,now);
+    acheGain.gain.setValueAtTime(0.28,now);
     ache.connect(acheGain);
     acheGain.connect(voice.amp);
     ache.start(now);
