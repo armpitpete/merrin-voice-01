@@ -15,15 +15,17 @@ function drawHeldScopeGrid(){
   g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
 }
 
-function findLockedStart(data){
+function scopeStats(data){
   let lo=255,hi=0;
   for(const v of data){lo=Math.min(lo,v);hi=Math.max(hi,v)}
-  const span=hi-lo;
-  if(span<8)return null;
-  const mid=(lo+hi)/2;
-  const minSlope=Math.max(3,span*.12);
+  return {lo,hi,span:hi-lo,mid:(lo+hi)/2};
+}
+
+function findLockedStart(data,stats){
+  if(stats.span<8)return null;
+  const minSlope=Math.max(3,stats.span*.12);
   for(let i=12;i<data.length-900;i++){
-    const rising=data[i-1]<mid&&data[i]>=mid;
+    const rising=data[i-1]<stats.mid&&data[i]>=stats.mid;
     const slope=data[i+2]-data[i-2];
     if(rising&&slope>=minSlope)return i;
   }
@@ -38,17 +40,20 @@ function drawLockedScope(){
     return;
   }
   analyser.getByteTimeDomainData(scopeData);
-  const start=findLockedStart(scopeData);
+  const stats=scopeStats(scopeData);
+  const start=findLockedStart(scopeData,stats);
   if(start===null){
     if(heldScopeImage)g.putImageData(heldScopeImage,0,0);
     return;
   }
   const w=canvas.width,h=canvas.height,visible=640;
+  const targetHalfHeight=h*.34;
+  const displayGain=Math.min(8,Math.max(1,targetHalfHeight/Math.max(1,stats.span/2)));
   const points=[];
   for(let x=0;x<w;x++){
     const sample=start+Math.floor((x/w)*visible);
-    const y=(h/2)-((scopeData[sample]-128)/128)*h*.42;
-    points.push([x,y]);
+    const y=(h/2)-((scopeData[sample]-stats.mid)*displayGain);
+    points.push([x,Math.max(4,Math.min(h-4,y))]);
   }
   g.strokeStyle='rgba(242,240,234,.92)';
   g.lineWidth=2;
