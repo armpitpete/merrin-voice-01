@@ -14,13 +14,19 @@
 <p class="eyebrow">Merrin Voice 01 App v3.6 test</p>
 <h1>Constrained Grief</h1>
 <p class="intro">A one-emotion synth voice shaped through scale, tone, envelope, room, and memory.</p>
-<section class="strip"><div class="row"><button class="btn play" id="play">▶ Play voice sample</button><button class="btn test" id="allOff">All effects off</button><button class="btn test" id="allOn">Normal voice</button><span class="status" id="playStatus">Ready. Hold a note button or keyboard key; release it to stop.</span></div></section>
-<section class="strip"><strong>Effect test switches</strong><p class="status" id="effectStatus">Switch all effects off, then turn one back on to find the problem.</p><div class="row" id="effectSwitches"></div><div class="control" style="margin-top:12px"><strong>Wither delay</strong><p class="status" id="witherDelayLabel">Wither delay: 450 ms</p><input class="slider" id="witherDelay" type="range" min="0" max="1200" step="50" value="450"></div></section>
-<section class="strip"><strong>Playable controls</strong><div class="grid" id="playControls"></div><div class="control" style="margin-top:12px"><strong>Amplitude</strong><p class="status" id="amplitudeLabel">Amplitude: 72%</p><input class="slider" id="amplitude" type="range" min="0" max="100" step="1" value="72"></div><div class="control" style="margin-top:12px"><strong>Fade envelope</strong><p class="status" id="fadeReadout">Fade: Linger · Attack: 550 ms · Hold while pressed · Release: 1550 ms</p></div></section>
-<section class="strip"><strong>Emotion-shaped controls</strong><div class="grid4" id="emotionControls"></div></section>
-<section class="strip"><strong>Play the voice</strong><p class="status" id="keyboardStatus">Hold/tap notes or use A S D F G H J K.</p><div class="keys" id="keyboard"></div></section>
-<section class="strip"><strong>Oscilloscope</strong><p class="status" id="scopeStatus">Live stable waveform. It locks to the wave instead of scrolling.</p><canvas class="scope" id="scope" width="900" height="180"></canvas></section>
-<section class="card"><strong>Signal path</strong><div class="modules"><div class="module"><code>MV-02</code><p>Scale</p></div><div class="module"><code>MV-01</code><p>Tone</p></div><div class="module"><code>MV-03</code><p>Envelope</p></div><div class="module"><code>MF-01</code><p>Room</p></div><div class="module"><code>MF-02</code><p>Memory</p></div></div></section>
+<section class="strip top-controls"><div class="row"><button class="btn play" id="play">▶ Play voice sample</button><button class="btn test" id="allOff">All effects off</button><button class="btn test" id="allOn">Normal voice</button><span class="status" id="playStatus">Ready. Hold a note button or keyboard key; release it to stop.</span></div></section>
+<div class="landscape-columns">
+<div class="landscape-column landscape-column-left">
+<section class="strip effect-tests"><strong>Effect test switches</strong><p class="status" id="effectStatus">Switch all effects off, then turn one back on to find the problem.</p><div class="row" id="effectSwitches"></div><div class="control" style="margin-top:12px"><strong>Wither delay</strong><p class="status" id="witherDelayLabel">Wither delay: 450 ms</p><input class="slider" id="witherDelay" type="range" min="0" max="1200" step="50" value="450"></div></section>
+<section class="strip emotion-controls"><strong>Emotion-shaped controls</strong><div class="grid4" id="emotionControls"></div></section>
+</div>
+<div class="landscape-column landscape-column-right">
+<section class="strip playable-controls"><strong>Playable controls</strong><div class="grid" id="playControls"></div><div class="control" style="margin-top:12px"><strong>Amplitude</strong><p class="status" id="amplitudeLabel">Amplitude: 72%</p><input class="slider" id="amplitude" type="range" min="0" max="100" step="1" value="72"></div><div class="control" style="margin-top:12px"><strong>Fade envelope</strong><p class="status" id="fadeReadout">Fade: Linger · Attack: 550 ms · Hold while pressed · Release: 1550 ms</p></div></section>
+<section class="strip voice-keyboard"><strong>Play the voice</strong><p class="status" id="keyboardStatus">Hold/tap notes or use A S D F G H J K.</p><div class="keys" id="keyboard"></div></section>
+</div>
+</div>
+<section class="strip oscilloscope-panel"><strong>Oscilloscope</strong><p class="status" id="scopeStatus">Live stable waveform. It locks to the wave instead of scrolling.</p><canvas class="scope" id="scope" width="900" height="180"></canvas></section>
+<section class="card signal-path"><strong>Signal path</strong><div class="modules"><div class="module"><code>MV-02</code><p>Scale</p></div><div class="module"><code>MV-01</code><p>Tone</p></div><div class="module"><code>MV-03</code><p>Envelope</p></div><div class="module"><code>MF-01</code><p>Room</p></div><div class="module"><code>MF-02</code><p>Memory</p></div></div></section>
 </main>
 <script src="app.js"></script>
 <script src="shape-patch.js"></script>
