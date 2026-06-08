@@ -1,3 +1,16 @@
+const scopeHeightFix=document.createElement('style');
+scopeHeightFix.textContent=`
+@media(min-width:900px) and (orientation:landscape){
+  .app{gap:5px;}
+  .scope{height:118px;}
+  .app>section:nth-of-type(6){min-height:150px;}
+  .app>section:nth-of-type(4) .control{padding:5px;}
+  .app>section:nth-of-type(4) .btn{padding:3px 6px;font-size:.78rem;}
+  .app>section:nth-of-type(5){align-self:start;}
+}
+`;
+document.head.appendChild(scopeHeightFix);
+
 const amplitudeControl=document.getElementById('amplitude');
 const amplitudeLabel=document.getElementById('amplitudeLabel');
 
