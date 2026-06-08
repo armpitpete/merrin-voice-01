@@ -1,5 +1,6 @@
 let heldScopeImage=null;
 let heldScopeAt=0;
+let lastLockedStart=0;
 const originalDrawScope=drawScope;
 
 function drawHeldScopeGrid(){
@@ -21,15 +22,19 @@ function scopeStats(data){
   return {lo,hi,span:hi-lo,mid:(lo+hi)/2};
 }
 
-function findLockedStart(data,stats){
-  if(stats.span<8)return null;
-  const minSlope=Math.max(3,stats.span*.12);
-  for(let i=12;i<data.length-900;i++){
+function findLockedStart(data,stats,visible){
+  if(stats.span<2)return null;
+  const minSlope=Math.max(1,stats.span*.05);
+  const limit=Math.max(16,data.length-visible-4);
+  for(let i=12;i<limit;i++){
     const rising=data[i-1]<stats.mid&&data[i]>=stats.mid;
-    const slope=data[i+2]-data[i-2];
-    if(rising&&slope>=minSlope)return i;
+    const slope=data[Math.min(i+2,data.length-1)]-data[Math.max(i-2,0)];
+    if(rising&&slope>=minSlope){
+      lastLockedStart=i;
+      return i;
+    }
   }
-  return null;
+  return lastLockedStart||0;
 }
 
 function drawLockedScope(){
@@ -41,17 +46,18 @@ function drawLockedScope(){
   }
   analyser.getByteTimeDomainData(scopeData);
   const stats=scopeStats(scopeData);
-  const start=findLockedStart(scopeData,stats);
+  const w=canvas.width,h=canvas.height,visible=640;
+  const start=findLockedStart(scopeData,stats,visible);
   if(start===null){
-    if(heldScopeImage)g.putImageData(heldScopeImage,0,0);
+    g.strokeStyle='rgba(242,240,234,.92)';
+    g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();
     return;
   }
-  const w=canvas.width,h=canvas.height,visible=640;
   const targetHalfHeight=h*.34;
-  const displayGain=Math.min(8,Math.max(1,targetHalfHeight/Math.max(1,stats.span/2)));
+  const displayGain=Math.min(10,Math.max(1,targetHalfHeight/Math.max(1,stats.span/2)));
   const points=[];
   for(let x=0;x<w;x++){
-    const sample=start+Math.floor((x/w)*visible);
+    const sample=Math.min(scopeData.length-1,start+Math.floor((x/w)*visible));
     const y=(h/2)-((scopeData[sample]-stats.mid)*displayGain);
     points.push([x,Math.max(4,Math.min(h-4,y))]);
   }
