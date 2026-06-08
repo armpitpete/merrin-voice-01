@@ -2,9 +2,15 @@ const scopeHeightFix=document.createElement('style');
 scopeHeightFix.textContent=`
 @media(min-width:900px) and (orientation:landscape){
   html,body{overflow-y:auto!important;}
-  .app{gap:5px;height:auto!important;min-height:100dvh;padding-bottom:14px!important;}
+  .app{gap:5px;height:auto!important;min-height:100dvh;padding-bottom:14px!important;align-items:start!important;}
+  .app>section:nth-of-type(1) .row{display:grid;grid-template-columns:max-content max-content max-content minmax(0,1fr);width:100%;}
+  #playStatus{display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .scope{height:118px;}
   .app>section:nth-of-type(6){min-height:150px;margin-bottom:12px;}
+  .app>section:nth-of-type(2),
+  .app>section:nth-of-type(3),
+  .app>section:nth-of-type(4),
+  .app>section:nth-of-type(5){align-self:start!important;}
   .app>section:nth-of-type(4) .control{padding:5px;}
   .app>section:nth-of-type(4) .btn{padding:3px 6px;font-size:.78rem;}
   .app>section:nth-of-type(5){align-self:start;}
