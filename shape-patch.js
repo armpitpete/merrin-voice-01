@@ -10,15 +10,18 @@ tone=function shapedTone(){
   const shaped={...base};
 
   if(shape==='hollow'){
-    shaped.sine=base.sine*.92;
-    shaped.sub=base.sub*.95;
-    shaped.over=base.over+0.055;
+    shaped.sine=base.sine*.78;
+    shaped.sub=base.sub*.82;
+    shaped.over=base.over+0.16;
+    shaped.cut=base.cut*1.08;
   }
 
   if(shape==='pressed'){
-    shaped.sine=base.sine*.84;
-    shaped.sub=base.sub*.9;
-    shaped.over=base.over+0.11;
+    shaped.sine=base.sine*.66;
+    shaped.sub=base.sub*.72;
+    shaped.over=base.over+0.28;
+    shaped.cut=base.cut*1.16;
+    shaped.q=base.q*.9;
   }
 
   return shaped;
