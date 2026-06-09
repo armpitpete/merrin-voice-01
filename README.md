@@ -1,6 +1,10 @@
-# Merrin Voice 01
+# Merrin Voice 01 — Constrained Grief
 
-Interactive browser app for explaining and playing the **Merrin Voice 01 — Constrained Grief** synth voice.
+Merrin Voice 01 is a playable browser synth demo built around one emotional voice:
+
+> constrained grief — dark, slow, weighted, fragile, lingering, remembered
+
+It is not a general-purpose synth. It is a small Web Audio instrument for testing one focused sound identity.
 
 ## Live app
 
@@ -8,375 +12,149 @@ https://armpitpete.github.io/merrin-voice-01/
 
 ## Current status
 
-**v3.3 is complete.**
+**v3.7 documentation pass complete.**
 
-Merrin Voice 01 is now a playable one-emotion synth test app. It keeps the voice inside the locked emotional field: constrained grief.
+The app itself is accepted at the current v3.6 browser-demo state.
 
-The app currently supports:
+This version includes:
 
-- playable browser synth voice
-- clean raw sine baseline test mode
-- emotion-shaped controls
-- individual effect test switches
-- live stable oscilloscope
-- active note display on the keyboard
-- full chromatic scale
-- visible Fade envelope values
-- Wither delay testing
+- playable browser synth
+- continuous gate notes
+- on-screen keyboard
+- computer keyboard support
+- active note buttons
+- amplitude slider
+- live oscilloscope accepted as basic/functional
+- Shape: Pure / Hollow / Pressed
+- Sub refined as weight, not bass boom
+- Overtone refined as ache, not brightness
+- slight Drift
+- accepted landscape layout cleanup
 
-## One-emotion identity
+## What this is
 
-Merrin Voice 01 is not a generic synth.
+Merrin Voice 01 is a browser-based synth demo.
 
-It is a constrained melancholic voice shaped through:
+It runs directly in the browser using Web Audio. It is hosted on GitHub Pages and does not require a build step.
 
-```text
-Scale → Tone → Envelope → Room → Memory
-```
+The app is useful for:
 
-Controls should stay inside this field:
+- testing the Merrin Voice 01 sound identity
+- playing a small constrained voice
+- checking how the controls shape the emotional character
+- proving the instrument idea before larger synth/plugin work
 
-- darker
-- slower
-- more distant
-- more fragile
-- more weighted
-- more lingering
-- more unstable
-- more remembered
+## What this is not
 
-Avoid directions that turn it into a generic bright synth, aggressive lead, snappy pluck, sparkly reverb, or clean hi-fi delay.
+This is not yet:
 
-## Current app
-
-- Single static `index.html`
-- No framework
-- No build step
-- Runs directly in the browser
-- Uses Web Audio
-- Hosted on GitHub Pages
+- a VST plugin
+- a VCV Rack module
+- a DAW instrument
+- a preset synth
+- a sequencer
+- a MIDI controller app
+- a patch-cable simulator
+- a full modular synth system
 
 ## Main controls
 
 ### Playable controls
 
-- `Tone` — Dark / Soft / Bright
-- `Fade` — Short / Linger / Long
-- `Echo` — Near / Deep / Memory
+- **Tone** — changes the voice from darker to brighter within the allowed emotional range.
+- **Fade** — changes how quickly the note arrives and disappears.
+- **Echo** — changes the remembered/distant quality of the sound.
+- **Amplitude** — controls output level.
+
+### Voice-shaping controls
+
+- **Shape** — Pure / Hollow / Pressed.
+- **Sub** — adds weight without turning into bass boom.
+- **Overtone** — adds ache without becoming bright or shiny.
+- **Drift** — adds slight instability.
 
 ### Emotion-shaped controls
 
-- `Scale` — Natural Minor / Harmonic Minor / Chromatic
-- `Glide` — Slow / Slower / Heavy
-- `Weight` — Light / Weighted / Deep
-- `Wither` — Still / Tremble / Frail
+- **Scale** — chooses the pitch field.
+- **Glide** — controls how notes slide.
+- **Weight** — changes the heaviness of the sound.
+- **Wither** — controls fragile movement in the voice.
 
-## Scales
+### Test controls
 
-### Natural Minor
+- **All effects off** — gives a cleaner baseline for checking the sound.
+- **Normal voice** — restores the accepted voice shape.
+- **Effect test switches** — allow individual sound parts to be checked.
 
-```text
-C · D · Eb · F · G · Ab · Bb · C
-```
+## Keyboard support
 
-Keyboard shortcuts:
+The app can be played with:
 
-```text
-A S D F G H J K
-```
+- the on-screen note buttons
+- a computer keyboard
 
-### Harmonic Minor
-
-```text
-C · D · Eb · F · G · Ab · B · C
-```
-
-Keyboard shortcuts:
-
-```text
-A S D F G H J K
-```
-
-### Chromatic
-
-```text
-C · C# · D · Eb · E · F · F# · G · Ab · A · Bb · B · C
-```
-
-Keyboard shortcuts:
-
-```text
-A W S E D F T G Y H U J K
-```
-
-## Fade envelope readout
-
-The app now shows the envelope values for the selected Fade mode.
-
-Current values:
-
-```text
-Short  → Attack 180 ms · Hold 250 ms  · Release end 1250 ms
-Linger → Attack 550 ms · Hold 1100 ms · Release end 3200 ms
-Long   → Attack 900 ms · Hold 2100 ms · Release end 5400 ms
-```
-
-This makes Fade easier to test without adding more controls.
-
-## Wither delay
-
-The Wither section includes a delay slider:
-
-```text
-0–1200 ms
-```
-
-Purpose:
-
-```text
-0 ms      → Wither starts immediately
-450 ms    → Wither starts after the note has settled
-800+ ms   → Wither arrives late in the fade
-```
-
-## Effect test switches
-
-The app includes diagnostic switches so the sound can be tested from a clean sine baseline.
-
-Available effect switches:
-
-- `Sub`
-- `Overtone`
-- `Filter`
-- `Glide`
-- `Wither`
-- `Room`
-- `Echo`
-
-Test workflow:
-
-```text
-1. Press All effects off.
-2. Confirm clean sine.
-3. Turn on one effect.
-4. Play notes.
-5. Listen for the unwanted behaviour.
-6. Turn that effect off.
-7. Test the next effect.
-```
+The note buttons light up while active, so the player can see which notes are sounding.
 
 ## Oscilloscope
 
-The app includes a live stable oscilloscope.
+The app includes a live oscilloscope.
 
-Purpose:
+It is accepted as basic and functional. Its job is to show that the waveform is alive and responding. It is not intended to be a full laboratory-grade scope.
 
-- show the waveform while the sound is playing
-- lock to the wave so the display is readable
-- support testing raw sine vs shaped voice output
+## Design boundary
 
-## Active note display
+Do not expand this version into a general synth.
 
-When notes are played, the matching on-screen note buttons light up.
+Avoid adding:
 
-This supports overlapping note tests, for example:
+- presets
+- MIDI
+- sequencer features
+- plugin framework work
+- extra controls
+- more layout polish
+- delayed tremble work
 
-```text
-Fade: Long
-Press C, E, G quickly
-```
+The current accepted job is complete: a focused playable browser demo for **Merrin Voice 01 — Constrained Grief**.
 
-The active buttons clear after their own fade time.
+## Release notes
 
-## Locked signal path
+### v3.7 — Final release notes and project README
 
-```text
-CV → MV-02 → MV-01 → MV-03 → MF-01 → MF-02 → Output
-Gate → MV-03
-```
+Documentation pass.
 
-## Module order
+- README updated to reflect the accepted v3.6 browser-demo state.
+- Current controls and boundaries documented.
+- Live app link included.
+- Project clearly described as a browser synth demo, not a plugin or DAW instrument.
 
-1. `MV-02` — Melancholy Quantizer / Scale
-2. `MV-01` — Somber Oscillator / Tone
-3. `MV-03` — Lingering Voice / Envelope
-4. `MF-01` — Desolate Space / Room
-5. `MF-02` — Fading Echoes / Memory
+No sound, control, or layout changes.
 
-## Version notes
+### v3.6 — Voice source shaping and layout acceptance
 
-### v0.1
+Accepted current playable state.
 
-Clickable signal guide with five module cards, detail panel, Merrin Link bus panel, and one tiny audio preview.
+- Shape added: Pure / Hollow / Pressed.
+- Sub refined as weight, not bass boom.
+- Overtone refined as ache, not brightness.
+- Slight Drift added.
+- Delayed tremble deferred.
+- Landscape layout cleanup accepted.
 
-### v0.2
+### v3.5 — Voice balance and output safety
 
-Adds the Merrin Link jumper view:
+Balanced the playable voice so it stayed controlled, safe, mournful, and usable.
 
-- linked voice mode / independent module mode toggle
-- active / inactive bus line states
-- module jumper notes
-- front-panel patch override explanation
+### v3.4 — Continuous gate polish
 
-### v0.3
+Improved press-and-release note behaviour so the app worked more like a playable instrument.
 
-Adds front-panel override examples:
+### v3.3 — Canon and emotion-shaped controls
 
-- external pitch overrides the Merrin Link pitch normal
-- external audio enters the space stage instead of the normal Merrin Voice path
+Added the main playable control set, diagnostic switches, active note display, and basic oscilloscope support.
 
-### v0.4
+## Final note
 
-Adds tiny sound controls for the existing Web Audio preview:
+Merrin Voice 01 should stay small and specific.
 
-- `Brightness`: dark / darker
-- `Echo`: short / long
-
-### v0.5
-
-Improves mobile/page flow and bus readability:
-
-- smoother top-to-bottom page flow
-- full-width boundary card
-- shorter bus-line wording
-- reduced empty space before override examples
-
-### v0.6
-
-Adds selected module bus focus:
-
-- highlights relevant Merrin Link bus lines when a module is selected
-- adds a short focus note showing which bus lines the selected module uses
-- keeps the app as a teaching page, not a patch simulator
-
-### v0.7
-
-Adds guided signal path walkthrough controls:
-
-- `Previous stage`
-- `Next stage`
-- selected module follows the walkthrough
-- module detail and bus focus update with the current stage
-
-### v0.8
-
-Adds a clickable walkthrough stage progress strip:
-
-- `Scale`
-- `Tone`
-- `Envelope`
-- `Room`
-- `Memory`
-- active chip follows the selected stage
-- clicking a chip jumps directly to that stage
-
-### v0.9
-
-Adds a compact whole-voice summary panel:
-
-- shows `Scale → Tone → Envelope → Room → Memory`
-- gives each stage a plain one-line explanation
-- helps the user understand the full voice path at a glance
-
-### v1.0
-
-Release check and freeze:
-
-- visible app label updated to v1.0
-- footer updated to v1.0
-- summary card label updated to v1.0
-- README updated to v1.0
-- stable teaching baseline preserved
-
-### v2.0
-
-Design decision:
-
-- full controls should be playable and still support understanding
-- v1.0 teaching guide remains preserved as the baseline
-- first playable build should stay small
-
-### v2.1
-
-Adds playable controls:
-
-- `Tone`: dark / soft / bright
-- `Fade`: short / linger / long
-- `Echo`: near / deep / memory
-- controls affect the Web Audio voice sample
-- each control has a plain explanation sentence
-
-### v2.2
-
-Links playable controls to teaching stages:
-
-- `Tone` focuses `MV-01` / Tone
-- `Fade` focuses `MV-03` / Envelope
-- `Echo` focuses `MF-02` / Memory
-- walkthrough sentence, stage chip, and bus focus update with the matching stage
-
-### v3.0
-
-Creates the fully working synth roadmap:
-
-- v3.1 real playable note engine
-- v3.2 proper synth engine state
-- v3.3 canon / emotion-shaped controls
-- v3.4 presets / patch memory
-- v3.5 performance polish
-
-### v3.1
-
-Adds the first real playable note engine:
-
-- fixed one-octave on-screen keyboard
-- click/tap note playback
-- computer keyboard support
-- pitch changes per note
-- envelope triggers per note
-- Tone / Fade / Echo still affect the sound
-
-### v3.2
-
-Refactors the browser synth into a cleaner engine shape:
-
-- one shared synth state
-- clean tone settings function
-- clean fade settings function
-- clean echo settings function
-- one shared note trigger function
-- voice sample button and keyboard both use the same note engine
-- existing sound and controls remain in place
-
-### v3.3
-
-Adds canon / emotion-shaped controls and testing tools:
-
-- `Scale`: Natural Minor / Harmonic Minor / Chromatic
-- `Glide`: Slow / Slower / Heavy
-- `Weight`: Light / Weighted / Deep
-- `Wither`: Still / Tremble / Frail
-- full chromatic keyboard
-- active note highlighting
-- clean sine baseline test mode
-- individual effect test switches
-- Wither delay slider
-- visible Fade envelope readout
-- live stable oscilloscope
-
-## Current boundary
-
-This app is now a playable browser synth prototype and diagnostic test surface for Merrin Voice 01.
-
-It does **not** yet:
-
-- save patches
-- provide presets
-- include MIDI
-- include a sequencer
-- include octave switching
-- include plugin framework
-- simulate patch cables
-- simulate electronics
-- design PCBs
-- act as a VCV Rack module
+Its value is not feature count. Its value is the focused emotional voice.
