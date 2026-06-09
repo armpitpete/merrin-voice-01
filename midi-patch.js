@@ -19,7 +19,9 @@ midiLayoutFix.textContent=`
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
+  .midi-debug-panel{grid-column:1/-1;max-height:170px;overflow:auto;}
 }
+.midi-debug-panel pre{white-space:pre-wrap;margin:.5rem 0 0;font:12px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);}
 `;
 document.head.appendChild(midiLayoutFix);
 
@@ -28,9 +30,50 @@ const midiStatus=document.getElementById('midiStatus');
 let midiAccess=null;
 const midiHeld={};
 const midiPendingOff={};
+const midiLog=[];
+let midiDebugOutput=null;
+
+function ensureMidiDebugPanel(){
+  if(midiDebugOutput)return;
+  const topControls=document.querySelector('.top-controls');
+  if(!topControls)return;
+  const panel=document.createElement('section');
+  panel.className='strip midi-debug-panel';
+  panel.innerHTML='<strong>MIDI diagnostics</strong><div class="row" style="margin-top:6px"><button class="btn test" id="midiPanic" type="button">MIDI panic: all notes off</button><button class="btn test" id="midiClearLog" type="button">Clear MIDI log</button></div><pre id="midiDebugOutput">MIDI diagnostics ready.</pre>';
+  topControls.insertAdjacentElement('afterend',panel);
+  midiDebugOutput=document.getElementById('midiDebugOutput');
+  document.getElementById('midiPanic')?.addEventListener('click',()=>{
+    releaseAllNotes('MIDI panic. Released all notes.');
+    midiLogEvent('PANIC',[], 'all notes off');
+  });
+  document.getElementById('midiClearLog')?.addEventListener('click',()=>{
+    midiLog.length=0;
+    updateMidiDebugOutput();
+  });
+  updateMidiDebugOutput();
+}
+
+function midiSnapshot(){
+  return `held=[${Object.keys(midiHeld).join(',')||'none'}] pendingOff=[${Object.keys(midiPendingOff).join(',')||'none'}] voices=[${Object.keys(voices).join(',')||'none'}] active=[${activeVoiceIndexes().join(',')||'none'}]`;
+}
+
+function updateMidiDebugOutput(){
+  if(!midiDebugOutput)return;
+  const lines=[`Status: ${midiSnapshot()}`,...midiLog.slice(-18)];
+  midiDebugOutput.textContent=lines.join('\n');
+}
+
+function midiLogEvent(type,data,note){
+  const time=new Date().toLocaleTimeString();
+  const bytes=Array.from(data||[]).join(' ');
+  midiLog.push(`${time} ${type}${note?` ${note}`:''}${bytes?` | ${bytes}`:''} | ${midiSnapshot()}`);
+  if(midiLog.length>80)midiLog.shift();
+  updateMidiDebugOutput();
+}
 
 function setMidiStatus(message){
   if(midiStatus)midiStatus.textContent=message;
+  updateMidiDebugOutput();
 }
 
 function midiNoteName(noteNumber){
@@ -79,12 +122,16 @@ function allowReleasedVoiceRetrigger(index){
   const voice=voices[index];
   if(voice&&voice.released){
     delete voices[index];
+    midiLogEvent('RETRIGGER-CLEANUP',[],String(index));
   }
 }
 
 stopNote=function midiSafeStopNote(index){
   const voice=voices[index];
-  if(!voice||voice.released||!ctx)return;
+  if(!voice||voice.released||!ctx){
+    midiLogEvent('STOP-MISS',[],String(index));
+    return;
+  }
 
   voice.released=true;
   clearHeldKeyForIndex(index);
@@ -109,11 +156,13 @@ stopNote=function midiSafeStopNote(index){
   });
 
   setActiveNote(index,false);
+  midiLogEvent('STOP',[],String(index));
 
   setTimeout(()=>{
     if(voices[index]===voice){
       delete voices[index];
       setActiveNote(index,false);
+      midiLogEvent('CLEANUP',[],String(index));
     }
   },Math.max(120,rel*1000+120));
 
@@ -131,6 +180,7 @@ releaseAllNotes=function midiAwareReleaseAllNotes(message){
   Object.keys(heldKeys).forEach(key=>delete heldKeys[key]);
   Object.keys(voices).forEach(index=>stopNote(index));
   keyboard.querySelectorAll('.key').forEach(key=>key.dataset.active='false');
+  midiLogEvent('RELEASE-ALL',[],message||'');
   if(message)playStatus.textContent=message;
 };
 
@@ -146,20 +196,46 @@ startNote=async function midiVelocityStartNote(note){
     voice.master.gain.setValueAtTime(base*note.velocityGain,ctx.currentTime);
   }
 
+  midiLogEvent('START',[],String(note.index));
+
   if(note.midiNote!==undefined&&midiPendingOff[note.midiNote]){
     stopNote(note.index);
     setMidiVisualActive(note.midiNote,false);
     delete midiPendingOff[note.midiNote];
+    midiLogEvent('PENDING-OFF-APPLIED',[],String(note.index));
   }
 };
+
+function handleMidiControlChange(controller,value,data){
+  if(controller===64&&value<64){
+    midiLogEvent('CC-SUSTAIN-OFF',data,''+value);
+    return;
+  }
+
+  if(controller===120||controller===123){
+    releaseAllNotes(`MIDI all-notes-off received. CC ${controller}.`);
+    midiLogEvent('CC-ALL-NOTES-OFF',data,''+controller);
+    return;
+  }
+
+  midiLogEvent('CC',data,`${controller}=${value}`);
+}
 
 function handleMidiMessage(event){
   const [status,noteNumber,velocity]=event.data;
   const command=status&0xf0;
   const key=String(noteNumber);
 
+  if(command===0xb0){
+    handleMidiControlChange(noteNumber,velocity,event.data);
+    return;
+  }
+
   if(command===0x90&&velocity>0){
-    if(midiHeld[key])return;
+    if(midiHeld[key]){
+      midiLogEvent('ON-DUPLICATE-IGNORED',event.data,midiNoteName(noteNumber));
+      return;
+    }
     const note=midiNoteObject(noteNumber,velocity);
     allowReleasedVoiceRetrigger(note.index);
     delete midiPendingOff[key];
@@ -167,6 +243,7 @@ function handleMidiMessage(event){
     startNote(note);
     setMidiVisualActive(noteNumber,true);
     setMidiStatus(`MIDI connected: ${event.currentTarget?.name||'keyboard'}`);
+    midiLogEvent('ON',event.data,note.name);
     return;
   }
 
@@ -178,24 +255,32 @@ function handleMidiMessage(event){
         stopNote(heldIndex);
       }else{
         midiPendingOff[key]=true;
+        midiLogEvent('OFF-PENDING-NO-VOICE-YET',event.data,midiNoteName(noteNumber));
       }
       setMidiVisualActive(noteNumber,false);
       delete midiHeld[key];
+      midiLogEvent('OFF',event.data,midiNoteName(noteNumber));
       return;
     }
 
     midiPendingOff[key]=true;
     setMidiVisualActive(noteNumber,false);
+    midiLogEvent('OFF-NOT-HELD',event.data,midiNoteName(noteNumber));
+    return;
   }
+
+  midiLogEvent('MIDI-OTHER',event.data,'');
 }
 
 function connectMidiInputs(){
   if(!midiAccess)return;
+  ensureMidiDebugPanel();
   const inputs=[...midiAccess.inputs.values()];
 
   if(!inputs.length){
     releaseAllNotes('MIDI input lost. Released held notes safely.');
     setMidiStatus('MIDI: no input device found. Plug in keyboard, then press again.');
+    midiLogEvent('NO-INPUTS',[], '');
     return;
   }
 
@@ -205,13 +290,16 @@ function connectMidiInputs(){
 
   const names=inputs.map(input=>input.name||'Unnamed MIDI input').join(', ');
   setMidiStatus(`MIDI connected: ${names}`);
+  midiLogEvent('CONNECTED',[],names);
 }
 
 async function connectMidiKeyboard(){
   if(!midiConnect)return;
+  ensureMidiDebugPanel();
 
   if(!navigator.requestMIDIAccess){
     setMidiStatus('MIDI not supported in this browser. Use Chrome or Edge desktop.');
+    midiLogEvent('UNSUPPORTED',[], '');
     return;
   }
 
@@ -219,11 +307,13 @@ async function connectMidiKeyboard(){
     releaseAllNotes('Connecting MIDI. Released held notes safely.');
     midiConnect.disabled=true;
     setMidiStatus('MIDI: requesting access...');
+    midiLogEvent('REQUEST',[], '');
     midiAccess=await navigator.requestMIDIAccess({sysex:false});
     connectMidiInputs();
     midiAccess.onstatechange=()=>connectMidiInputs();
   }catch(error){
     setMidiStatus('MIDI access blocked or unavailable.');
+    midiLogEvent('ACCESS-ERROR',[],error?.message||'unknown');
   }finally{
     midiConnect.disabled=false;
   }
