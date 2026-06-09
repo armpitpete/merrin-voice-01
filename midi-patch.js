@@ -74,6 +74,13 @@ function setMidiVisualActive(noteNumber,value){
   if(match>=0)setActiveNote(match,value);
 }
 
+function allowReleasedVoiceRetrigger(index){
+  const voice=voices[index];
+  if(voice&&voice.released){
+    delete voices[index];
+  }
+}
+
 releaseAllNotes=function midiAwareReleaseAllNotes(message){
   Object.keys(midiHeld).forEach(noteNumber=>{
     stopNote(`midi-${noteNumber}`);
@@ -88,6 +95,7 @@ releaseAllNotes=function midiAwareReleaseAllNotes(message){
 
 const originalMidiStartNote=startNote;
 startNote=async function midiVelocityStartNote(note){
+  allowReleasedVoiceRetrigger(note.index);
   await originalMidiStartNote(note);
   const voice=voices[note.index];
   if(voice?.master&&note.velocityGain!==undefined&&ctx){
@@ -104,6 +112,7 @@ function handleMidiMessage(event){
     const key=String(noteNumber);
     if(midiHeld[key])return;
     const note=midiNoteObject(noteNumber,velocity);
+    allowReleasedVoiceRetrigger(note.index);
     midiHeld[key]=note.index;
     startNote(note);
     setMidiVisualActive(noteNumber,true);
