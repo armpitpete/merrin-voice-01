@@ -27,6 +27,7 @@ const midiConnect=document.getElementById('midiConnect');
 const midiStatus=document.getElementById('midiStatus');
 let midiAccess=null;
 const midiHeld={};
+const midiPendingOff={};
 
 function setMidiStatus(message){
   if(midiStatus)midiStatus.textContent=message;
@@ -81,12 +82,52 @@ function allowReleasedVoiceRetrigger(index){
   }
 }
 
+stopNote=function midiSafeStopNote(index){
+  const voice=voices[index];
+  if(!voice||voice.released||!ctx)return;
+
+  voice.released=true;
+  clearHeldKeyForIndex(index);
+
+  const now=ctx.currentTime;
+  const rel=releaseTime();
+  const startGain=Math.max(.0001,currentAmpGain(voice,now));
+
+  try{
+    voice.amp.gain.cancelAndHoldAtTime(now);
+  }catch(error){
+    voice.amp.gain.cancelScheduledValues(now);
+  }
+
+  voice.amp.gain.setValueAtTime(startGain,now);
+  voice.amp.gain.exponentialRampToValueAtTime(.0001,now+rel);
+
+  voice.oscillators.forEach(oscillator=>{
+    try{
+      oscillator.stop(now+rel+2.1);
+    }catch(error){}
+  });
+
+  setActiveNote(index,false);
+
+  setTimeout(()=>{
+    if(voices[index]===voice){
+      delete voices[index];
+      setActiveNote(index,false);
+    }
+  },Math.max(120,rel*1000+120));
+
+  playStatus.textContent=`Released ${voice.note.name}. Release: ${ms(rel)}.`;
+};
+
 releaseAllNotes=function midiAwareReleaseAllNotes(message){
   Object.keys(midiHeld).forEach(noteNumber=>{
     stopNote(`midi-${noteNumber}`);
     setMidiVisualActive(Number(noteNumber),false);
     delete midiHeld[noteNumber];
+    delete midiPendingOff[noteNumber];
   });
+  Object.keys(midiPendingOff).forEach(noteNumber=>delete midiPendingOff[noteNumber]);
   Object.keys(heldKeys).forEach(key=>delete heldKeys[key]);
   Object.keys(voices).forEach(index=>stopNote(index));
   keyboard.querySelectorAll('.key').forEach(key=>key.dataset.active='false');
@@ -97,22 +138,31 @@ const originalMidiStartNote=startNote;
 startNote=async function midiVelocityStartNote(note){
   allowReleasedVoiceRetrigger(note.index);
   await originalMidiStartNote(note);
+
   const voice=voices[note.index];
+
   if(voice?.master&&note.velocityGain!==undefined&&ctx){
     const base=state.amplitude??.72;
     voice.master.gain.setValueAtTime(base*note.velocityGain,ctx.currentTime);
+  }
+
+  if(note.midiNote!==undefined&&midiPendingOff[note.midiNote]){
+    stopNote(note.index);
+    setMidiVisualActive(note.midiNote,false);
+    delete midiPendingOff[note.midiNote];
   }
 };
 
 function handleMidiMessage(event){
   const [status,noteNumber,velocity]=event.data;
   const command=status&0xf0;
+  const key=String(noteNumber);
 
   if(command===0x90&&velocity>0){
-    const key=String(noteNumber);
     if(midiHeld[key])return;
     const note=midiNoteObject(noteNumber,velocity);
     allowReleasedVoiceRetrigger(note.index);
+    delete midiPendingOff[key];
     midiHeld[key]=note.index;
     startNote(note);
     setMidiVisualActive(noteNumber,true);
@@ -121,12 +171,21 @@ function handleMidiMessage(event){
   }
 
   if(command===0x80||(command===0x90&&velocity===0)){
-    const key=String(noteNumber);
-    if(midiHeld[key]){
-      stopNote(midiHeld[key]);
+    const heldIndex=midiHeld[key];
+
+    if(heldIndex){
+      if(voices[heldIndex]){
+        stopNote(heldIndex);
+      }else{
+        midiPendingOff[key]=true;
+      }
       setMidiVisualActive(noteNumber,false);
       delete midiHeld[key];
+      return;
     }
+
+    midiPendingOff[key]=true;
+    setMidiVisualActive(noteNumber,false);
   }
 }
 
@@ -135,6 +194,7 @@ function connectMidiInputs(){
   const inputs=[...midiAccess.inputs.values()];
 
   if(!inputs.length){
+    releaseAllNotes('MIDI input lost. Released held notes safely.');
     setMidiStatus('MIDI: no input device found. Plug in keyboard, then press again.');
     return;
   }
@@ -156,6 +216,7 @@ async function connectMidiKeyboard(){
   }
 
   try{
+    releaseAllNotes('Connecting MIDI. Released held notes safely.');
     midiConnect.disabled=true;
     setMidiStatus('MIDI: requesting access...');
     midiAccess=await navigator.requestMIDIAccess({sysex:false});
