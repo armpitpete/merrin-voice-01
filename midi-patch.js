@@ -1,3 +1,28 @@
+const midiLayoutFix=document.createElement('style');
+midiLayoutFix.textContent=`
+@media(min-width:900px) and (orientation:landscape){
+  .top-controls .row{
+    display:grid!important;
+    grid-template-columns:max-content max-content max-content max-content minmax(0,1fr)!important;
+    width:100%!important;
+    align-items:center!important;
+  }
+  #playStatus{
+    min-width:0!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #midiStatus{
+    grid-column:1/-1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+`;
+document.head.appendChild(midiLayoutFix);
+
 const midiConnect=document.getElementById('midiConnect');
 const midiStatus=document.getElementById('midiStatus');
 let midiAccess=null;
@@ -49,7 +74,6 @@ function setMidiVisualActive(noteNumber,value){
   if(match>=0)setActiveNote(match,value);
 }
 
-const originalMidiReleaseAllNotes=releaseAllNotes;
 releaseAllNotes=function midiAwareReleaseAllNotes(message){
   Object.keys(midiHeld).forEach(noteNumber=>{
     stopNote(`midi-${noteNumber}`);
