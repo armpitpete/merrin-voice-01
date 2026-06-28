@@ -43,6 +43,7 @@ const midiStatus=document.getElementById('midiStatus');
 let midiAccess=null;
 const midiHeld={};
 const midiPendingOff={};
+const midiScaleIgnored=new Set();
 const midiLog=[];
 const midiRecentMessages=new Map();
 const MIDI_DUPLICATE_WINDOW_MS=32;
@@ -156,7 +157,7 @@ function ensureMidiDebugPanel(){
 }
 
 function midiSnapshot(){
-  return `held=[${Object.keys(midiHeld).join(',')||'none'}] pendingOff=[${Object.keys(midiPendingOff).join(',')||'none'}] voices=[${Object.keys(voices).join(',')||'none'}] active=[${activeVoiceIndexes().join(',')||'none'}]`;
+  return `held=[${Object.keys(midiHeld).join(',')||'none'}] pendingOff=[${Object.keys(midiPendingOff).join(',')||'none'}] ignored=[${[...midiScaleIgnored].join(',')||'none'}] voices=[${Object.keys(voices).join(',')||'none'}] active=[${activeVoiceIndexes().join(',')||'none'}]`;
 }
 
 function updateMidiDebugOutput(){
@@ -203,6 +204,21 @@ function midiNoteName(noteNumber){
 
 function midiFrequency(noteNumber){
   return 440*Math.pow(2,(noteNumber-69)/12);
+}
+
+function midiPitchClassFromFrequency(freq){
+  const midi=Math.round(69+(12*Math.log2(freq/440)));
+  return ((midi%12)+12)%12;
+}
+
+function selectedScalePitchClasses(){
+  return new Set((scaleNotes[state.scale]||[]).map(([,freq])=>midiPitchClassFromFrequency(freq)));
+}
+
+function midiNoteAllowedInSelectedScale(noteNumber){
+  if(state.scale==='chromatic')return true;
+  const pitchClass=((noteNumber%12)+12)%12;
+  return selectedScalePitchClasses().has(pitchClass);
 }
 
 function midiNoteObject(noteNumber,velocity){
@@ -325,6 +341,7 @@ releaseAllNotes=function midiAwareReleaseAllNotes(message){
     delete midiHeld[noteNumber];
     delete midiPendingOff[noteNumber];
   });
+  midiScaleIgnored.clear();
   Object.keys(midiPendingOff).forEach(noteNumber=>delete midiPendingOff[noteNumber]);
   Object.keys(heldKeys).forEach(key=>delete heldKeys[key]);
   Object.keys(voices).forEach(index=>stopNote(index));
@@ -384,6 +401,13 @@ function handleMidiMessage(event){
   }
 
   if(command===0x90&&velocity>0){
+    if(!midiNoteAllowedInSelectedScale(noteNumber)){
+      midiScaleIgnored.add(key);
+      setMidiVisualActive(noteNumber,false);
+      midiLogEvent('ON-OUT-OF-SCALE-IGNORED',event.data,`${midiNoteName(noteNumber)} outside ${labels[state.scale]||state.scale}`);
+      return;
+    }
+
     if(midiHeld[key]){
       midiLogEvent('ON-DUPLICATE-IGNORED',event.data,midiNoteName(noteNumber));
       return;
@@ -400,6 +424,13 @@ function handleMidiMessage(event){
   }
 
   if(command===0x80||(command===0x90&&velocity===0)){
+    if(midiScaleIgnored.has(key)){
+      midiScaleIgnored.delete(key);
+      setMidiVisualActive(noteNumber,false);
+      midiLogEvent('OFF-OUT-OF-SCALE-IGNORED',event.data,midiNoteName(noteNumber));
+      return;
+    }
+
     const heldIndex=midiHeld[key];
 
     if(heldIndex){
