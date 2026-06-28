@@ -1,6 +1,6 @@
-# Merrin Voice 01 — Constrained Grief
+# Merrin Grief Synth — Constrained Grief
 
-Merrin Voice 01 is a playable browser synth demo built around one emotional voice:
+Merrin Grief Synth is a playable browser synth demo built around one emotional voice:
 
 > constrained grief — dark, slow, weighted, fragile, lingering, remembered
 
@@ -33,13 +33,13 @@ This version includes:
 
 ## What this is
 
-Merrin Voice 01 is a browser-based synth demo.
+Merrin Grief Synth is a browser-based synth demo.
 
 It runs directly in the browser using Web Audio. It is hosted on GitHub Pages and does not require a build step.
 
 The app is useful for:
 
-- testing the Merrin Voice 01 sound identity
+- testing the Merrin Grief Synth sound identity
 - playing a small constrained voice
 - checking how the controls shape the emotional character
 - proving the instrument idea before larger synth/plugin work
@@ -115,7 +115,7 @@ Avoid adding:
 - more layout polish
 - delayed tremble work
 
-The current accepted job is complete: a focused playable browser demo for **Merrin Voice 01 — Constrained Grief**.
+The current accepted job is complete: a focused playable browser demo for **Merrin Grief Synth — Constrained Grief**.
 
 ## Release notes
 
@@ -155,6 +155,6 @@ Added the main playable control set, diagnostic switches, active note display, a
 
 ## Final note
 
-Merrin Voice 01 should stay small and specific.
+Merrin Grief Synth should stay small and specific.
 
 Its value is not feature count. Its value is the focused emotional voice.
