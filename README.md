@@ -44,18 +44,20 @@ The app is useful for:
 - checking how the controls shape the emotional character
 - proving the instrument idea before larger synth/plugin work
 
-## What this is not
+## Current scope
 
-This is not yet:
+This release is a browser-first Web Audio demo. Larger formats and systems can be treated as separate future tracks if the core voice proves useful.
 
-- a VST plugin
-- a VCV Rack module
-- a DAW instrument
-- a preset synth
-- a sequencer
-- a MIDI controller app
-- a patch-cable simulator
-- a full modular synth system
+Possible later directions include:
+
+- VST plugin
+- VCV Rack module
+- DAW instrument
+- preset synth
+- sequencer
+- MIDI controller app
+- patch-cable simulator
+- full modular synth system
 
 ## Main controls
 
@@ -126,7 +128,7 @@ Documentation pass.
 - README updated to reflect the accepted v3.6 browser-demo state.
 - Current controls and boundaries documented.
 - Live app link included.
-- Project clearly described as a browser synth demo, not a plugin or DAW instrument.
+- Project clearly described as a browser synth demo, with larger synth/plugin directions kept separate from the current release.
 
 No sound, control, or layout changes.
 
