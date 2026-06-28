@@ -178,6 +178,16 @@ Avoid adding:
 
 The current accepted job is complete: a focused playable browser demo for **Merrin Grief Synth — Constrained Grief** with basic MIDI keyboard input.
 
+## License and attribution
+
+Merrin Grief Synth is intended to be licensed under the **Apache License 2.0**.
+
+Copyright 2026 Andy Rimmer.
+
+Original concept, design, and implementation by Andy Rimmer.
+
+A `NOTICE` file is included to preserve attribution and recognition in redistributions or adaptations.
+
 ## Release notes
 
 ### v3.8 — MIDI keyboard input
