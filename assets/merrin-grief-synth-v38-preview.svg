@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Merrin Grief Synth v3.8 preview</title>
+  <desc id="desc">A stylised preview of the Merrin Grief Synth browser interface showing Constrained Grief controls, note buttons, oscilloscope, and MIDI input.</desc>
+  <rect width="1280" height="760" fill="#090c11"/>
+  <rect x="190" y="34" width="610" height="690" rx="18" fill="#10151c" stroke="#343b45"/>
+  <text x="220" y="76" fill="#d39b58" font-family="Georgia, serif" font-size="18" font-weight="700" letter-spacing="3">MERRIN GRIEF SYNTH APP v3.8</text>
+  <text x="220" y="132" fill="#f3efe6" font-family="Georgia, serif" font-size="54" font-weight="700">Constrained Grief</text>
+  <text x="220" y="166" fill="#c8c0b3" font-family="Georgia, serif" font-size="20">A one-emotion synth voice shaped through scale, tone, envelope, room, and memory.</text>
+  <g font-family="Georgia, serif" font-size="17">
+    <rect x="220" y="190" width="152" height="38" rx="19" fill="#202834" stroke="#d39b58"/>
+    <text x="242" y="215" fill="#fff">▶ Play voice</text>
+    <rect x="382" y="190" width="132" height="38" rx="19" fill="#10151c" stroke="#4e5968"/>
+    <text x="400" y="215" fill="#d8d2c7">All effects off</text>
+    <rect x="524" y="190" width="124" height="38" rx="19" fill="#10151c" stroke="#4e5968"/>
+    <text x="542" y="215" fill="#d8d2c7">Normal voice</text>
+    <rect x="658" y="190" width="118" height="38" rx="19" fill="#10151c" stroke="#4e5968"/>
+    <text x="676" y="215" fill="#d8d2c7">MIDI input</text>
+  </g>
+  <text x="220" y="252" fill="#d8d2c7" font-family="Georgia, serif" font-size="18">MIDI: connected · diagnostics hidden by default · duplicate MIDI filtered</text>
+
+  <g font-family="Georgia, serif">
+    <rect x="220" y="286" width="260" height="142" rx="14" fill="#151a22" stroke="#3d4652"/>
+    <text x="238" y="316" fill="#fff" font-size="20" font-weight="700">Playable controls</text>
+    <text x="238" y="352" fill="#fff" font-size="18" font-weight="700">Shape</text>
+    <text x="324" y="352" fill="#fff" font-size="18" font-weight="700">Tone</text>
+    <text x="410" y="352" fill="#fff" font-size="18" font-weight="700">Echo</text>
+    <rect x="236" y="366" width="70" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="255" y="389" fill="#fff" font-size="16">Pure</text>
+    <rect x="322" y="366" width="70" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="344" y="389" fill="#fff" font-size="16">Dark</text>
+    <rect x="408" y="366" width="70" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="427" y="389" fill="#fff" font-size="16">Deep</text>
+
+    <rect x="500" y="286" width="270" height="142" rx="14" fill="#151a22" stroke="#3d4652"/>
+    <text x="518" y="316" fill="#fff" font-size="20" font-weight="700">Emotion-shaped controls</text>
+    <text x="518" y="352" fill="#fff" font-size="18" font-weight="700">Scale</text>
+    <text x="604" y="352" fill="#fff" font-size="18" font-weight="700">Glide</text>
+    <text x="690" y="352" fill="#fff" font-size="18" font-weight="700">Wither</text>
+    <rect x="516" y="366" width="74" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="531" y="389" fill="#fff" font-size="15">Minor</text>
+    <rect x="602" y="366" width="74" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="621" y="389" fill="#fff" font-size="15">Slow</text>
+    <rect x="688" y="366" width="74" height="34" rx="17" fill="#2a2116" stroke="#d39b58"/>
+    <text x="705" y="389" fill="#fff" font-size="15">Tremble</text>
+  </g>
+
+  <g font-family="Georgia, serif">
+    <rect x="220" y="452" width="550" height="112" rx="14" fill="#10151c" stroke="#3d4652"/>
+    <text x="238" y="482" fill="#fff" font-size="20" font-weight="700">Play the voice</text>
+    <g font-size="22" font-weight="700" fill="#fff">
+      <rect x="238" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="254" y="530">C</text>
+      <rect x="300" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="316" y="530">D</text>
+      <rect x="362" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="375" y="530">Eb</text>
+      <rect x="424" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="442" y="530">F</text>
+      <rect x="486" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="502" y="530">G</text>
+      <rect x="548" y="500" width="48" height="46" rx="10" fill="#2a2116" stroke="#d39b58"/><text x="562" y="530">Ab</text>
+      <rect x="610" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="625" y="530">Bb</text>
+      <rect x="672" y="500" width="48" height="46" rx="10" fill="#202834" stroke="#4e5968"/><text x="688" y="530">C</text>
+    </g>
+  </g>
+
+  <g font-family="Georgia, serif">
+    <rect x="220" y="590" width="550" height="96" rx="14" fill="#10151c" stroke="#3d4652"/>
+    <text x="238" y="620" fill="#fff" font-size="20" font-weight="700">Oscilloscope</text>
+    <rect x="238" y="636" width="514" height="32" rx="8" fill="#090c11" stroke="#343b45"/>
+    <path d="M244 652 C310 644, 350 660, 412 652 S522 644, 584 652 S692 660, 746 652" fill="none" stroke="#f3efe6" stroke-width="2" opacity=".85"/>
+  </g>
+
+  <g font-family="Georgia, serif">
+    <rect x="830" y="190" width="290" height="230" rx="16" fill="#10151c" stroke="#3d4652"/>
+    <text x="856" y="230" fill="#fff" font-size="24" font-weight="700">v3.8 complete</text>
+    <text x="856" y="270" fill="#d8d2c7" font-size="18">✓ MIDI input</text>
+    <text x="856" y="302" fill="#d8d2c7" font-size="18">✓ raw monitor</text>
+    <text x="856" y="334" fill="#d8d2c7" font-size="18">✓ diagnostics toggle</text>
+    <text x="856" y="366" fill="#d8d2c7" font-size="18">✓ duplicate filtering</text>
+    <text x="856" y="398" fill="#d8d2c7" font-size="18">✓ focused voice only</text>
+  </g>
+</svg>
