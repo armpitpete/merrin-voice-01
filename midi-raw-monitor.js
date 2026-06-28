@@ -2,7 +2,7 @@ const rawMidiMonitorStyle=document.createElement('style');
 rawMidiMonitorStyle.textContent=`
 .raw-midi-monitor{max-height:420px;overflow:auto;}
 .raw-midi-monitor pre{white-space:pre-wrap;margin:.5rem 0 0;font:11px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);background:rgba(0,0,0,.24);border:1px solid var(--line);border-radius:10px;padding:8px;max-height:300px;overflow:auto;}
-@media(min-width:900px) and (orientation:landscape){.raw-midi-monitor{grid-column:1/-1;max-height:360px;overflow:auto;}}
+@media(min-width:900px) and (orientation:landscape){.app>.raw-midi-monitor{grid-column:1/-1!important;width:100%!important;max-width:100%!important;min-width:0!important;max-height:360px;overflow:auto;}}
 `;
 document.head.appendChild(rawMidiMonitorStyle);
 
@@ -26,7 +26,7 @@ function rawMidiVoiceState(){
 
 function ensureRawMidiMonitor(){
   if(rawMidiOutput)return;
-  const existing=document.querySelector('.midi-debug-panel')||document.querySelector('.top-controls');
+  const existing=document.querySelector('.midi-debug-panel')||document.querySelector('.oscilloscope-panel')||document.querySelector('.top-controls');
   if(!existing)return;
   const panel=document.createElement('section');
   panel.className='strip raw-midi-monitor';
