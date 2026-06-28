@@ -7,6 +7,16 @@ midiLayoutFix.textContent=`
     width:100%!important;
     align-items:center!important;
   }
+  .app>.top-controls,
+  .app>.midi-debug-panel,
+  .app>.raw-midi-monitor,
+  .app>.landscape-columns,
+  .app>.oscilloscope-panel{
+    grid-column:1/-1!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
   #playStatus{
     min-width:0!important;
     white-space:nowrap!important;
@@ -15,11 +25,13 @@ midiLayoutFix.textContent=`
   }
   #midiStatus{
     grid-column:1/-1!important;
+    min-width:0!important;
+    max-width:100%!important;
     white-space:nowrap!important;
     overflow:hidden!important;
     text-overflow:ellipsis!important;
   }
-  .midi-debug-panel{grid-column:1/-1;max-height:170px;overflow:auto;}
+  .midi-debug-panel{max-height:170px;overflow:auto;}
 }
 .midi-debug-panel pre{white-space:pre-wrap;margin:.5rem 0 0;font:12px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);}
 `;
@@ -36,11 +48,12 @@ let midiDebugOutput=null;
 function ensureMidiDebugPanel(){
   if(midiDebugOutput)return;
   const topControls=document.querySelector('.top-controls');
-  if(!topControls)return;
+  const insertAfter=document.querySelector('.oscilloscope-panel')||topControls;
+  if(!topControls||!insertAfter)return;
   const panel=document.createElement('section');
   panel.className='strip midi-debug-panel';
   panel.innerHTML='<strong>MIDI diagnostics</strong><div class="row" style="margin-top:6px"><button class="btn test" id="midiPanic" type="button">MIDI panic: all notes off</button><button class="btn test" id="midiClearLog" type="button">Clear MIDI log</button></div><pre id="midiDebugOutput">MIDI diagnostics ready.</pre>';
-  topControls.insertAdjacentElement('afterend',panel);
+  insertAfter.insertAdjacentElement('afterend',panel);
   midiDebugOutput=document.getElementById('midiDebugOutput');
   document.getElementById('midiPanic')?.addEventListener('click',()=>{
     releaseAllNotes('MIDI panic. Released all notes.');
