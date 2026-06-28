@@ -48,6 +48,23 @@ weightLevel=function shapedWeightLevel(){
   return shaped;
 };
 
+function glideStartForShapeVoice(voice){
+  return voice?.shapeGlideStart||voice?.note?.freq||0;
+}
+
+function isSameShapePitch(voice){
+  return voice?.shapeGlideSame!==false;
+}
+
+function connectShapePitch(osc,voice,now,mult=1){
+  if(typeof connectPitch==='function'&&voice?.note){
+    connectPitch(osc,voice.note,glideStartForShapeVoice(voice),now,isSameShapePitch(voice),mult);
+    return;
+  }
+
+  if(voice?.note)osc.frequency.setValueAtTime(voice.note.freq*mult,now);
+}
+
 function addShapeSourceToVoice(voice){
   if(!ctx||!voice||!voice.amp||voice.shapeSourceAdded)return;
   const shape=state.shape||'pure';
@@ -58,7 +75,7 @@ function addShapeSourceToVoice(voice){
   const bodyGain=ctx.createGain();
 
   body.type='triangle';
-  body.frequency.setValueAtTime(voice.note.freq,now);
+  connectShapePitch(body,voice,now,1);
   bodyGain.gain.setValueAtTime(shape==='hollow'?0.55:0.68,now);
   body.connect(bodyGain);
   bodyGain.connect(voice.amp);
@@ -70,7 +87,7 @@ function addShapeSourceToVoice(voice){
     const hollow=ctx.createOscillator();
     const hollowGain=ctx.createGain();
     hollow.type='sine';
-    hollow.frequency.setValueAtTime(voice.note.freq*1.5,now);
+    connectShapePitch(hollow,voice,now,1.5);
     hollowGain.gain.setValueAtTime(0.16,now);
     hollow.connect(hollowGain);
     hollowGain.connect(voice.amp);
@@ -83,7 +100,7 @@ function addShapeSourceToVoice(voice){
     const ache=ctx.createOscillator();
     const acheGain=ctx.createGain();
     ache.type='triangle';
-    ache.frequency.setValueAtTime(voice.note.freq*2,now);
+    connectShapePitch(ache,voice,now,2);
     acheGain.gain.setValueAtTime(0.28,now);
     ache.connect(acheGain);
     acheGain.connect(voice.amp);
@@ -121,8 +138,18 @@ function addSlightDriftToVoice(voice){
 
 const originalShapeStartNote=startNote;
 startNote=async function shapedStartNote(note){
+  const previousFreq=lastFreq;
+  const sameShapePitch=previousFreq!==null&&Math.abs(previousFreq-note.freq)<.01;
+  const shapeGlideStart=sameShapePitch?note.freq:(previousFreq||note.freq);
+
   await originalShapeStartNote(note);
   const voice=voices[note.index];
+
+  if(voice){
+    voice.shapeGlideStart=shapeGlideStart;
+    voice.shapeGlideSame=sameShapePitch;
+  }
+
   addShapeSourceToVoice(voice);
   addSlightDriftToVoice(voice);
 };
