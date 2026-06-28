@@ -12,9 +12,9 @@ https://armpitpete.github.io/merrin-voice-01/
 
 ## Current status
 
-**v3.7 documentation pass complete.**
+**v3.8 MIDI input complete.**
 
-The app itself is accepted at the current v3.6 browser-demo state.
+The app is accepted as a browser-first Web Audio synth demo with MIDI keyboard input.
 
 This version includes:
 
@@ -22,6 +22,9 @@ This version includes:
 - continuous gate notes
 - on-screen keyboard
 - computer keyboard support
+- MIDI keyboard input
+- MIDI diagnostics and raw monitor tools
+- MIDI panic / all-notes-off control
 - active note buttons
 - amplitude slider
 - live oscilloscope accepted as basic/functional
@@ -42,6 +45,7 @@ The app is useful for:
 - testing the Merrin Grief Synth sound identity
 - playing a small constrained voice
 - checking how the controls shape the emotional character
+- testing MIDI keyboard input against the same focused voice
 - proving the instrument idea before larger synth/plugin work
 
 ## Current scope
@@ -87,15 +91,39 @@ Possible later directions include:
 - **All effects off** — gives a cleaner baseline for checking the sound.
 - **Normal voice** — restores the accepted voice shape.
 - **Effect test switches** — allow individual sound parts to be checked.
+- **MIDI diagnostics** — helps inspect MIDI note-on, note-off, and voice state while testing hardware input.
+- **Raw MIDI monitor** — shows raw note/control messages while filtering MIDI clock and active-sensing spam.
+- **MIDI panic** — releases all notes if a connected MIDI device misbehaves.
 
-## Keyboard support
+## Input support
 
 The app can be played with:
 
 - the on-screen note buttons
 - a computer keyboard
+- a USB/MIDI keyboard in supported desktop browsers
 
 The note buttons light up while active, so the player can see which notes are sounding.
+
+MIDI input has been tested for:
+
+- device connection
+- note-on
+- note-off
+- same-note retrigger
+- fast tapping
+- different notes
+- held notes / small chords
+- panic / all-notes-off
+- repeated-note overload stability
+
+## Browser support
+
+Core browser synth playback works in modern desktop browsers that support Web Audio.
+
+MIDI keyboard input uses the browser Web MIDI API. Use Chrome or Edge desktop for MIDI testing and playing.
+
+MIDI input is not treated as supported on iPad, iPhone, or Safari in this version.
 
 ## Oscilloscope
 
@@ -110,16 +138,38 @@ Do not expand this version into a general synth.
 Avoid adding:
 
 - presets
-- MIDI
 - sequencer features
 - plugin framework work
-- extra controls
+- extra sound controls
 - more layout polish
+- pitch bend
+- modulation wheel
+- sustain pedal behaviour
+- MIDI output
+- MIDI channel routing
+- recording
 - delayed tremble work
 
-The current accepted job is complete: a focused playable browser demo for **Merrin Grief Synth — Constrained Grief**.
+The current accepted job is complete: a focused playable browser demo for **Merrin Grief Synth — Constrained Grief** with basic MIDI keyboard input.
 
 ## Release notes
+
+### v3.8 — MIDI keyboard input
+
+MIDI input pass.
+
+- Added browser MIDI connection control.
+- Added MIDI keyboard note-on and note-off support.
+- Mapped MIDI note input to the existing synth voice engine.
+- Kept the Constrained Grief sound path unchanged.
+- Added simple velocity response.
+- Added MIDI diagnostics, raw MIDI monitor, and MIDI panic tools.
+- Fixed MIDI layout regression so diagnostics no longer shrink the synth controls.
+- Fixed same-note retrigger behaviour.
+- Fixed repeated-note overload by filtering MIDI real-time diagnostic spam.
+- Confirmed MIDI reliability test pass after hardware testing.
+
+No general synth expansion, sequencer work, plugin work, pitch bend, modulation wheel, MIDI output, recording, or channel-routing work.
 
 ### v3.7 — Final release notes and project README
 
@@ -134,7 +184,7 @@ No sound, control, or layout changes.
 
 ### v3.6 — Voice source shaping and layout acceptance
 
-Accepted current playable state.
+Accepted playable browser-synth state before MIDI.
 
 - Shape added: Pure / Hollow / Pressed.
 - Sub refined as weight, not bass boom.
