@@ -13,10 +13,13 @@ let rawMidiPanel=null;
 let rawMidiStartButton=null;
 let rawMidiCount=0;
 let rawMidiRealtimeCount=0;
+let rawMidiDuplicateCount=0;
 let rawMidiLog=[];
 let rawMidiUpdateScheduled=false;
 let rawMidiMonitoring=false;
 const rawMidiAttachedInputs=new Set();
+const rawMidiRecentMessages=new Map();
+const RAW_MIDI_DUPLICATE_WINDOW_MS=32;
 
 function rawMidiVoiceState(){
   try{
@@ -36,6 +39,34 @@ function rawMidiIsRealtimeMessage(data){
   return status>=0xf8;
 }
 
+function rawMidiCommand(data){
+  return (data?.[0]||0)&0xf0;
+}
+
+function rawMidiMessageSignature(data){
+  return Array.from(data||[]).join(':');
+}
+
+function rawMidiPruneRecentMessages(now){
+  rawMidiRecentMessages.forEach((time,key)=>{
+    if(now-time>1000)rawMidiRecentMessages.delete(key);
+  });
+}
+
+function rawMidiIsDuplicateNoteMessage(data){
+  const command=rawMidiCommand(data);
+  if(command!==0x80&&command!==0x90)return false;
+
+  const now=performance?.now?performance.now():Date.now();
+  const signature=rawMidiMessageSignature(data);
+  const last=rawMidiRecentMessages.get(signature)||0;
+  rawMidiRecentMessages.set(signature,now);
+
+  if(rawMidiRecentMessages.size>48)rawMidiPruneRecentMessages(now);
+
+  return now-last<RAW_MIDI_DUPLICATE_WINDOW_MS;
+}
+
 function ensureRawMidiMonitor(){
   if(rawMidiOutput)return;
   const existing=document.querySelector('.midi-debug-panel')||document.querySelector('.oscilloscope-panel')||document.querySelector('.top-controls');
@@ -43,7 +74,7 @@ function ensureRawMidiMonitor(){
   const panel=document.createElement('section');
   panel.className='strip raw-midi-monitor';
   panel.hidden=window.midiDiagnosticsVisible!==true;
-  panel.innerHTML='<strong>Raw MIDI monitor</strong><p class="status">This logs note/control MIDI events independently of the synth code. MIDI clock and active-sensing spam are counted but not logged.</p><div class="row" style="margin-top:6px"><button class="btn test" id="rawMidiStart" type="button">Start raw MIDI monitor</button><button class="btn test" id="rawMidiClear" type="button">Clear raw log</button><button class="btn test" id="rawMidiCopy" type="button">Copy raw log</button></div><pre id="rawMidiOutput">Raw MIDI monitor ready.</pre>';
+  panel.innerHTML='<strong>Raw MIDI monitor</strong><p class="status">This logs note/control MIDI events independently of the synth code. MIDI clock, active-sensing spam, and repeated duplicate note messages are filtered.</p><div class="row" style="margin-top:6px"><button class="btn test" id="rawMidiStart" type="button">Start raw MIDI monitor</button><button class="btn test" id="rawMidiClear" type="button">Clear raw log</button><button class="btn test" id="rawMidiCopy" type="button">Copy raw log</button></div><pre id="rawMidiOutput">Raw MIDI monitor ready.</pre>';
   existing.insertAdjacentElement('afterend',panel);
   rawMidiPanel=panel;
   rawMidiOutput=document.getElementById('rawMidiOutput');
@@ -52,7 +83,14 @@ function ensureRawMidiMonitor(){
     if(rawMidiMonitoring)stopRawMidiMonitor('raw monitor stopped');
     else startRawMidiMonitor();
   });
-  document.getElementById('rawMidiClear')?.addEventListener('click',()=>{rawMidiLog=[];rawMidiCount=0;rawMidiRealtimeCount=0;updateRawMidiOutput();});
+  document.getElementById('rawMidiClear')?.addEventListener('click',()=>{
+    rawMidiLog=[];
+    rawMidiCount=0;
+    rawMidiRealtimeCount=0;
+    rawMidiDuplicateCount=0;
+    rawMidiRecentMessages.clear();
+    updateRawMidiOutput();
+  });
   document.getElementById('rawMidiCopy')?.addEventListener('click',async()=>{
     try{
       await navigator.clipboard.writeText(rawMidiOutput?.textContent||'');
@@ -77,6 +115,7 @@ function updateRawMidiOutput(){
     `Raw MIDI monitor: ${rawMidiMonitoring?'on':'off'}`,
     `Raw MIDI count: ${rawMidiCount}`,
     `Filtered real-time MIDI count: ${rawMidiRealtimeCount}`,
+    `Filtered duplicate MIDI count: ${rawMidiDuplicateCount}`,
     rawMidiVoiceState(),
     '--- raw MIDI trace ---',
     ...rawMidiLog.slice(-80)
@@ -120,6 +159,12 @@ function handleRawMidiEvent(event){
 
   if(rawMidiIsRealtimeMessage(event.data)){
     rawMidiRealtimeCount+=1;
+    scheduleRawMidiOutput();
+    return;
+  }
+
+  if(rawMidiIsDuplicateNoteMessage(event.data)){
+    rawMidiDuplicateCount+=1;
     scheduleRawMidiOutput();
     return;
   }
