@@ -44,6 +44,8 @@ let midiAccess=null;
 const midiHeld={};
 const midiPendingOff={};
 const midiLog=[];
+const midiRecentMessages=new Map();
+const MIDI_DUPLICATE_WINDOW_MS=32;
 let midiDebugPanel=null;
 let midiDebugOutput=null;
 let midiDebugUpdateScheduled=false;
@@ -55,6 +57,34 @@ window.midiDiagnosticsVisible=false;
 function isMidiRealtimeMessage(data){
   const status=data?.[0];
   return status>=0xf8;
+}
+
+function midiMessageCommand(data){
+  return (data?.[0]||0)&0xf0;
+}
+
+function midiMessageSignature(data){
+  return Array.from(data||[]).join(':');
+}
+
+function pruneRecentMidiMessages(now){
+  midiRecentMessages.forEach((time,key)=>{
+    if(now-time>1000)midiRecentMessages.delete(key);
+  });
+}
+
+function isDuplicateMidiNoteMessage(data){
+  const command=midiMessageCommand(data);
+  if(command!==0x80&&command!==0x90)return false;
+
+  const now=performance?.now?performance.now():Date.now();
+  const signature=midiMessageSignature(data);
+  const last=midiRecentMessages.get(signature)||0;
+  midiRecentMessages.set(signature,now);
+
+  if(midiRecentMessages.size>48)pruneRecentMidiMessages(now);
+
+  return now-last<MIDI_DUPLICATE_WINDOW_MS;
 }
 
 function ensureMidiDiagnosticsToggle(){
@@ -343,6 +373,7 @@ function handleMidiControlChange(controller,value,data){
 function handleMidiMessage(event){
   const [status,noteNumber,velocity]=event.data;
   if(isMidiRealtimeMessage(event.data))return;
+  if(isDuplicateMidiNoteMessage(event.data))return;
 
   const command=status&0xf0;
   const key=String(noteNumber);
