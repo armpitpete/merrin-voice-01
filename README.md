@@ -6,9 +6,17 @@ Merrin Grief Synth is a playable browser synth demo built around one emotional v
 
 It is not a general-purpose synth. It is a small Web Audio instrument for testing one focused sound identity.
 
+![Merrin Grief Synth v3.8 preview](assets/merrin-grief-synth-v38-preview.svg)
+
 ## Live app
 
 https://armpitpete.github.io/merrin-voice-01/
+
+## Project docs
+
+- [Changelog](CHANGELOG.md)
+- [Roadmap](ROADMAP.md)
+- [v3.8 release notes](docs/release-v3.8.md)
 
 ## Current status
 
@@ -24,6 +32,9 @@ This version includes:
 - computer keyboard support
 - MIDI keyboard input
 - MIDI diagnostics and raw monitor tools
+- MIDI diagnostics show/hide toggle
+- raw MIDI monitor detach when diagnostics are hidden
+- duplicate MIDI note filtering
 - MIDI panic / all-notes-off control
 - active note buttons
 - amplitude slider
@@ -91,8 +102,8 @@ Possible later directions include:
 - **All effects off** — gives a cleaner baseline for checking the sound.
 - **Normal voice** — restores the accepted voice shape.
 - **Effect test switches** — allow individual sound parts to be checked.
-- **MIDI diagnostics** — helps inspect MIDI note-on, note-off, and voice state while testing hardware input.
-- **Raw MIDI monitor** — shows raw note/control messages while filtering MIDI clock and active-sensing spam.
+- **MIDI diagnostics** — can be shown when needed to inspect MIDI note-on, note-off, and voice state while testing hardware input.
+- **Raw MIDI monitor** — shows raw note/control messages while filtering MIDI clock, active-sensing spam, and duplicate note messages.
 - **MIDI panic** — releases all notes if a connected MIDI device misbehaves.
 
 ## Input support
@@ -116,6 +127,8 @@ MIDI input has been tested for:
 - held notes / small chords
 - panic / all-notes-off
 - repeated-note overload stability
+- diagnostics visibility toggle
+- duplicate MIDI note filtering
 
 ## Browser support
 
@@ -124,6 +137,19 @@ Core browser synth playback works in modern desktop browsers that support Web Au
 MIDI keyboard input uses the browser Web MIDI API. Use Chrome or Edge desktop for MIDI testing and playing.
 
 MIDI input is not treated as supported on iPad, iPhone, or Safari in this version.
+
+## Demo media
+
+A real audio/video demo is not committed yet.
+
+Suggested demo target:
+
+- 20–40 seconds
+- show one note, same-note retrigger, glide, Shape: Hollow / Pressed, and MIDI input
+- record from the live browser app
+- add as `assets/demo/merrin-grief-synth-v38-demo.webm` or `assets/demo/merrin-grief-synth-v38-demo.mp4`
+
+Do not use a fake or simulated demo recording.
 
 ## Oscilloscope
 
@@ -164,9 +190,13 @@ MIDI input pass.
 - Kept the Constrained Grief sound path unchanged.
 - Added simple velocity response.
 - Added MIDI diagnostics, raw MIDI monitor, and MIDI panic tools.
+- Added MIDI diagnostics show/hide toggle.
+- Added raw MIDI monitor detach when diagnostics are hidden.
 - Fixed MIDI layout regression so diagnostics no longer shrink the synth controls.
 - Fixed same-note retrigger behaviour.
 - Fixed repeated-note overload by filtering MIDI real-time diagnostic spam.
+- Fixed duplicate MIDI note events from one physical key press.
+- Fixed Shape glide split in Hollow / Pressed source layers.
 - Confirmed MIDI reliability test pass after hardware testing.
 
 No general synth expansion, sequencer work, plugin work, pitch bend, modulation wheel, MIDI output, recording, or channel-routing work.
