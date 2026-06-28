@@ -131,12 +131,43 @@ function setMidiVisualActive(noteNumber,value){
   if(match>=0)setActiveNote(match,value);
 }
 
-function allowReleasedVoiceRetrigger(index){
-  const voice=voices[index];
-  if(voice&&voice.released){
-    delete voices[index];
-    midiLogEvent('RETRIGGER-CLEANUP',[],String(index));
+function disconnectVoicePart(part){
+  if(part&&typeof part.disconnect==='function'){
+    try{part.disconnect();}catch(error){}
   }
+}
+
+function disposeReleasedVoiceForRetrigger(index){
+  const voice=voices[index];
+  if(!voice||!voice.released)return false;
+
+  const now=ctx?.currentTime||0;
+
+  try{
+    if(voice.amp?.gain&&ctx){
+      const gain=Math.max(.0001,currentAmpGain(voice,now));
+      voice.amp.gain.cancelScheduledValues(now);
+      voice.amp.gain.setValueAtTime(gain,now);
+      voice.amp.gain.exponentialRampToValueAtTime(.0001,now+.06);
+    }
+  }catch(error){}
+
+  (voice.oscillators||[]).forEach(oscillator=>{
+    try{oscillator.stop(now+.08);}catch(error){}
+  });
+
+  setTimeout(()=>{
+    (voice.oscillators||[]).forEach(disconnectVoicePart);
+    ['amp','master','filter','subGain','overGain','delay','feedback','wet','dry','output','panner','driftGain','driftOsc'].forEach(name=>disconnectVoicePart(voice[name]));
+  },180);
+
+  delete voices[index];
+  midiLogEvent('RETRIGGER-DISPOSE',[],String(index));
+  return true;
+}
+
+function allowReleasedVoiceRetrigger(index){
+  disposeReleasedVoiceForRetrigger(index);
 }
 
 stopNote=function midiSafeStopNote(index){
