@@ -3,7 +3,7 @@ midiLayoutFix.textContent=`
 @media(min-width:900px) and (orientation:landscape){
   .top-controls .row{
     display:grid!important;
-    grid-template-columns:max-content max-content max-content max-content minmax(0,1fr)!important;
+    grid-template-columns:max-content max-content max-content max-content max-content minmax(0,1fr)!important;
     width:100%!important;
     align-items:center!important;
   }
@@ -33,6 +33,7 @@ midiLayoutFix.textContent=`
   }
   .midi-debug-panel{max-height:170px;overflow:auto;}
 }
+.midi-debug-panel[hidden]{display:none!important;}
 .midi-debug-panel pre{white-space:pre-wrap;margin:.5rem 0 0;font:12px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);}
 `;
 document.head.appendChild(midiLayoutFix);
@@ -43,14 +44,63 @@ let midiAccess=null;
 const midiHeld={};
 const midiPendingOff={};
 const midiLog=[];
+let midiDebugPanel=null;
 let midiDebugOutput=null;
 let midiDebugUpdateScheduled=false;
+let midiDiagnosticsVisible=false;
+let midiDiagnosticsToggle=null;
 let lastMidiInputStatus='';
+window.midiDiagnosticsVisible=false;
 
 function isMidiRealtimeMessage(data){
   const status=data?.[0];
   return status>=0xf8;
 }
+
+function ensureMidiDiagnosticsToggle(){
+  if(midiDiagnosticsToggle)return;
+  const row=midiConnect?.closest('.row')||document.querySelector('.top-controls .row');
+  if(!row)return;
+
+  const button=document.createElement('button');
+  button.className='btn test';
+  button.id='midiDiagnosticsToggle';
+  button.type='button';
+  button.setAttribute('aria-pressed','false');
+  button.textContent='Show MIDI diagnostics';
+  button.addEventListener('click',()=>setMidiDiagnosticsVisible(!midiDiagnosticsVisible));
+
+  if(midiConnect)midiConnect.insertAdjacentElement('afterend',button);
+  else row.appendChild(button);
+
+  midiDiagnosticsToggle=button;
+}
+
+function setMidiDiagnosticsVisible(value){
+  midiDiagnosticsVisible=Boolean(value);
+  window.midiDiagnosticsVisible=midiDiagnosticsVisible;
+  ensureMidiDiagnosticsToggle();
+
+  if(midiDiagnosticsToggle){
+    midiDiagnosticsToggle.setAttribute('aria-pressed',String(midiDiagnosticsVisible));
+    midiDiagnosticsToggle.textContent=midiDiagnosticsVisible?'Hide MIDI diagnostics':'Show MIDI diagnostics';
+  }
+
+  if(midiDiagnosticsVisible){
+    ensureMidiDebugPanel();
+    if(midiDebugPanel)midiDebugPanel.hidden=false;
+    updateMidiDebugOutput();
+    window.setRawMidiMonitorVisible?.(true);
+    return;
+  }
+
+  midiLog.length=0;
+  midiDebugUpdateScheduled=false;
+  if(midiDebugPanel)midiDebugPanel.hidden=true;
+  window.setRawMidiMonitorVisible?.(false);
+}
+
+window.setMidiDiagnosticsVisible=setMidiDiagnosticsVisible;
 
 function ensureMidiDebugPanel(){
   if(midiDebugOutput)return;
@@ -59,8 +109,10 @@ function ensureMidiDebugPanel(){
   if(!topControls||!insertAfter)return;
   const panel=document.createElement('section');
   panel.className='strip midi-debug-panel';
+  panel.hidden=!midiDiagnosticsVisible;
   panel.innerHTML='<strong>MIDI diagnostics</strong><div class="row" style="margin-top:6px"><button class="btn test" id="midiPanic" type="button">MIDI panic: all notes off</button><button class="btn test" id="midiClearLog" type="button">Clear MIDI log</button></div><pre id="midiDebugOutput">MIDI diagnostics ready.</pre>';
   insertAfter.insertAdjacentElement('afterend',panel);
+  midiDebugPanel=panel;
   midiDebugOutput=document.getElementById('midiDebugOutput');
   document.getElementById('midiPanic')?.addEventListener('click',()=>{
     releaseAllNotes('MIDI panic. Released all notes.');
@@ -78,13 +130,13 @@ function midiSnapshot(){
 }
 
 function updateMidiDebugOutput(){
-  if(!midiDebugOutput)return;
+  if(!midiDiagnosticsVisible||!midiDebugOutput)return;
   const lines=[`Status: ${midiSnapshot()}`,...midiLog.slice(-18)];
   midiDebugOutput.textContent=lines.join('\n');
 }
 
 function scheduleMidiDebugOutput(){
-  if(midiDebugUpdateScheduled)return;
+  if(!midiDiagnosticsVisible||midiDebugUpdateScheduled)return;
   midiDebugUpdateScheduled=true;
   setTimeout(()=>{
     midiDebugUpdateScheduled=false;
@@ -93,6 +145,7 @@ function scheduleMidiDebugOutput(){
 }
 
 function midiLogEvent(type,data,note){
+  if(!midiDiagnosticsVisible)return;
   const time=new Date().toLocaleTimeString();
   const bytes=Array.from(data||[]).join(' ');
   midiLog.push(`${time} ${type}${note?` ${note}`:''}${bytes?` | ${bytes}`:''} | ${midiSnapshot()}`);
@@ -342,7 +395,7 @@ function handleMidiMessage(event){
 
 function connectMidiInputs(){
   if(!midiAccess)return;
-  ensureMidiDebugPanel();
+  if(midiDiagnosticsVisible)ensureMidiDebugPanel();
   const inputs=[...midiAccess.inputs.values()];
 
   if(!inputs.length){
@@ -364,7 +417,7 @@ function connectMidiInputs(){
 
 async function connectMidiKeyboard(){
   if(!midiConnect)return;
-  ensureMidiDebugPanel();
+  if(midiDiagnosticsVisible)ensureMidiDebugPanel();
 
   if(!navigator.requestMIDIAccess){
     setMidiStatus('MIDI not supported in this browser. Use Chrome or Edge desktop.');
@@ -387,6 +440,8 @@ async function connectMidiKeyboard(){
     midiConnect.disabled=false;
   }
 }
+
+ensureMidiDiagnosticsToggle();
 
 if(midiConnect){
   midiConnect.addEventListener('click',connectMidiKeyboard);
