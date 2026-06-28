@@ -44,6 +44,13 @@ const midiHeld={};
 const midiPendingOff={};
 const midiLog=[];
 let midiDebugOutput=null;
+let midiDebugUpdateScheduled=false;
+let lastMidiInputStatus='';
+
+function isMidiRealtimeMessage(data){
+  const status=data?.[0];
+  return status>=0xf8;
+}
 
 function ensureMidiDebugPanel(){
   if(midiDebugOutput)return;
@@ -76,17 +83,32 @@ function updateMidiDebugOutput(){
   midiDebugOutput.textContent=lines.join('\n');
 }
 
+function scheduleMidiDebugOutput(){
+  if(midiDebugUpdateScheduled)return;
+  midiDebugUpdateScheduled=true;
+  setTimeout(()=>{
+    midiDebugUpdateScheduled=false;
+    updateMidiDebugOutput();
+  },100);
+}
+
 function midiLogEvent(type,data,note){
   const time=new Date().toLocaleTimeString();
   const bytes=Array.from(data||[]).join(' ');
   midiLog.push(`${time} ${type}${note?` ${note}`:''}${bytes?` | ${bytes}`:''} | ${midiSnapshot()}`);
   if(midiLog.length>80)midiLog.shift();
-  updateMidiDebugOutput();
+  scheduleMidiDebugOutput();
 }
 
 function setMidiStatus(message){
   if(midiStatus)midiStatus.textContent=message;
-  updateMidiDebugOutput();
+  scheduleMidiDebugOutput();
+}
+
+function setMidiInputStatus(message){
+  if(message===lastMidiInputStatus)return;
+  lastMidiInputStatus=message;
+  setMidiStatus(message);
 }
 
 function midiNoteName(noteNumber){
@@ -267,6 +289,8 @@ function handleMidiControlChange(controller,value,data){
 
 function handleMidiMessage(event){
   const [status,noteNumber,velocity]=event.data;
+  if(isMidiRealtimeMessage(event.data))return;
+
   const command=status&0xf0;
   const key=String(noteNumber);
 
@@ -286,7 +310,7 @@ function handleMidiMessage(event){
     midiHeld[key]=note.index;
     startNote(note);
     setMidiVisualActive(noteNumber,true);
-    setMidiStatus(`MIDI connected: ${event.currentTarget?.name||'keyboard'}`);
+    setMidiInputStatus(`MIDI connected: ${event.currentTarget?.name||'keyboard'}`);
     midiLogEvent('ON',event.data,note.name);
     return;
   }
@@ -333,7 +357,8 @@ function connectMidiInputs(){
   });
 
   const names=inputs.map(input=>input.name||'Unnamed MIDI input').join(', ');
-  setMidiStatus(`MIDI connected: ${names}`);
+  lastMidiInputStatus=`MIDI connected: ${names}`;
+  setMidiStatus(lastMidiInputStatus);
   midiLogEvent('CONNECTED',[],names);
 }
 
