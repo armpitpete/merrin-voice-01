@@ -9,7 +9,10 @@ document.head.appendChild(rawMidiMonitorStyle);
 let rawMidiAccess=null;
 let rawMidiOutput=null;
 let rawMidiCount=0;
+let rawMidiRealtimeCount=0;
 let rawMidiLog=[];
+let rawMidiUpdateScheduled=false;
+const rawMidiAttachedInputs=new WeakSet();
 
 function rawMidiVoiceState(){
   try{
@@ -24,17 +27,22 @@ function rawMidiVoiceState(){
   }
 }
 
+function rawMidiIsRealtimeMessage(data){
+  const status=data?.[0];
+  return status>=0xf8;
+}
+
 function ensureRawMidiMonitor(){
   if(rawMidiOutput)return;
   const existing=document.querySelector('.midi-debug-panel')||document.querySelector('.oscilloscope-panel')||document.querySelector('.top-controls');
   if(!existing)return;
   const panel=document.createElement('section');
   panel.className='strip raw-midi-monitor';
-  panel.innerHTML='<strong>Raw MIDI monitor</strong><p class="status">This logs every raw MIDI event independently of the synth code.</p><div class="row" style="margin-top:6px"><button class="btn test" id="rawMidiStart" type="button">Start raw MIDI monitor</button><button class="btn test" id="rawMidiClear" type="button">Clear raw log</button><button class="btn test" id="rawMidiCopy" type="button">Copy raw log</button></div><pre id="rawMidiOutput">Raw MIDI monitor ready.</pre>';
+  panel.innerHTML='<strong>Raw MIDI monitor</strong><p class="status">This logs note/control MIDI events independently of the synth code. MIDI clock and active-sensing spam are counted but not logged.</p><div class="row" style="margin-top:6px"><button class="btn test" id="rawMidiStart" type="button">Start raw MIDI monitor</button><button class="btn test" id="rawMidiClear" type="button">Clear raw log</button><button class="btn test" id="rawMidiCopy" type="button">Copy raw log</button></div><pre id="rawMidiOutput">Raw MIDI monitor ready.</pre>';
   existing.insertAdjacentElement('afterend',panel);
   rawMidiOutput=document.getElementById('rawMidiOutput');
   document.getElementById('rawMidiStart')?.addEventListener('click',startRawMidiMonitor);
-  document.getElementById('rawMidiClear')?.addEventListener('click',()=>{rawMidiLog=[];rawMidiCount=0;updateRawMidiOutput();});
+  document.getElementById('rawMidiClear')?.addEventListener('click',()=>{rawMidiLog=[];rawMidiCount=0;rawMidiRealtimeCount=0;updateRawMidiOutput();});
   document.getElementById('rawMidiCopy')?.addEventListener('click',async()=>{
     try{
       await navigator.clipboard.writeText(rawMidiOutput?.textContent||'');
@@ -50,10 +58,20 @@ function updateRawMidiOutput(){
   if(!rawMidiOutput)return;
   rawMidiOutput.textContent=[
     `Raw MIDI count: ${rawMidiCount}`,
+    `Filtered real-time MIDI count: ${rawMidiRealtimeCount}`,
     rawMidiVoiceState(),
     '--- raw MIDI trace ---',
     ...rawMidiLog.slice(-80)
   ].join('\n');
+}
+
+function scheduleRawMidiOutput(){
+  if(rawMidiUpdateScheduled)return;
+  rawMidiUpdateScheduled=true;
+  setTimeout(()=>{
+    rawMidiUpdateScheduled=false;
+    updateRawMidiOutput();
+  },100);
 }
 
 function rawMidiCommandName(command,velocity){
@@ -75,10 +93,16 @@ function rawMidiLogLine(type,data,extra){
   const line=`${time} ${type}${extra?` ${extra}`:''}${byteText?` | bytes=${byteText}`:''} | ${rawMidiVoiceState()}`;
   rawMidiLog.push(line);
   if(rawMidiLog.length>300)rawMidiLog.shift();
-  updateRawMidiOutput();
+  scheduleRawMidiOutput();
 }
 
 function handleRawMidiEvent(event){
+  if(rawMidiIsRealtimeMessage(event.data)){
+    rawMidiRealtimeCount+=1;
+    scheduleRawMidiOutput();
+    return;
+  }
+
   rawMidiCount+=1;
   const [status,data1,data2]=event.data;
   const command=status&0xf0;
@@ -95,7 +119,9 @@ function attachRawMidiInputs(){
     return;
   }
   inputs.forEach(input=>{
+    if(rawMidiAttachedInputs.has(input))return;
     input.addEventListener('midimessage',handleRawMidiEvent);
+    rawMidiAttachedInputs.add(input);
     rawMidiLogLine('RAW-INPUT-ATTACHED',[],input.name||'Unnamed MIDI input');
   });
 }
