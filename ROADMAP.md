@@ -25,13 +25,14 @@ The next lane is to define the whole synth built around the existing Constrained
 
 ## Active planning lane
 
-### v4.0 — Whole synth build spec
+### v4.0 — Whole synth definition
 
-Status: in progress.
+Status: definition pass started.
 
-Spec document:
+Spec documents:
 
 - [V4.0 — Whole Synth Build Spec](docs/whole-synth-build-spec-v4.0.md)
+- [V4.0 — Whole Synth Definition Pass](docs/v4.0-whole-synth-definition-pass.md)
 
 Purpose:
 
@@ -39,6 +40,7 @@ Purpose:
 - Keep Merrin Voice 01 / Constrained Grief as the proven foundation.
 - Decide what belongs in the whole instrument before any finish-demo work.
 - Protect the project from becoming a general-purpose synth.
+- Define the smallest next implementation lane after the definition is accepted.
 
 V4.0 is documentation/specification work only.
 
@@ -51,6 +53,7 @@ Allowed:
 - define required emotional behaviours
 - define explicit non-goals
 - define completion criteria before final demo
+- identify the next small implementation lane
 
 Not allowed:
 
@@ -63,6 +66,19 @@ Not allowed:
 - VCV Rack work
 - MIDI output work
 - general-purpose synth expansion
+- DBHT-1 expansion work
+- M A C controller work
+- hardware expansion work
+
+## Next likely implementation lane
+
+Only after the V4.0 definition is accepted, the next likely implementation lane is:
+
+```text
+V4.1 — Separate performance layer from advanced/test layer
+```
+
+This should not add sound features.
 
 ## Later finish-demo lane
 
