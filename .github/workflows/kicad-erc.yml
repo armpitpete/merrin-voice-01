@@ -18,6 +18,9 @@ on:
 permissions:
   contents: read
 
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+
 jobs:
   schematic-erc:
     runs-on: ubuntu-latest
@@ -35,11 +38,15 @@ jobs:
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
           kicad-cli --version
           python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
 
       - name: Generate native hierarchy and interface capture
+        shell: bash
         run: |
-          rm -rf hardware/memory-core-prototype-a
-          python tools/generate_memory_core_hierarchy.py
+          rm -rf hardware/memory-core-prototype-a build/generator
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/generate_memory_core_hierarchy.py 2>&1 | tee build/generator/generator.log
           find hardware/memory-core-prototype-a -maxdepth 1 -type f -print | sort
 
       - name: Validate hierarchy manifest
@@ -80,6 +87,14 @@ jobs:
             "$top"
 
           cat "$report"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hierarchy-generator-log
+          path: build/generator
+          if-no-files-found: ignore
 
       - name: Upload generated native hierarchy
         if: always()
