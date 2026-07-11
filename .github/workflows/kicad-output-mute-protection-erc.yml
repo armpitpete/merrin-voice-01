@@ -11,6 +11,7 @@ on:
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
@@ -25,6 +26,7 @@ on:
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
@@ -87,7 +89,9 @@ jobs:
           python tools/capture_output_mute_protection_sheet_v2.py 2>&1 | tee -a build/generator/output-sheet.log
 
       - name: Validate output, mute, protection and shared U32 contracts
-        run: python tools/validate_output_mute_protection_capture.py
+        run: |
+          python tools/validate_output_mute_protection_capture.py
+          python tools/validate_output_control_symbols.py
 
       - name: Run KiCad 10 hierarchical ERC
         shell: bash
