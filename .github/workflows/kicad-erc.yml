@@ -33,7 +33,9 @@ jobs:
       - name: Install KiCad CLI and pinned schematic generator
         run: |
           sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            kicad \
+            kicad-symbols
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
           kicad-cli --version
