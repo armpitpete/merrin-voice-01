@@ -6,36 +6,27 @@ on:
       - v5.2-native-schematic-capture-erc
     paths:
       - "hardware/**"
-      - "tools/generate_memory_core_hierarchy.py"
-      - "tools/generate_memory_core_hierarchy_v2.py"
-      - "tools/capture_power_protection_sheet.py"
-      - "tools/capture_power_protection_sheet_v2.py"
-      - "tools/capture_power_protection_sheet_v3.py"
-      - "tools/amend_controls_state_interfaces.py"
-      - "tools/capture_controls_state_sheet.py"
-      - "tools/capture_controls_state_sheet_v2.py"
       - "tools/validate_current_schematic_stage.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
+      - "tools/validate_test_service_capture.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
       - "hardware/**"
-      - "tools/generate_memory_core_hierarchy.py"
-      - "tools/generate_memory_core_hierarchy_v2.py"
-      - "tools/capture_power_protection_sheet.py"
-      - "tools/capture_power_protection_sheet_v2.py"
-      - "tools/capture_power_protection_sheet_v3.py"
-      - "tools/amend_controls_state_interfaces.py"
-      - "tools/capture_controls_state_sheet.py"
-      - "tools/capture_controls_state_sheet_v2.py"
       - "tools/validate_current_schematic_stage.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
+      - "tools/validate_test_service_capture.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 env:
-  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
   KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
 
 jobs:
@@ -47,120 +38,38 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Detect committed stages
-        id: stage
-        shell: bash
-        run: |
-          root="hardware/memory-core-prototype-a"
-          test -f "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" && hierarchy=true || hierarchy=false
-          test -f "$root/01_POWER_PROTECTION_CAPTURED" && power=true || power=false
-          test -f "$root/CONTROLS_INTERFACES_AMENDED" && controls_interfaces=true || controls_interfaces=false
-          test -f "$root/08_CONTROLS_STATE_CAPTURED" && controls=true || controls=false
-          echo "hierarchy=$hierarchy" >> "$GITHUB_OUTPUT"
-          echo "power=$power" >> "$GITHUB_OUTPUT"
-          echo "controls_interfaces=$controls_interfaces" >> "$GITHUB_OUTPUT"
-          echo "controls=$controls" >> "$GITHUB_OUTPUT"
-          echo "hierarchy=$hierarchy power=$power controls_interfaces=$controls_interfaces controls=$controls"
-
-      - name: Install symbol libraries and pinned schematic generator
+      - name: Install symbol libraries and pinned schematic parser
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
-          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
-          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
 
-      - name: Verify pinned official KiCad CLI image
+      - name: Validate current component stage
         run: |
-          docker pull "$KICAD_IMAGE"
-          docker run --rm "$KICAD_IMAGE" kicad-cli --version
-          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
-
-      - name: Generate first native hierarchy
-        if: steps.stage.outputs.hierarchy == 'false'
-        shell: bash
-        run: |
-          rm -rf hardware/memory-core-prototype-a build/generator
-          mkdir -p build/generator
-          set -o pipefail
-          python tools/generate_memory_core_hierarchy_v2.py 2>&1 | tee build/generator/hierarchy.log
-
-      - name: Capture 01 power and protection sheet
-        if: steps.stage.outputs.power == 'false'
-        shell: bash
-        run: |
-          mkdir -p build/generator
-          set -o pipefail
-          python tools/capture_power_protection_sheet_v2.py 2>&1 | tee build/generator/power-sheet.log
-
-      - name: Add controls and operating interfaces
-        if: steps.stage.outputs.controls_interfaces == 'false'
-        shell: bash
-        run: |
-          mkdir -p build/generator
-          set -o pipefail
-          python tools/amend_controls_state_interfaces.py 2>&1 | tee build/generator/controls-interfaces.log
-
-      - name: Capture 08 controls and state sheet
-        if: steps.stage.outputs.controls == 'false'
-        shell: bash
-        run: |
-          mkdir -p build/generator
-          set -o pipefail
-          python tools/capture_controls_state_sheet_v2.py 2>&1 | tee build/generator/controls-sheet.log
-
-      - name: Validate hierarchy and current stage markers
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          root = Path('hardware/memory-core-prototype-a')
-          manifest = json.loads((root / 'hierarchy-manifest.json').read_text())
-          assert manifest['stage'] == 'hierarchy-and-interface-capture'
-          assert len(manifest['sheets']) == 9
-          assert manifest['return_sheet_allowed_outputs'] == [
-              'ABSENCE_INFLUENCE', 'RETURN_FEED', 'RETURN_LIMITED'
-          ]
-          expected = {sheet['filename'] for sheet in manifest['sheets']}
-          found = {path.name for path in root.glob('[0-9][0-9]_*.kicad_sch')}
-          assert found == expected, (found, expected)
-          for marker in (
-              '01_POWER_PROTECTION_CAPTURED',
-              '02_MCU_CLOCK_DEBUG_CAPTURED',
-              '03_CODEC_CONVERSION_CAPTURED',
-              '04_INPUT_PRESSURE_ABSENCE_CAPTURED',
-              '05_MEMORY_GHOST_WET_CAPTURED',
-              '06_RETURN_BREAK_LIMITER_CAPTURED',
-              '07_OUTPUT_MUTE_PROTECTION_CAPTURED',
-              '08_CONTROLS_STATE_CAPTURED',
-          ):
-              assert (root / marker).exists(), marker
-          assert not (root / '09_TEST_SERVICE_CAPTURED').exists()
-          assert (root / 'MerrinLab_PrototypeA.kicad_sym').exists()
-          assert (root / 'sym-lib-table').exists()
-          print('Hierarchy and current component-stage markers: PASS')
-          PY
           python tools/validate_current_schematic_stage.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_output_mute_protection_capture.py
+          python tools/validate_output_control_symbols.py
+          if [ -f hardware/memory-core-prototype-a/09_TEST_SERVICE_CAPTURED ]; then
+            python tools/validate_test_service_capture.py
+          fi
 
       - name: Run KiCad 10 ERC report
         shell: bash
         run: |
           mkdir -p build/erc
           chmod a+rwx build/erc
-          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
-          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
-          set -o pipefail
+          docker pull "$KICAD_IMAGE"
           docker run --rm \
             --volume "$PWD:/work" \
             --workdir /work \
             "$KICAD_IMAGE" \
             kicad-cli sch erc \
               --severity-all \
-              --output "$report" \
-              "$top" 2>&1 | tee build/erc/kicad-cli.log
-          cat "$report"
+              --output build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt \
+              hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch
+          cat build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt
 
       - name: Enforce current-stage ERC policy
         run: |
@@ -168,6 +77,8 @@ jobs:
           import re
           from pathlib import Path
 
+          root = Path('hardware/memory-core-prototype-a')
+          service_captured = (root / '09_TEST_SERVICE_CAPTURED').exists()
           text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
           summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
           if not summary:
@@ -175,18 +86,24 @@ jobs:
           errors = int(summary.group(1))
           warnings = int(summary.group(2))
           codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
-          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          allowed = set() if service_captured else {'isolated_pin_label'}
+          unexpected = sorted(set(codes) - allowed)
           if errors:
               raise SystemExit(f'Current schematic stage has {errors} ERC error(s)')
           if unexpected:
               raise SystemExit(f'Unexpected ERC classes: {unexpected}')
-          captured = (
+          if service_captured and warnings:
+              raise SystemExit(f'All nine sheets are captured but ERC has {warnings} warning(s)')
+
+          captured = [
               '01 POWER / PROTECTION', '02 MCU / CLOCK / DEBUG',
               '03 CODEC / CONVERSION', '04 INPUT / PRESSURE / ABSENCE',
               '05 MEMORY / GHOST / WET', '06 RETURN / BREAK / LIMITER',
               '07 OUTPUT / MUTE / PROTECTION',
               '08 CONTROLS / STATE / SAFE SELECTOR',
-          )
+          ]
+          if service_captured:
+              captured.append('09 TEST / SERVICE')
           for sheet_name in captured:
               match = re.search(
                   rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
@@ -195,50 +112,9 @@ jobs:
               )
               if match and '[isolated_pin_label]:' in match.group('body'):
                   raise SystemExit(f'{sheet_name} retains temporary isolated labels')
-          print(f'ERC stage policy: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          stage = 'all nine sheets captured' if service_captured else 'sheet-09 scaffold remains'
+          print(f'ERC stage policy: PASS — 0 errors, {warnings} warnings; {stage}')
           PY
-
-      - name: Promote first passing hierarchy and component stages
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          root="hardware/memory-core-prototype-a"
-          if [ "${{ steps.stage.outputs.hierarchy }}" = "false" ]; then
-            git add "$root"/*.kicad_sch "$root"/*.kicad_pro "$root"/hierarchy-manifest.json
-          fi
-          if [ "${{ steps.stage.outputs.power }}" = "false" ]; then
-            git add "$root/01_POWER_PROTECTION.kicad_sch" "$root/01_POWER_PROTECTION_CAPTURED" "$root/MerrinLab_PrototypeA.kicad_sym" "$root/sym-lib-table"
-          fi
-          if [ "${{ steps.stage.outputs.controls_interfaces }}" = "false" ]; then
-            git add "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" "$root/01_POWER_PROTECTION.kicad_sch" "$root/02_MCU_CLOCK_DEBUG.kicad_sch" "$root/hierarchy-manifest.json" "$root/CONTROLS_INTERFACES_AMENDED"
-          fi
-          if [ "${{ steps.stage.outputs.controls }}" = "false" ]; then
-            git add "$root/08_CONTROLS_STATE.kicad_sch" "$root/08_CONTROLS_STATE_CAPTURED" "$root/MerrinLab_PrototypeA.kicad_sym" "$root/sym-lib-table"
-          fi
-          if git diff --cached --quiet; then
-            echo "No validated native stage to promote."
-            exit 0
-          fi
-          git commit -m "Capture ERC-validated controls and state sheet"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
-
-      - name: Upload generator logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: schematic-generator-logs
-          path: build/generator
-          if-no-files-found: ignore
-
-      - name: Upload native hierarchy
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: memory-core-native-hierarchy
-          path: hardware/memory-core-prototype-a
-          if-no-files-found: error
 
       - name: Upload ERC diagnostics
         if: always()
@@ -246,4 +122,4 @@ jobs:
         with:
           name: kicad-erc-reports
           path: build/erc
-          if-no-files-found: ignore
+          if-no-files-found: error
