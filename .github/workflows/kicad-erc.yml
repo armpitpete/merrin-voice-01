@@ -9,6 +9,7 @@ on:
       - "tools/generate_memory_core_hierarchy.py"
       - "tools/generate_memory_core_hierarchy_v2.py"
       - "tools/capture_power_protection_sheet.py"
+      - "tools/capture_power_protection_sheet_v2.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - "tools/generate_memory_core_hierarchy.py"
       - "tools/generate_memory_core_hierarchy_v2.py"
       - "tools/capture_power_protection_sheet.py"
+      - "tools/capture_power_protection_sheet_v2.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
@@ -87,7 +89,7 @@ jobs:
         run: |
           mkdir -p build/generator
           set -o pipefail
-          python tools/capture_power_protection_sheet.py 2>&1 | tee build/generator/power-sheet.log
+          python tools/capture_power_protection_sheet_v2.py 2>&1 | tee build/generator/power-sheet.log
 
       - name: Validate hierarchy and stage markers
         run: |
