@@ -9,7 +9,7 @@ PROBE-ISOLATION CONTRACT: PASS
 SERVICE HEADER LOGICAL-PIN CONTRACT: PASS
 KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
 PASSING ARTIFACT PROMOTION: PASS
-COMMITTED-FILE RERUN: PENDING
+COMMITTED-FILE RERUN: PASS — GENERATION SKIPPED
 PCB / FOOTPRINT / FIXTURE / MECHANICAL AUTHORITY: NOT GRANTED
 ```
 
@@ -103,6 +103,17 @@ ERC result:
 
 The passing artifact was promoted in commit `e9daca2`.
 
+## Committed-file rerun
+
+The follow-up workflow detected `09_TEST_SERVICE_CAPTURED` and skipped:
+
+```text
+sheet-09 generation
+promotion
+```
+
+It then passed the complete sheet-09 native contract, KiCad 10 hierarchical ERC and the all-nine-sheet zero-error/zero-warning policy directly against committed files.
+
 ## Remaining independent gates
 
 - exact service connector or pad format;
@@ -113,4 +124,4 @@ The passing artifact was promoted in commit `e9daca2`.
 - PCB placement and routing;
 - all mechanical and panel decisions.
 
-`09_TEST_SERVICE` is accepted at first-pass schematic-capture level. The committed-file rerun remains the final closure condition for this sheet.
+`09_TEST_SERVICE` is closed at schematic-capture level. The next bounded lane is the final `00_TOP` integrated interface and ERC review.
