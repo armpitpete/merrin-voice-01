@@ -6,6 +6,7 @@ on:
       - v5.2-native-schematic-capture-erc
     paths:
       - "tools/close_output_mute_protection_status.py"
+      - ".github/workflows/close-output-mute-protection-status.yml"
   workflow_dispatch:
 
 permissions:
