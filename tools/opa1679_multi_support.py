@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared OPA1679 multi-unit symbol and native-coordinate repair helpers.
+"""Shared OPA1679 multi-unit symbol and hierarchy repair helpers.
 
 U32 is one physical OPA1679 shared across sheets 03 and 07:
 unit 1 (A) plus unit 5 (power) remain on the codec sheet; units 2/3/4
@@ -116,67 +116,6 @@ def append_symbol_library(path: Path) -> None:
     if not stripped.endswith(")"):
         raise RuntimeError("Project symbol library does not end correctly")
     path.write_text(stripped[:-1] + render_symbol() + ")\n", encoding="utf-8")
-
-
-def pin_geometry(unit: int, pin: str) -> tuple[str, int]:
-    try:
-        _name, _pin_type, side, row = UNITS[unit][str(pin)]
-    except KeyError as exc:
-        raise KeyError(f"Unknown OPA1679 unit/pin: {unit}.{pin}") from exc
-    return side, row
-
-
-def actual_pin_position(
-    position: tuple[float, float], side: str, row: int
-) -> tuple[float, float]:
-    local_y = HALF_HEIGHT - 2.54 * row
-    x = position[0] - 10.16 if side == "left" else position[0] + 10.16
-    y = position[1] - local_y
-    return (round(x, 2), round(y, 2))
-
-
-def mirrored_pin_position(
-    position: tuple[float, float], side: str, row: int
-) -> tuple[float, float]:
-    local_y = HALF_HEIGHT - 2.54 * row
-    x = position[0] - 10.16 if side == "left" else position[0] + 10.16
-    y = position[1] + local_y
-    return (round(x, 2), round(y, 2))
-
-
-def _number_pattern(value: float) -> str:
-    integer = int(value)
-    if value == integer:
-        return rf"{integer}(?:\.0+)?"
-    return re.escape(f"{value:.2f}".rstrip("0").rstrip("."))
-
-
-def repair_label(
-    text: str,
-    name: str,
-    component_position: tuple[float, float],
-    unit: int,
-    pin: str,
-) -> str:
-    side, row = pin_geometry(unit, pin)
-    wrong_x, wrong_y = mirrored_pin_position(component_position, side, row)
-    right_x, right_y = actual_pin_position(component_position, side, row)
-    pattern = (
-        rf'(\(label "{re.escape(name)}"\s+\(at )'
-        rf'{_number_pattern(wrong_x)} {_number_pattern(wrong_y)} 0(?:\.0+)?(\))'
-    )
-    repaired, count = re.subn(
-        pattern,
-        rf"\g<1>{right_x} {right_y} 0\g<2>",
-        text,
-        count=1,
-    )
-    if count != 1:
-        raise RuntimeError(
-            f"Expected one mirrored label {name} for U32 unit {unit} pin {pin} "
-            f"at {(wrong_x, wrong_y)}, found {count}"
-        )
-    return repaired
 
 
 def repair_hierarchical_shape(
