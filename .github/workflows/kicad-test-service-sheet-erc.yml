@@ -7,6 +7,7 @@ on:
     paths:
       - "tools/capture_test_service_sheet.py"
       - "tools/validate_test_service_capture.py"
+      - "tools/validate_current_schematic_stage.py"
       - ".github/workflows/kicad-test-service-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/09_TEST_SERVICE*"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
@@ -15,6 +16,7 @@ on:
     paths:
       - "tools/capture_test_service_sheet.py"
       - "tools/validate_test_service_capture.py"
+      - "tools/validate_current_schematic_stage.py"
       - ".github/workflows/kicad-test-service-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/09_TEST_SERVICE*"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
