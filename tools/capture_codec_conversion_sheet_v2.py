@@ -3,8 +3,7 @@
 
 U32 unit A and the common power unit remain on sheet 03. Units B/C/D are left
 for sheet 07, preserving the locked seven-package / 28-channel OPA1679 budget.
-This wrapper also repairs the pinned API's multi-unit Y-coordinate and hierarchy
-output-direction serialisation defects.
+This wrapper also repairs the pinned API's hierarchy-direction serialisation defect.
 """
 
 from __future__ import annotations
@@ -89,14 +88,6 @@ def label_pin(sch, reference, pin, net):
 def repair_native_file() -> None:
     path = base.SHEET_FILE
     text = path.read_text(encoding="utf-8")
-    for name, position, unit, pin in (
-        ("RETURN_OP_P", U32_A_POSITION, 1, "3"),
-        ("RETURN_OP_N", U32_A_POSITION, 1, "2"),
-        ("RETURN_OP_OUT", U32_A_POSITION, 1, "1"),
-        ("RAIL_P12", U32_POWER_POSITION, 5, "4"),
-        ("RAIL_N12", U32_POWER_POSITION, 5, "11"),
-    ):
-        text = support.repair_label(text, name, position, unit, pin)
     for name in base.HIER_OUTPUTS:
         text = support.repair_hierarchical_output(text, name)
     text = support.repair_hierarchical_shape(
@@ -111,7 +102,7 @@ def main() -> None:
     base.label_pin = label_pin
     base.build()
     repair_native_file()
-    print("Sheet 03 regenerated with shared U32 units 1/5 and corrected native labels")
+    print("Sheet 03 regenerated with shared U32 units 1/5 and corrected hierarchy labels")
     print("U32 units 2/3/4 remain available for sheet 07")
 
 
