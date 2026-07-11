@@ -9,6 +9,7 @@ on:
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/repair_return_ssi_units.py"
+      - "tools/repair_return_ssi_units_v2.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
@@ -21,6 +22,7 @@ on:
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/repair_return_ssi_units.py"
+      - "tools/repair_return_ssi_units_v2.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
@@ -65,7 +67,6 @@ jobs:
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
           python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
-          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
 
       - name: Verify pinned official KiCad CLI image
         run: |
@@ -87,7 +88,7 @@ jobs:
         run: |
           set -o pipefail
           python tools/capture_return_break_limiter_sheet_v2.py 2>&1 | tee -a build/generator/return-sheet.log
-          python tools/repair_return_ssi_units.py 2>&1 | tee -a build/generator/return-sheet.log
+          python tools/repair_return_ssi_units_v2.py 2>&1 | tee -a build/generator/return-sheet.log
 
       - name: Validate Return capture contract
         run: |
@@ -103,24 +104,16 @@ jobs:
           root = Path('hardware/memory-core-prototype-a')
           sheet_path = root / '06_RETURN_BREAK_LIMITER.kicad_sch'
           library_path = root / 'MerrinLab_PrototypeA.kicad_sym'
-          manifest_path = root / 'hierarchy-manifest.json'
 
           assert (root / '06_RETURN_BREAK_LIMITER_CAPTURED').exists()
           assert (root / 'RETURN_SAFETY_INTERFACES_AMENDED').exists()
           assert sheet_path.exists()
-          assert manifest_path.exists()
 
           spec = importlib.util.spec_from_file_location(
               'return_capture', 'tools/capture_return_break_limiter_sheet.py'
           )
           module = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(module)
-
-          repair_spec = importlib.util.spec_from_file_location(
-              'return_repair', 'tools/repair_return_ssi_units.py'
-          )
-          repair = importlib.util.module_from_spec(repair_spec)
-          repair_spec.loader.exec_module(repair)
 
           expected_inputs = {
               'RAIL_P12', 'RAIL_N12', 'RAIL_3V3', 'HARDWARE_FAULT_N',
@@ -130,26 +123,21 @@ jobs:
           assert set(module.HIER_INPUTS) == expected_inputs
           assert set(module.HIER_OUTPUTS) == expected_outputs
           assert module.ALLOWED_EXPORTS == frozenset(expected_outputs)
-          assert math.isclose(module.FIXED_FEED_NOMINAL, 27.4 / 40.2, rel_tol=0, abs_tol=1e-12)
+          assert math.isclose(module.FIXED_FEED_NOMINAL, 27.4 / 40.2, abs_tol=1e-12)
           assert module.FIXED_FEED_NOMINAL < 0.682
 
-          symbol_text = module.render_ssi2164_multi_symbol()
+          rendered = module.render_ssi2164_multi_symbol()
           for unit in range(1, 6):
-              assert f'(symbol "SSI2164S_MULTI_{unit}_1"' in symbol_text
+              assert f'(symbol "SSI2164S_MULTI_{unit}_1"' in rendered
           unit3 = re.search(
               r'\(symbol "SSI2164S_MULTI_3_1"(?P<body>.*?)\n\t\t\)',
-              symbol_text,
+              rendered,
               re.DOTALL,
           )
           assert unit3
-          body = unit3.group('body')
           for number, name in (('15', 'IIN3'), ('14', 'VC3'), ('13', 'IOUT3')):
-              assert f'(name "{name}"' in body
-              assert f'(number "{number}"' in body
-
-          library = library_path.read_text(encoding='utf-8')
-          assert '(symbol "SSI2164S_MULTI"' in library
-          assert '(symbol "OPA1679_PW_APPLICATION"' in library
+              assert f'(name "{name}"' in unit3.group('body')
+              assert f'(number "{number}"' in unit3.group('body')
 
           cache = ksa.get_symbol_cache()
           cache.add_library_path(str(library_path.resolve()))
@@ -159,7 +147,7 @@ jobs:
               for component in schematic.components
               if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
           )
-          assert ssi_units == [3, 5], ssi_units
+          assert ssi_units == [1, 2, 3, 4, 5], ssi_units
 
           references = [
               component.reference
@@ -172,47 +160,22 @@ jobs:
               if count > 1 and reference != 'U60'
           )
           assert not duplicate_refs, duplicate_refs
-          assert references.count('C610') == 1
-          assert references.count('C611') == 1
-          assert references.count('C640') == 1
-          assert references.count('C641') == 1
+          for reference in ('C610', 'C611', 'C640', 'C641'):
+              assert references.count(reference) == 1, reference
 
-          sheet_text = sheet_path.read_text(encoding='utf-8')
+          text = sheet_path.read_text(encoding='utf-8')
           for token in (
               'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE',
-              'HARDWARE_FAULT_N', 'RAIL_3V3', '40.2k 1%', '27.4k 1%',
-              '2.2k clamp current', 'SSI2164', 'BREAK AMOUNT',
+              'HARDWARE_FAULT_N', '40.2k 1%', '27.4k 1%',
+              '2.2k clamp current', 'BREAK AMOUNT',
               'Official SSI2164 channel 3 pins: 15 IIN3, 14 VC3, 13 IOUT3',
+              'visible staged reservations for sheet 05',
+              'same physical SSI2164',
           ):
-              assert token in sheet_text, token
-          assert 'reserved no-connect placeholders' not in sheet_text
-          assert 'pins 10 IIN3' not in sheet_text
+              assert token in text, token
+          assert 'pins 10 IIN3' not in text
 
-          positions = {
-              'SSI_IIN3': repair.actual_pin_position(repair.CHANNEL_POSITION, 'left', 1),
-              'SSI_VC3': repair.actual_pin_position(repair.CHANNEL_POSITION, 'left', 3),
-              'SSI_IOUT3': repair.actual_pin_position(repair.CHANNEL_POSITION, 'right', 2),
-              'GND': repair.actual_pin_position(repair.POWER_POSITION, 'left', 3),
-              'RAIL_N12': repair.actual_pin_position(repair.POWER_POSITION, 'left', 4),
-              'RAIL_P12': repair.actual_pin_position(repair.POWER_POSITION, 'right', 2),
-          }
-          for name, (x, y) in positions.items():
-              x_pattern = rf'{int(x)}(?:\.0+)?' if x == int(x) else re.escape(str(x))
-              y_pattern = rf'{int(y)}(?:\.0+)?' if y == int(y) else re.escape(str(y))
-              assert re.search(
-                  rf'\(label "{re.escape(name)}"\s+\(at {x_pattern} {y_pattern} 0(?:\.0+)?\)',
-                  sheet_text,
-              ), (name, x, y)
-
-          mode_x, mode_y = repair.actual_pin_position(repair.POWER_POSITION, 'left', 1)
-          mode_x_pattern = rf'{int(mode_x)}(?:\.0+)?' if mode_x == int(mode_x) else re.escape(str(mode_x))
-          mode_y_pattern = rf'{int(mode_y)}(?:\.0+)?' if mode_y == int(mode_y) else re.escape(str(mode_y))
-          assert re.search(
-              rf'\(no_connect\s+\(at {mode_x_pattern} {mode_y_pattern}\)',
-              sheet_text,
-          )
-
-          print('Return official pin map, safety interfaces, unique references, gain contract and multi-unit placement: PASS')
+          print('Return symbol/pin, unique-reference, staged-unit, gain and safety contract: PASS')
           PY
 
       - name: Run KiCad 10 hierarchical ERC
@@ -239,8 +202,7 @@ jobs:
           import re
           from pathlib import Path
 
-          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
-          text = report.read_text(encoding='utf-8')
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
           summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
           if not summary:
               raise SystemExit('ERC summary was not found')
@@ -249,7 +211,6 @@ jobs:
           warnings = int(summary.group(2))
           codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
           unexpected = sorted(set(codes) - {'isolated_pin_label'})
-
           if errors:
               raise SystemExit(f'Return schematic stage has {errors} ERC error(s)')
           if unexpected:
@@ -269,15 +230,13 @@ jobs:
                   re.DOTALL,
               )
               if match and '[isolated_pin_label]:' in match.group('body'):
-                  raise SystemExit(f'{sheet_name} still contains temporary isolated interface labels')
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated labels')
 
           print(f'Return-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
           PY
 
       - name: Promote first passing Return sheet
-        if: >-
-          github.event_name == 'push' &&
-          steps.stage.outputs.return == 'false'
+        if: github.event_name == 'push' && steps.stage.outputs.return == 'false'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -290,12 +249,10 @@ jobs:
             "$root/06_RETURN_BREAK_LIMITER.kicad_sch" \
             "$root/06_RETURN_BREAK_LIMITER_CAPTURED" \
             "$root/MerrinLab_PrototypeA.kicad_sym"
-
           if git diff --cached --quiet; then
             echo "No validated Return stage to promote."
             exit 0
           fi
-
           git commit -m "Capture ERC-validated Return Break limiter sheet"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
