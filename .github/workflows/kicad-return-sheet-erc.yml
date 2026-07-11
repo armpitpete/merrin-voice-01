@@ -8,9 +8,11 @@ on:
       - "tools/amend_return_safety_interfaces.py"
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_memory_ghost_wet_sheet.py"
       - "tools/repair_return_ssi_units.py"
       - "tools/repair_return_ssi_units_v2.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
@@ -21,9 +23,11 @@ on:
       - "tools/amend_return_safety_interfaces.py"
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_memory_ghost_wet_sheet.py"
       - "tools/repair_return_ssi_units.py"
       - "tools/repair_return_ssi_units_v2.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
@@ -47,18 +51,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Detect committed Return stage
+      - name: Detect committed Return and integrated wet stages
         id: stage
         shell: bash
         run: |
-          marker="hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_CAPTURED"
-          if [ -f "$marker" ]; then
-            echo "return=true" >> "$GITHUB_OUTPUT"
-            echo "Using committed Return/Break/limiter capture."
-          else
-            echo "return=false" >> "$GITHUB_OUTPUT"
-            echo "Return/Break/limiter remains a scaffold."
-          fi
+          root="hardware/memory-core-prototype-a"
+          test -f "$root/06_RETURN_BREAK_LIMITER_CAPTURED" && return_stage=true || return_stage=false
+          test -f "$root/05_MEMORY_GHOST_WET_CAPTURED" && wet_stage=true || wet_stage=false
+          echo "return=$return_stage" >> "$GITHUB_OUTPUT"
+          echo "wet=$wet_stage" >> "$GITHUB_OUTPUT"
+          echo "return=$return_stage wet=$wet_stage"
 
       - name: Install symbol libraries and pinned schematic generator
         run: |
@@ -82,15 +84,17 @@ jobs:
           set -o pipefail
           python tools/amend_return_safety_interfaces.py 2>&1 | tee build/generator/return-sheet.log
 
-      - name: Capture and repair 06 Return Break limiter sheet
+      - name: Capture and stage 06 Return Break limiter sheet
         if: steps.stage.outputs.return == 'false'
         shell: bash
         run: |
           set -o pipefail
           python tools/capture_return_break_limiter_sheet_v2.py 2>&1 | tee -a build/generator/return-sheet.log
-          python tools/repair_return_ssi_units_v2.py 2>&1 | tee -a build/generator/return-sheet.log
+          if [ "${{ steps.stage.outputs.wet }}" != "true" ]; then
+            python tools/repair_return_ssi_units_v2.py 2>&1 | tee -a build/generator/return-sheet.log
+          fi
 
-      - name: Validate Return capture contract
+      - name: Validate Return capture and shared SSI2164 ownership
         run: |
           python - <<'PY'
           import importlib.util
@@ -102,12 +106,14 @@ jobs:
           import kicad_sch_api as ksa
 
           root = Path('hardware/memory-core-prototype-a')
-          sheet_path = root / '06_RETURN_BREAK_LIMITER.kicad_sch'
+          return_path = root / '06_RETURN_BREAK_LIMITER.kicad_sch'
+          wet_path = root / '05_MEMORY_GHOST_WET.kicad_sch'
           library_path = root / 'MerrinLab_PrototypeA.kicad_sym'
+          integrated = (root / '05_MEMORY_GHOST_WET_CAPTURED').exists()
 
           assert (root / '06_RETURN_BREAK_LIMITER_CAPTURED').exists()
           assert (root / 'RETURN_SAFETY_INTERFACES_AMENDED').exists()
-          assert sheet_path.exists()
+          assert return_path.exists()
 
           spec = importlib.util.spec_from_file_location(
               'return_capture', 'tools/capture_return_break_limiter_sheet.py'
@@ -115,14 +121,14 @@ jobs:
           module = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(module)
 
-          expected_inputs = {
+          assert set(module.HIER_INPUTS) == {
               'RAIL_P12', 'RAIL_N12', 'RAIL_3V3', 'HARDWARE_FAULT_N',
               'RETURN_DAC', 'VCA_RETURN_CTRL',
           }
-          expected_outputs = {'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE'}
-          assert set(module.HIER_INPUTS) == expected_inputs
-          assert set(module.HIER_OUTPUTS) == expected_outputs
-          assert module.ALLOWED_EXPORTS == frozenset(expected_outputs)
+          assert set(module.HIER_OUTPUTS) == {
+              'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE'
+          }
+          assert module.ALLOWED_EXPORTS == frozenset(module.HIER_OUTPUTS)
           assert math.isclose(module.FIXED_FEED_NOMINAL, 27.4 / 40.2, abs_tol=1e-12)
           assert module.FIXED_FEED_NOMINAL < 0.682
 
@@ -141,17 +147,30 @@ jobs:
 
           cache = ksa.get_symbol_cache()
           cache.add_library_path(str(library_path.resolve()))
-          schematic = ksa.load_schematic(str(sheet_path))
-          ssi_units = sorted(
+          return_schematic = ksa.load_schematic(str(return_path))
+          return_units = sorted(
               component._data.unit
-              for component in schematic.components
+              for component in return_schematic.components
               if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
           )
-          assert ssi_units == [1, 2, 3, 4, 5], ssi_units
+
+          if integrated:
+              assert wet_path.exists()
+              wet_schematic = ksa.load_schematic(str(wet_path))
+              wet_units = sorted(
+                  component._data.unit
+                  for component in wet_schematic.components
+                  if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
+              )
+              assert return_units == [3, 5], return_units
+              assert wet_units == [1, 2, 4], wet_units
+              assert sorted(return_units + wet_units) == [1, 2, 3, 4, 5]
+          else:
+              assert return_units == [1, 2, 3, 4, 5], return_units
 
           references = [
               component.reference
-              for component in schematic.components
+              for component in return_schematic.components
               if not component.reference.startswith('#')
           ]
           duplicate_refs = sorted(
@@ -163,19 +182,23 @@ jobs:
           for reference in ('C610', 'C611', 'C640', 'C641'):
               assert references.count(reference) == 1, reference
 
-          text = sheet_path.read_text(encoding='utf-8')
+          text = return_path.read_text(encoding='utf-8')
           for token in (
               'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE',
               'HARDWARE_FAULT_N', '40.2k 1%', '27.4k 1%',
               '2.2k clamp current', 'BREAK AMOUNT',
               'Official SSI2164 channel 3 pins: 15 IIN3, 14 VC3, 13 IOUT3',
-              'visible staged reservations for sheet 05',
-              'same physical SSI2164',
           ):
               assert token in text, token
           assert 'pins 10 IIN3' not in text
+          if integrated:
+              assert 'visible staged reservations for sheet 05' not in text
+              assert 'same physical SSI2164' not in text
+          else:
+              assert 'visible staged reservations for sheet 05' in text
+              assert 'same physical SSI2164' in text
 
-          print('Return symbol/pin, unique-reference, staged-unit, gain and safety contract: PASS')
+          print('Return symbol/pin, gain, safety and shared-device contract: PASS')
           PY
 
       - name: Run KiCad 10 hierarchical ERC
@@ -202,6 +225,7 @@ jobs:
           import re
           from pathlib import Path
 
+          root = Path('hardware/memory-core-prototype-a')
           text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
           summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
           if not summary:
@@ -216,13 +240,17 @@ jobs:
           if unexpected:
               raise SystemExit(f'Unexpected ERC classes: {unexpected}')
 
-          captured = (
+          captured = [
               '01 POWER / PROTECTION',
               '02 MCU / CLOCK / DEBUG',
               '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
               '06 RETURN / BREAK / LIMITER',
               '08 CONTROLS / STATE / SAFE SELECTOR',
-          )
+          ]
+          if (root / '05_MEMORY_GHOST_WET_CAPTURED').exists():
+              captured.append('05 MEMORY / GHOST / WET')
+
           for sheet_name in captured:
               match = re.search(
                   rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
