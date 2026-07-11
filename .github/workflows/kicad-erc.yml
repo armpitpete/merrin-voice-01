@@ -6,10 +6,12 @@ on:
       - v5.2-native-schematic-capture-erc
     paths:
       - "hardware/**"
+      - "tools/generate_memory_core_hierarchy.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
       - "hardware/**"
+      - "tools/generate_memory_core_hierarchy.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
@@ -25,54 +27,69 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install KiCad CLI
+      - name: Install KiCad CLI and pinned schematic generator
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
           kicad-cli --version
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
 
-      - name: Discover native schematics
-        id: schematics
-        shell: bash
+      - name: Generate native hierarchy and interface capture
         run: |
-          mapfile -t files < <(find hardware -type f -name '*.kicad_sch' -print 2>/dev/null | sort)
-          printf 'count=%s\n' "${#files[@]}" >> "$GITHUB_OUTPUT"
-          printf '%s\n' "${files[@]}" > /tmp/kicad-schematic-files.txt
-          echo "Found ${#files[@]} native schematic file(s)."
-          cat /tmp/kicad-schematic-files.txt || true
+          rm -rf hardware/memory-core-prototype-a
+          python tools/generate_memory_core_hierarchy.py
+          find hardware/memory-core-prototype-a -maxdepth 1 -type f -print | sort
 
-      - name: Toolchain gate before first schematic
-        if: steps.schematics.outputs.count == '0'
+      - name: Validate hierarchy manifest
         run: |
-          echo "KiCad CLI is available. No native schematic has been committed yet."
+          python - <<'PY'
+          import json
+          from pathlib import Path
 
-      - name: Run ERC on top-level schematics
-        if: steps.schematics.outputs.count != '0'
+          root = Path('hardware/memory-core-prototype-a')
+          manifest = json.loads((root / 'hierarchy-manifest.json').read_text())
+
+          assert manifest['stage'] == 'hierarchy-and-interface-capture'
+          assert manifest['temporary_interface_harnesses'] is True
+          assert len(manifest['sheets']) == 9
+          assert manifest['return_sheet_allowed_outputs'] == [
+              'ABSENCE_INFLUENCE',
+              'RETURN_FEED',
+              'RETURN_LIMITED',
+          ]
+
+          expected = {sheet['filename'] for sheet in manifest['sheets']}
+          found = {path.name for path in root.glob('[0-9][0-9]_*.kicad_sch')}
+          assert found == expected, (found, expected)
+          print('Hierarchy manifest: PASS')
+          PY
+
+      - name: Run ERC on top-level hierarchy
         shell: bash
         run: |
           mkdir -p build/erc
-          status=0
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
 
-          while IFS= read -r schematic; do
-            [ -n "$schematic" ] || continue
+          kicad-cli sch erc \
+            --exit-code-violations \
+            --severity-all \
+            --output "$report" \
+            "$top"
 
-            # Child sheets are validated through their top-level parent.
-            if grep -q '(sheet_instances' "$schematic"; then
-              name="$(basename "${schematic%.kicad_sch}")"
-              report="build/erc/${name}-erc.rpt"
-              echo "Running ERC: $schematic"
-              kicad-cli sch erc \
-                --exit-code-violations \
-                --severity-all \
-                --output "$report" \
-                "$schematic" || status=$?
-              cat "$report" || true
-            fi
-          done < /tmp/kicad-schematic-files.txt
+          cat "$report"
 
-          exit "$status"
+      - name: Upload generated native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-core-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
 
-      - name: Upload ERC reports
+      - name: Upload ERC report
         if: always()
         uses: actions/upload-artifact@v4
         with:
