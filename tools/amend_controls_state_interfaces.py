@@ -9,6 +9,7 @@ This amendment:
 - adds those signals to the two hierarchical sheets and top-level nets;
 - connects the MCU-side labels to a temporary non-BOM/non-board harness;
 - establishes the power sheet's ground net as KiCad's global GND;
+- preserves the project-local TI symbols while resaving sheet 01;
 - updates the machine-readable interface manifest.
 
 It does not alter any accepted audio or Return boundary.
@@ -27,6 +28,7 @@ ROOT = Path("hardware/memory-core-prototype-a")
 TOP_FILE = ROOT / f"{PROJECT}.kicad_sch"
 POWER_FILE = ROOT / "01_POWER_PROTECTION.kicad_sch"
 MCU_FILE = ROOT / "02_MCU_CLOCK_DEBUG.kicad_sch"
+SYMBOL_LIBRARY = ROOT / "MerrinLab_PrototypeA.kicad_sym"
 MANIFEST_FILE = ROOT / "hierarchy-manifest.json"
 MARKER = ROOT / "CONTROLS_INTERFACES_AMENDED"
 
@@ -139,6 +141,9 @@ def amend_mcu_scaffold() -> None:
 
 
 def establish_global_ground() -> None:
+    cache = ksa.get_symbol_cache()
+    cache.add_library_path(str(SYMBOL_LIBRARY.resolve()))
+
     sch = ksa.load_schematic(str(POWER_FILE))
     references = {component.reference for component in sch.components}
     if "#PWR0101" not in references:
