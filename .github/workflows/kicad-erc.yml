@@ -1,0 +1,81 @@
+name: KiCad schematic ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-erc.yml"
+  pull_request:
+    paths:
+      - "hardware/**"
+      - ".github/workflows/kicad-erc.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  schematic-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install KiCad CLI
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad
+          kicad-cli --version
+
+      - name: Discover native schematics
+        id: schematics
+        shell: bash
+        run: |
+          mapfile -t files < <(find hardware -type f -name '*.kicad_sch' -print 2>/dev/null | sort)
+          printf 'count=%s\n' "${#files[@]}" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${files[@]}" > /tmp/kicad-schematic-files.txt
+          echo "Found ${#files[@]} native schematic file(s)."
+          cat /tmp/kicad-schematic-files.txt || true
+
+      - name: Toolchain gate before first schematic
+        if: steps.schematics.outputs.count == '0'
+        run: |
+          echo "KiCad CLI is available. No native schematic has been committed yet."
+
+      - name: Run ERC on top-level schematics
+        if: steps.schematics.outputs.count != '0'
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          status=0
+
+          while IFS= read -r schematic; do
+            [ -n "$schematic" ] || continue
+
+            # Child sheets are validated through their top-level parent.
+            if grep -q '(sheet_instances' "$schematic"; then
+              name="$(basename "${schematic%.kicad_sch}")"
+              report="build/erc/${name}-erc.rpt"
+              echo "Running ERC: $schematic"
+              kicad-cli sch erc \
+                --exit-code-violations \
+                --severity-all \
+                --output "$report" \
+                "$schematic" || status=$?
+              cat "$report" || true
+            fi
+          done < /tmp/kicad-schematic-files.txt
+
+          exit "$status"
+
+      - name: Upload ERC reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kicad-erc-reports
+          path: build/erc
+          if-no-files-found: ignore
