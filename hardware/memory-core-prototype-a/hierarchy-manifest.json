@@ -112,6 +112,50 @@
         {
           "name": "STATE_LED_AUX",
           "direction": "output"
+        },
+        {
+          "name": "PANEL_MEMORY_TIME",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_MEMORY_FADE",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_MEMORY_BLUR",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_GHOST_DISTANCE",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_GHOST_DRIFT",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_GHOST_PRESENCE",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_RETURN_AMOUNT",
+          "direction": "input"
+        },
+        {
+          "name": "PANEL_PRESENT_WET",
+          "direction": "input"
+        },
+        {
+          "name": "SERVICE_TEST",
+          "direction": "input"
+        },
+        {
+          "name": "RESET_CLEAR",
+          "direction": "input"
+        },
+        {
+          "name": "SAFE_MUTE",
+          "direction": "input"
         }
       ]
     },
@@ -374,6 +418,50 @@
         {
           "name": "VCA_WET_CTRL",
           "direction": "output"
+        },
+        {
+          "name": "PANEL_MEMORY_TIME",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_MEMORY_FADE",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_MEMORY_BLUR",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_GHOST_DISTANCE",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_GHOST_DRIFT",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_GHOST_PRESENCE",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_RETURN_AMOUNT",
+          "direction": "output"
+        },
+        {
+          "name": "PANEL_PRESENT_WET",
+          "direction": "output"
+        },
+        {
+          "name": "SERVICE_TEST",
+          "direction": "output"
+        },
+        {
+          "name": "RESET_CLEAR",
+          "direction": "output"
+        },
+        {
+          "name": "SAFE_MUTE",
+          "direction": "output"
         }
       ]
     },
@@ -425,5 +513,25 @@
     "oscillator expansion",
     "MIDI/CV expansion",
     "demo media"
-  ]
+  ],
+  "controls_interface_amendment": {
+    "reason": "Expose accepted eight panel ADC signals and three operating inputs between sheets 08 and 02.",
+    "panel_signals": [
+      "PANEL_MEMORY_TIME",
+      "PANEL_MEMORY_FADE",
+      "PANEL_MEMORY_BLUR",
+      "PANEL_GHOST_DISTANCE",
+      "PANEL_GHOST_DRIFT",
+      "PANEL_GHOST_PRESENCE",
+      "PANEL_RETURN_AMOUNT",
+      "PANEL_PRESENT_WET"
+    ],
+    "operating_signals": [
+      "SERVICE_TEST",
+      "RESET_CLEAR",
+      "SAFE_MUTE"
+    ],
+    "mcu_scaffold_harness": "J912 \u2014 temporary, non-BOM, non-board",
+    "global_ground_source": "01_POWER_PROTECTION"
+  }
 }
