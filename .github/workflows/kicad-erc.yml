@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
@@ -32,6 +32,19 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Detect committed native hierarchy
+        id: native
+        shell: bash
+        run: |
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          if [ -f "$top" ]; then
+            echo "committed=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed native hierarchy."
+          else
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            echo "No committed native hierarchy; first passing artifact may be promoted."
+          fi
 
       - name: Install symbol libraries and pinned schematic generator
         run: |
@@ -50,7 +63,8 @@ jobs:
           docker run --rm "$KICAD_IMAGE" kicad-cli --version
           docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
 
-      - name: Generate native hierarchy and interface capture
+      - name: Generate first native hierarchy and interface capture
+        if: steps.native.outputs.committed == 'false'
         shell: bash
         run: |
           rm -rf hardware/memory-core-prototype-a build/generator
@@ -137,6 +151,29 @@ jobs:
           print('Allowed warning class: isolated_pin_label')
           PY
 
+      - name: Promote first passing native hierarchy
+        if: >-
+          github.event_name == 'push' &&
+          steps.native.outputs.committed == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root"/*.kicad_sch \
+            "$root"/*.kicad_pro \
+            "$root"/hierarchy-manifest.json
+
+          if git diff --cached --quiet; then
+            echo "No native hierarchy changes to promote."
+            exit 0
+          fi
+
+          git commit -m "Add ERC-validated native hierarchy capture"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
       - name: Upload generator log
         if: always()
         uses: actions/upload-artifact@v4
@@ -145,7 +182,7 @@ jobs:
           path: build/generator
           if-no-files-found: ignore
 
-      - name: Upload generated native hierarchy
+      - name: Upload native hierarchy
         if: always()
         uses: actions/upload-artifact@v4
         with:
