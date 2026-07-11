@@ -10,6 +10,9 @@ on:
       - "tools/generate_memory_core_hierarchy_v2.py"
       - "tools/capture_power_protection_sheet.py"
       - "tools/capture_power_protection_sheet_v2.py"
+      - "tools/capture_power_protection_sheet_v3.py"
+      - "tools/amend_controls_state_interfaces.py"
+      - "tools/capture_controls_state_sheet.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
@@ -18,6 +21,9 @@ on:
       - "tools/generate_memory_core_hierarchy_v2.py"
       - "tools/capture_power_protection_sheet.py"
       - "tools/capture_power_protection_sheet_v2.py"
+      - "tools/capture_power_protection_sheet_v3.py"
+      - "tools/amend_controls_state_interfaces.py"
+      - "tools/capture_controls_state_sheet.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
@@ -41,28 +47,23 @@ jobs:
         id: stage
         shell: bash
         run: |
-          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
-          power_marker="hardware/memory-core-prototype-a/01_POWER_PROTECTION_CAPTURED"
+          root="hardware/memory-core-prototype-a"
+          test -f "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" && hierarchy=true || hierarchy=false
+          test -f "$root/01_POWER_PROTECTION_CAPTURED" && power=true || power=false
+          test -f "$root/CONTROLS_INTERFACES_AMENDED" && controls_interfaces=true || controls_interfaces=false
+          test -f "$root/08_CONTROLS_STATE_CAPTURED" && controls=true || controls=false
 
-          if [ -f "$top" ]; then
-            echo "hierarchy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "hierarchy=false" >> "$GITHUB_OUTPUT"
-          fi
+          echo "hierarchy=$hierarchy" >> "$GITHUB_OUTPUT"
+          echo "power=$power" >> "$GITHUB_OUTPUT"
+          echo "controls_interfaces=$controls_interfaces" >> "$GITHUB_OUTPUT"
+          echo "controls=$controls" >> "$GITHUB_OUTPUT"
 
-          if [ -f "$power_marker" ]; then
-            echo "power=true" >> "$GITHUB_OUTPUT"
-            echo "Using committed 01_POWER_PROTECTION component capture."
-          else
-            echo "power=false" >> "$GITHUB_OUTPUT"
-            echo "01_POWER_PROTECTION remains an interface scaffold."
-          fi
+          echo "hierarchy=$hierarchy power=$power controls_interfaces=$controls_interfaces controls=$controls"
 
       - name: Install symbol libraries and pinned schematic generator
         run: |
           sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            kicad-symbols
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
           python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
@@ -91,6 +92,22 @@ jobs:
           set -o pipefail
           python tools/capture_power_protection_sheet_v2.py 2>&1 | tee build/generator/power-sheet.log
 
+      - name: Add controls and operating interfaces
+        if: steps.stage.outputs.controls_interfaces == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/amend_controls_state_interfaces.py 2>&1 | tee build/generator/controls-interfaces.log
+
+      - name: Capture 08 controls and state sheet
+        if: steps.stage.outputs.controls == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_controls_state_sheet.py 2>&1 | tee build/generator/controls-sheet.log
+
       - name: Validate hierarchy and stage markers
         run: |
           python - <<'PY'
@@ -104,12 +121,32 @@ jobs:
           assert manifest['return_sheet_allowed_outputs'] == [
               'ABSENCE_INFLUENCE', 'RETURN_FEED', 'RETURN_LIMITED'
           ]
+
           expected = {sheet['filename'] for sheet in manifest['sheets']}
           found = {path.name for path in root.glob('[0-9][0-9]_*.kicad_sch')}
           assert found == expected, (found, expected)
-          power = next(sheet for sheet in manifest['sheets'] if sheet['code'] == '01')
-          assert any(pin['name'] == 'WATCHDOG_HEARTBEAT' for pin in power['pins'])
-          assert (root / '01_POWER_PROTECTION_CAPTURED').exists()
+
+          panel = {
+              'PANEL_MEMORY_TIME', 'PANEL_MEMORY_FADE', 'PANEL_MEMORY_BLUR',
+              'PANEL_GHOST_DISTANCE', 'PANEL_GHOST_DRIFT', 'PANEL_GHOST_PRESENCE',
+              'PANEL_RETURN_AMOUNT', 'PANEL_PRESENT_WET',
+          }
+          operating = {'SERVICE_TEST', 'RESET_CLEAR', 'SAFE_MUTE'}
+          required = panel | operating
+          sheet02 = next(sheet for sheet in manifest['sheets'] if sheet['code'] == '02')
+          sheet08 = next(sheet for sheet in manifest['sheets'] if sheet['code'] == '08')
+          pins02 = {pin['name'] for pin in sheet02['pins']}
+          pins08 = {pin['name'] for pin in sheet08['pins']}
+          assert required <= pins02
+          assert required <= pins08
+
+          for marker in (
+              '01_POWER_PROTECTION_CAPTURED',
+              'CONTROLS_INTERFACES_AMENDED',
+              '08_CONTROLS_STATE_CAPTURED',
+          ):
+              assert (root / marker).exists(), marker
+
           assert (root / 'MerrinLab_PrototypeA.kicad_sym').exists()
           assert (root / 'sym-lib-table').exists()
           print('Hierarchy and component-stage markers: PASS')
@@ -144,6 +181,7 @@ jobs:
           summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
           if not summary:
               raise SystemExit('ERC summary was not found')
+
           errors = int(summary.group(1))
           warnings = int(summary.group(2))
           codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
@@ -153,46 +191,60 @@ jobs:
           if unexpected:
               raise SystemExit(f'Unexpected ERC classes: {unexpected}')
 
-          power_section = ''
-          match = re.search(
-              r'\*\* Sheet /01 POWER / PROTECTION(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
-              text,
-              re.DOTALL,
-          )
-          if match:
-              power_section = match.group('body')
-          if '[isolated_pin_label]:' in power_section:
-              raise SystemExit('01_POWER_PROTECTION still contains temporary isolated interface labels')
+          for sheet_name in ('01 POWER / PROTECTION', '08 CONTROLS / STATE / SAFE SELECTOR'):
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated interface labels')
 
           print(f'ERC stage policy: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
           PY
 
-      - name: Promote first passing native hierarchy
-        if: >-
-          github.event_name == 'push' &&
-          steps.stage.outputs.hierarchy == 'false'
+      - name: Promote first passing hierarchy and component stages
+        if: github.event_name == 'push'
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           root="hardware/memory-core-prototype-a"
-          git add "$root"/*.kicad_sch "$root"/*.kicad_pro "$root"/hierarchy-manifest.json
-          git diff --cached --quiet || git commit -m "Add ERC-validated native hierarchy capture"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
 
-      - name: Promote first passing power sheet
-        if: >-
-          github.event_name == 'push' &&
-          steps.stage.outputs.power == 'false'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          root="hardware/memory-core-prototype-a"
-          git add \
-            "$root/01_POWER_PROTECTION.kicad_sch" \
-            "$root/01_POWER_PROTECTION_CAPTURED" \
-            "$root/MerrinLab_PrototypeA.kicad_sym" \
-            "$root/sym-lib-table"
-          git diff --cached --quiet || git commit -m "Capture ERC-validated power protection sheet"
+          if [ "${{ steps.stage.outputs.hierarchy }}" = "false" ]; then
+            git add "$root"/*.kicad_sch "$root"/*.kicad_pro "$root"/hierarchy-manifest.json
+          fi
+
+          if [ "${{ steps.stage.outputs.power }}" = "false" ]; then
+            git add \
+              "$root/01_POWER_PROTECTION.kicad_sch" \
+              "$root/01_POWER_PROTECTION_CAPTURED" \
+              "$root/MerrinLab_PrototypeA.kicad_sym" \
+              "$root/sym-lib-table"
+          fi
+
+          if [ "${{ steps.stage.outputs.controls_interfaces }}" = "false" ]; then
+            git add \
+              "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" \
+              "$root/02_MCU_CLOCK_DEBUG.kicad_sch" \
+              "$root/hierarchy-manifest.json" \
+              "$root/CONTROLS_INTERFACES_AMENDED"
+          fi
+
+          if [ "${{ steps.stage.outputs.controls }}" = "false" ]; then
+            git add \
+              "$root/08_CONTROLS_STATE.kicad_sch" \
+              "$root/08_CONTROLS_STATE_CAPTURED" \
+              "$root/MerrinLab_PrototypeA.kicad_sym" \
+              "$root/sym-lib-table"
+          fi
+
+          if git diff --cached --quiet; then
+            echo "No validated native stage to promote."
+            exit 0
+          fi
+
+          git commit -m "Capture ERC-validated controls and state sheet"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Upload generator logs
