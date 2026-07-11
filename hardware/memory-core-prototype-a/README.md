@@ -7,7 +7,8 @@ NATIVE HIERARCHY CAPTURED
 01_POWER_PROTECTION COMPLETE / ERC VALIDATED
 08_CONTROLS_STATE COMPLETE / ERC VALIDATED
 02_MCU_CLOCK_DEBUG COMPLETE / ERC VALIDATED
-03_CODEC_CONVERSION NEXT
+03_CODEC_CONVERSION COMPLETE / ERC VALIDATED
+06_RETURN_BREAK_LIMITER NEXT
 PCB WORK BLOCKED
 ```
 
@@ -23,10 +24,10 @@ The project is not yet a completed hardware schematic or production-ready design
 MerrinGriefSynthMemoryCoreA.kicad_sch
 ├── 01_POWER_PROTECTION.kicad_sch       CAPTURED / ERC VALIDATED
 ├── 02_MCU_CLOCK_DEBUG.kicad_sch        CAPTURED / ERC VALIDATED
-├── 03_CODEC_CONVERSION.kicad_sch       NEXT CAPTURE
+├── 03_CODEC_CONVERSION.kicad_sch       CAPTURED / ERC VALIDATED
 ├── 04_INPUT_PRESSURE_ABSENCE.kicad_sch INTERFACE SCAFFOLD
 ├── 05_MEMORY_GHOST_WET.kicad_sch       INTERFACE SCAFFOLD
-├── 06_RETURN_BREAK_LIMITER.kicad_sch   INTERFACE SCAFFOLD
+├── 06_RETURN_BREAK_LIMITER.kicad_sch   NEXT CAPTURE
 ├── 07_OUTPUT_MUTE_PROTECTION.kicad_sch INTERFACE SCAFFOLD
 ├── 08_CONTROLS_STATE.kicad_sch         CAPTURED / ERC VALIDATED
 └── 09_TEST_SERVICE.kicad_sch           INTERFACE SCAFFOLD
@@ -44,6 +45,7 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 - TMUX1574 safe-control release remains a controls/safety-sheet responsibility.
 - Eight panel controls and three operating inputs are explicit signals between sheets 08 and 02.
 - Global ground is established from sheet 01 and shared by captured sheets.
+- Sheet 03 receives the accepted ±12 V analogue rails for OPA1679 conversion stages.
 
 The machine-readable interface list is stored in `hierarchy-manifest.json`.
 
@@ -69,8 +71,6 @@ Validation:
 0 ERC errors
 no temporary interface-harness warnings on 01_POWER_PROTECTION
 ```
-
-ERC drove correction of stock-symbol naming, a resistor overlap, missing and redundant source annotations, and project-local-symbol loading while adding global ground.
 
 Still open:
 
@@ -109,8 +109,6 @@ Validation:
 no temporary interface-harness warnings on 08_CONTROLS_STATE
 ```
 
-ERC drove correction of missing hierarchy signals, dangling MCU labels, global ground scope, a selector-net overlap, symbol-library mismatches, TMUX application pin types and reference formatting.
-
 Still open:
 
 - exact MCP4728 and TMUX1574 footprints;
@@ -120,8 +118,6 @@ Still open:
 - measured SSI2164 control range after sheets 05 and 06 are integrated.
 
 ## Captured sheet 02 — MCU / Clock / Debug
-
-`02_MCU_CLOCK_DEBUG.kicad_sch` now replaces the temporary MCU scaffold.
 
 Captured functions:
 
@@ -142,24 +138,6 @@ Captured functions:
 - 24.576 MHz external CMOS HSE source in bypass mode;
 - SWD service connector and digital/safety test points;
 - explicit no-connect markers on every unused MCU pin.
-
-Locked physical signals:
-
-```text
-PE2  CODEC_MCLK
-PE3  CODEC_DOUT
-PE4  CODEC_LRCLK
-PE5  CODEC_BCLK
-PE6  CODEC_DIN
-
-PB8  CTRL_I2C_SCL
-PB9  CTRL_I2C_SDA
-
-PA0–PA7   eight panel controls
-PD8–PD15  safety and operating controls
-PC6–PC9   state outputs
-PA13/PA14 SWD
-```
 
 Validation:
 
@@ -182,6 +160,79 @@ Still open:
 - CubeMX `.ioc` and generated clock-tree proof;
 - measured MCLK/BCLK/LRCLK timing;
 - SRAM/DMA linker placement and firmware resource proof.
+
+## Captured sheet 03 — Codec / Conversion
+
+`03_CODEC_CONVERSION.kicad_sch` now replaces the temporary codec scaffold.
+
+Captured functions:
+
+- project-local PCM3168A symbol containing all 64 package pins plus PowerPAD;
+- quiet local 5 V analogue and 3.3 V digital branches with ferrite filtering and bulk/local decoupling;
+- VCOMAD, VCOMDA, VREFAD1 and VREFAD2 local decoupling;
+- 24.576 MHz MCLK, 12.288 MHz BCLK and 48 kHz LRCLK slave-mode connections;
+- eight-slot TDM data on DIN1/DOUT1;
+- I²C mode at address `0x44` with MODE, ADR1 and ADR0 held low;
+- active-low reset/mute diode gate: either request holds PCM3168A in reset/power-down;
+- ADC1 single-ended-to-differential OPA1679 ingress at ±1/3 gain;
+- approximately 48 kHz passive anti-alias poles referenced to VCOMAD;
+- Memory, Ghost and Return DAC1–3 differential-to-single-ended filters using TI Figure 61 nominal values;
+- three used DAC outputs at approximately 0.747 gain and 53 kHz post-filter corner;
+- explicit test points for codec rails, reset, ADC legs and all three DAC outputs;
+- OPA1679 spare channels terminated as stable 0 V followers;
+- DAC4–8 and DOUT2/3 explicit no-connects;
+- ADC2–6 differential pairs tied together and AC-terminated to ground;
+- all inactive channels documented as firmware-muted or power-save.
+
+Locked ADC level relationship:
+
+```text
+2 Vpp internal nominal
+→ 1.333 Vpp differential ADC input
+→ approximately −12.6 dBFS
+
+6 Vpp internal headroom limit
+→ 4.0 Vpp differential ADC input
+→ approximately −3.0 dBFS
+```
+
+Locked DAC filter basis:
+
+```text
+TI Figure 61
+R1 = 7.5 kΩ
+R2 = 5.6 kΩ
+R3 = 360 Ω
+C1 = 3.3 nF
+C2 = 680 pF
+gain ≈ 0.747
+f−3 dB ≈ 53 kHz
+```
+
+Validation:
+
+```text
+64 PCM3168A pins plus PowerPAD encoded
+codec hierarchy and selected-pin contract passed
+project-local PCM3168A and OPA1679 symbols parsed
+native KiCad 10 parse passed
+0 hierarchical ERC errors
+no temporary interface-harness warnings on 03_CODEC_CONVERSION
+first generated-artifact gate passed
+```
+
+Still open:
+
+- exact PCM3168A HTQFP-64 PowerPAD footprint verification;
+- exact OPA1679 TSSOP-14 footprint verification;
+- exact ferrite, coupling-capacitor and reference-capacitor parts;
+- capacitor voltage coefficient and audio-grade suitability;
+- measured ADC full-scale and anti-alias response;
+- measured Memory/Ghost/Return reconstruction response and gain;
+- codec register readback and inactive-channel firmware proof;
+- measured reset/mute sequencing and pop behaviour;
+- PowerPAD thermal-via and ground-plane review;
+- physical placement of analogue/digital decoupling.
 
 ## ERC policy
 
@@ -220,8 +271,8 @@ The finished component-level schematic must pass ERC with no unexplained errors 
 [x] 01_POWER_PROTECTION
 [x] 08_CONTROLS_STATE
 [x] 02_MCU_CLOCK_DEBUG
-[ ] 03_CODEC_CONVERSION       NEXT
-[ ] 06_RETURN_BREAK_LIMITER
+[x] 03_CODEC_CONVERSION
+[ ] 06_RETURN_BREAK_LIMITER    NEXT
 [ ] 04_INPUT_PRESSURE_ABSENCE
 [ ] 05_MEMORY_GHOST_WET
 [ ] 07_OUTPUT_MUTE_PROTECTION
@@ -229,7 +280,7 @@ The finished component-level schematic must pass ERC with no unexplained errors 
 [ ] 00_TOP final interface and ERC review
 ```
 
-Sheet 03 will replace the codec scaffold with the PCM3168A supply, reset/control, TDM transport, ADC ingress, three used DAC outputs, conversion-boundary analogue stages and explicit unused-channel treatment.
+Sheet 06 is next because Return is the most safety-critical remaining audio path. It must capture Break, SSI2164 Return control, nonlinear shaping, independent hard limiting, fixed bounded feedback, and the only allowed exported Return nets.
 
 ## Still blocked
 
