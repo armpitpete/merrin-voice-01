@@ -24,7 +24,7 @@ Corrections made before acceptance:
    channel 3 output  = pin 13 — IOUT3
    ```
 
-   Pins `10/11/12` are channel 4 and are reserved for the later wet-master circuit on sheet 05.
+   Pins `10/11/12` are channel 4 and are now used by the wet-master circuit on sheet 05.
 
 2. **Post-codec Return normalisation**
 
@@ -47,11 +47,9 @@ Corrections made before acceptance:
 
    Values, nets and topology did not change.
 
-4. **Staged multi-unit SSI2164 handling**
+4. **Integrated multi-unit SSI2164 ownership**
 
-   KiCad ERC requires every unit of the physical multi-unit device to be placed. U60 units 1, 2 and 4 are therefore shown visibly as explicit no-connect reservations for sheet 05. They use the same `U60` reference and do not represent duplicate chips.
-
-   Sheet 05 must remove those reservations and connect the real Memory, Ghost and wet-master channels.
+   U60 remains one physical SSI2164. Sheet 05 owns units 1, 2 and 4 for Memory, Ghost and wet master. Sheet 06 owns unit 3 for Return and unit 5 for common power. All five units share reference and value `U60 / SSI2164`; no second physical device is created.
 
 ## Locked sheet boundary
 
@@ -81,7 +79,7 @@ The dedicated Return workflow passed:
 - Return safety hierarchy amendment;
 - official SSI2164 symbol/pin contract;
 - unique-reference check;
-- all-five-unit staged placement check;
+- all-five-unit integrated ownership check across sheets 05 and 06;
 - fixed `27.4 kΩ / 40.2 kΩ` Return-feed contract;
 - native KiCad 10 parsing;
 - full hierarchical ERC with zero errors;
@@ -100,7 +98,7 @@ promotion
 
 It then passed:
 
-- the symbol/pin and staged-unit contract against the committed native file;
+- the symbol/pin and integrated shared-unit contract against the committed native files;
 - the unique-reference check;
 - KiCad 10 hierarchical ERC;
 - the strict captured-sheet warning policy.

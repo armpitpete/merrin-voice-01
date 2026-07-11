@@ -10,7 +10,8 @@ NATIVE HIERARCHY CAPTURED
 03_CODEC_CONVERSION COMPLETE / ERC VALIDATED
 06_RETURN_BREAK_LIMITER COMPLETE / ERC VALIDATED
 04_INPUT_PRESSURE_ABSENCE COMPLETE / ERC VALIDATED
-05_MEMORY_GHOST_WET NEXT
+05_MEMORY_GHOST_WET COMPLETE / ERC VALIDATED
+07_OUTPUT_MUTE_PROTECTION NEXT
 PCB WORK BLOCKED
 ```
 
@@ -28,9 +29,9 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 ├── 02_MCU_CLOCK_DEBUG.kicad_sch        CAPTURED / ERC VALIDATED
 ├── 03_CODEC_CONVERSION.kicad_sch       CAPTURED / ERC VALIDATED
 ├── 04_INPUT_PRESSURE_ABSENCE.kicad_sch CAPTURED / ERC VALIDATED
-├── 05_MEMORY_GHOST_WET.kicad_sch       NEXT CAPTURE
+├── 05_MEMORY_GHOST_WET.kicad_sch       CAPTURED / ERC VALIDATED
 ├── 06_RETURN_BREAK_LIMITER.kicad_sch   CAPTURED / ERC VALIDATED
-├── 07_OUTPUT_MUTE_PROTECTION.kicad_sch INTERFACE SCAFFOLD
+├── 07_OUTPUT_MUTE_PROTECTION.kicad_sch NEXT CAPTURE
 ├── 08_CONTROLS_STATE.kicad_sch         CAPTURED / ERC VALIDATED
 └── 09_TEST_SERVICE.kicad_sch           INTERFACE SCAFFOLD
 ```
@@ -42,6 +43,8 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 - PCM3168A conversion uses one ADC ingress and three DAC roles: Memory, Ghost and Return send.
 - Return passes through Break, analogue Return shaping and the independent limiter boundary.
 - Sheet 06 may export only `RETURN_LIMITED`, `RETURN_FEED`, and `ABSENCE_INFLUENCE`.
+- Sheet 05 consumes only the accepted Memory/Ghost DAC and SSI2164 control signals and exports only `WET_MIX`.
+- U60 is one physical SSI2164: units 1/2/4 are on sheet 05; units 3/5 are on sheet 06.
 - Sheet 04 accepts only fixed `RETURN_FEED` and bounded `ABSENCE_INFLUENCE` from sheet 06.
 - Direct Present splits after protected, AC-coupled unity buffering and before Pressure or Absence.
 - `ADC_ANALOG_IN` is formed only from `SHAPED_PRESENT` plus fixed `RETURN_FEED`.
@@ -97,7 +100,7 @@ Still open:
 - exact panel controls, LEDs and transistor parts;
 - measured release/fault timing;
 - MCP4728 EEPROM and bring-up proof;
-- measured SSI2164 control range after sheets 05 and 06 are integrated.
+- measured SSI2164 control range across the integrated sheet-05 and sheet-06 channels.
 
 ## Captured sheet 02 — MCU / Clock / Debug
 
@@ -219,7 +222,7 @@ Validation:
 
 ```text
 SSI2164 channel-3 and power pin coordinates explicitly checked
-all five SSI2164 schematic units present
+single U60 device split across sheet 05 units 1/2/4 and sheet 06 units 3/5
 fixed-feed resistor/value contract passed
 restricted-export contract passed
 native KiCad 10 parse passed
@@ -238,8 +241,68 @@ Still open:
 - measured limiter thresholds and recovery;
 - measured complete loop gain;
 - independent Return safety review after integrated analogue capture;
-- 30-minute worst-setting endurance test;
-- replacement of reserved SSI2164 units when sheet 05 is captured.
+- 30-minute worst-setting endurance test.
+
+## Captured sheet 05 — Memory / Ghost / Wet
+
+Captured signal route:
+
+```text
+MEMORY_DAC → SSI2164 channel 1 → OPA1679 I/V ┐
+                                               ├→ equal half-sum
+GHOST_DAC  → SSI2164 channel 2 → OPA1679 I/V ┘
+                                               ↓
+                                    SSI2164 channel 4 wet master
+                                               ↓
+                                            WET_MIX
+```
+
+Locked shared-device ownership:
+
+```text
+U60 unit 1 = Memory channel 1   pins 2 IIN1, 3 VC1, 4 IOUT1
+U60 unit 2 = Ghost channel 2    pins 7 IIN2, 6 VC2, 5 IOUT2
+U60 unit 3 = Return channel 3   pins 15 IIN3, 14 VC3, 13 IOUT3   sheet 06
+U60 unit 4 = wet-master channel pins 10 IIN4, 11 VC4, 12 IOUT4
+U60 unit 5 = common power       sheet 06
+```
+
+Locked wet-sum relationship:
+
+```text
+Memory input resistor = 40.2 kΩ
+Ghost input resistor  = 40.2 kΩ
+feedback resistor     = 20.0 kΩ
+
+branch magnitude = 20.0 / 40.2 ≈ 0.4975
+two equal full-scale branches ≈ 0.995 total
+```
+
+Validation:
+
+```text
+native generation passed
+hierarchy and WET_MIX-only export contract passed
+SSI2164 symbol and official physical-pin contract passed
+single-device five-unit U60 ownership contract passed
+no duplicate SSI2164 physical device created
+KiCad 10 hierarchical ERC passed
+0 ERC errors
+0 ERC warnings
+committed-file rerun passed with generation and promotion skipped
+integrated Return workflow rerun passed with generation skipped
+```
+
+Still open:
+
+- exact SSI2164 SOP-16 footprint and independent package-pin review;
+- exact OPA1679 TSSOP-14 footprint review;
+- exact coupling, stability and decoupling capacitor selections;
+- measured Memory and Ghost VCA control laws;
+- measured Memory/Ghost branch gain and wet-sum headroom;
+- measured wet-master attenuation range, noise, distortion and recovery;
+- integrated analogue loop gain and safety review;
+- PCB placement, routing and all physical implementation gates.
 
 ## Captured sheet 04 — Input / Pressure / Absence
 
@@ -342,7 +405,7 @@ isolated_pin_label warnings allowed only on sheets that remain temporary scaffol
 captured sheets may not retain temporary interface-harness warnings
 ```
 
-Remaining scaffold warnings are temporary and are not accepted permanent exceptions.
+The integrated sheet-05 gate currently reports `0 errors, 0 warnings`. Temporary scaffold warnings are not accepted permanent exceptions.
 
 ## Active capture order
 
@@ -353,13 +416,13 @@ Remaining scaffold warnings are temporary and are not accepted permanent excepti
 [x] 03_CODEC_CONVERSION
 [x] 06_RETURN_BREAK_LIMITER
 [x] 04_INPUT_PRESSURE_ABSENCE
-[ ] 05_MEMORY_GHOST_WET        NEXT
-[ ] 07_OUTPUT_MUTE_PROTECTION
+[x] 05_MEMORY_GHOST_WET
+[ ] 07_OUTPUT_MUTE_PROTECTION  NEXT
 [ ] 09_TEST_SERVICE
 [ ] 00_TOP final interface and ERC review
 ```
 
-Sheet 05 must capture the Memory, Ghost and wet analogue paths, consume `MEMORY_DAC`, `GHOST_DAC`, and the three accepted SSI2164 control signals, replace the reserved SSI2164 channel placeholders currently held on sheet 06, and export only `WET_MIX`.
+Sheet 07 is the next bounded capture. It must consume `DIRECT_PRESENT`, `WET_MIX`, `HARDWARE_FAULT_N`, and the accepted ±12 V rails; implement the output summing, deterministic mute and output-protection path; and keep physical jack, footprint and panel decisions outside this schematic gate.
 
 ## Still blocked
 
