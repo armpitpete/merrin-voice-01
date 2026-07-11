@@ -59,9 +59,10 @@ Spec document:
 
 Status: draft in progress.
 
-Spec document:
+Spec documents:
 
 - [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
+- [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
 
 Purpose:
 
@@ -71,6 +72,7 @@ Purpose:
 - lock the analogue / digital / hybrid split
 - lock the Memory / Ghost / Return interaction
 - define Absence, Pressure, and Break as hardware behaviours
+- lock SMD-first electronic construction
 - define the first prototype boundary
 - define the next circuit-design lane
 
@@ -106,6 +108,31 @@ Oscillators and quantisation are secondary support systems.
 
 They must not be built before the grief engine is proven.
 
+## Locked construction method
+
+Merrin Grief Synth circuit boards are SMD-first.
+
+```text
+Electronic circuitry = surface mount by default.
+Panel/mechanical hardware = through-hole where appropriate.
+```
+
+Through-hole exceptions may include:
+
+- potentiometers
+- jacks
+- switches
+- encoders
+- power and board connectors
+- programming/service headers
+- test points
+- mechanically stressed parts
+- parts not reasonably available in SMD
+
+Exact SMD packages remain deferred until component and schematic selection.
+
+The later design should favour practical, inspectable, repairable SMD packages rather than unnecessarily tiny parts.
+
 ## First hardware prototype
 
 ```text
@@ -123,6 +150,10 @@ Its job is to prove:
 - Pressure and Break create controlled damage
 - feedback and reset remain safe
 
+Prototype A is an SMD-first hardware design.
+
+Temporary development headers, panel controls, and jacks may be through-hole, but the signal-processing and control circuitry must target SMD implementation.
+
 Prototype A is not the final synth, oscillator board, final panel, or production PCB.
 
 ## V5.0 allowed work
@@ -133,6 +164,7 @@ Prototype A is not the final synth, oscillator board, final panel, or production
 - control-language translation
 - SLS-1 state-light requirements
 - HIL-1 panel-layout requirements
+- SMD-first construction rules
 - safety/reset requirements
 - prototype boundary
 - acceptance tests
@@ -143,6 +175,7 @@ Prototype A is not the final synth, oscillator board, final panel, or production
 - schematic capture
 - PCB layout
 - processor or component selection
+- exact footprint/package selection
 - BOM
 - hardware shopping
 - oscillator-board design
@@ -171,6 +204,7 @@ V5.1 should define:
 - reset/mute path
 - test points
 - bench acceptance procedure
+- SMD-oriented circuit partitioning
 
 V5.1 still should not begin PCB layout.
 
