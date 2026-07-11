@@ -24,7 +24,7 @@ Hardware version = final destination.
 ### v4.0 — Whole-instrument definition complete
 
 - browser reference separated from final hardware goal
-- circuit-board synth established as the final destination
+- circuit-board synth established as final destination
 - final demo media blocked until the hardware stage is honest
 
 Documents:
@@ -35,7 +35,7 @@ Documents:
 ### v4.1 — Performance / advanced layout separation complete
 
 - performance surface shown first
-- diagnostic/test controls moved into an advanced area
+- test/diagnostic controls moved into an advanced area
 - no sound-engine expansion
 
 Document:
@@ -44,9 +44,7 @@ Document:
 
 ## Completed hardware-definition work
 
-### v5.0 — Hardware Translation Spec complete
-
-Locked architecture:
+### v5.0 — Hardware Translation Spec
 
 ```text
 Analogue Present path
@@ -64,7 +62,7 @@ GHOST
 RETURN
 ```
 
-Support blocks:
+Support:
 
 ```text
 ABSENCE
@@ -75,37 +73,34 @@ BREAK
 Also locked:
 
 - Memory Core Prototype A first
-- external audio as Prototype A Present
-- oscillator and quantizer deferred
+- external audio as Present
+- oscillator/quantizer deferred
 - SMD-first electronics
-- WQP518MA/Thonkiconn 3.5 mm audio jacks
-- SLS-1 state indication
-- HIL-1 layout rules
+- WQP518MA Thonkiconns
+- SLS-1 and HIL-1
 
 Documents:
 
 - [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
 - [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
 
-### v5.1 — Prototype A circuit-block design complete
+### v5.1 — Circuit-block design
 
 Locked:
 
-- Memory captures shaped Present after Pressure and Absence
-- direct analogue Present bypasses the digital core
-- one mono ADC ingress
-- three DAC outputs: Memory, Ghost, Return send
+- Memory captures shaped Present after Pressure/Absence
+- direct analogue Present bypasses digital core
+- mono ADC ingress
+- Memory, Ghost and Return DAC outputs
 - Return passes through Break, analogue shaping and hard limiting
-- only `RETURN_LIMITED` may re-enter Memory or influence Absence
-- signal-level, reset/fault and bench-test requirements
+- only `RETURN_LIMITED` may re-enter Memory
+- signal, reset/fault and bench-test requirements
 
 Document:
 
 - [V5.1 — Memory Core Prototype A Circuit-Block Design](docs/v5.1-memory-core-prototype-a-circuit-block-design.md)
 
-### v5.2 — Component architecture complete
-
-Major selections:
+### v5.2 — Component architecture
 
 | Function | Selection | Package target |
 |---|---|---|
@@ -114,34 +109,33 @@ Major selections:
 | Audio op amp | OPA1679 | TSSOP-14 |
 | Quad VCA | SSI2164 | SOP-16 |
 | VCA control DAC | MCP4728 | MSOP-10 |
-| Safe VCA-control selector | TMUX1574 | TSSOP-16 |
-| 3.3 V supervisor | TPS3808G33 | SOT-23-6 |
-| External watchdog | TPS3431 | VSON-8 |
-| 5 V / 3.3 V pre-regulators | TPS62160 | VSSOP-8 |
+| Fail-safe VCA selector | TMUX1574 | TSSOP-16 |
+| Supervisor | TPS3808G33 | SOT-23-6 |
+| Watchdog | TPS3431 | VSON-8 |
+| Buck regulators | TPS62160 | VSSOP-8 |
 | Quiet codec LDO | TPS7A2050 | SOT-23-5 |
-| Audio jacks | WQP518MA Thonkiconn | through-hole PCB mount |
+| Audio jacks | WQP518MA | through-hole PCB mount |
 | Default passives | 0805 | 0805 |
 
-Locked digital architecture:
+Digital architecture:
 
 ```text
-48 kHz audio
+48 kHz
 24-bit conversion
-32-bit MCU processing
-2.0-second mono circular history
+32-bit processing
+2.0-second mono history
 384,000-byte history buffer
 internal MCU SRAM only
 ```
 
 Documents:
 
-- [V5.2 — Prototype A Component Architecture](docs/v5.2-prototype-a-component-architecture.md)
-- [V5.2 — Prototype A Schematic Sheet Plan](docs/v5.2-prototype-a-schematic-sheet-plan.md)
-- [V5.2 — Component-Selection Risk Register](docs/v5.2-component-selection-risk-register.md)
+- [V5.2 — Component Architecture](docs/v5.2-prototype-a-component-architecture.md)
+- [V5.2 — Safe Selector Amendment](docs/v5.2-component-architecture-amendment-safe-selector.md)
+- [V5.2 — Schematic Sheet Plan](docs/v5.2-prototype-a-schematic-sheet-plan.md)
+- [V5.2 — Risk Register](docs/v5.2-component-selection-risk-register.md)
 
-### v5.2 — Digital schematic blockers closed
-
-Exact MCU allocation:
+### v5.2 — Digital blockers closed
 
 ```text
 PE2  SAI1_MCLK_A  → codec MCLK
@@ -150,35 +144,26 @@ PE4  SAI1_FS_A    → codec frame sync
 PE5  SAI1_SCK_A   → codec BCLK
 PE6  SAI1_SD_A    → codec DAC data
 
-PB8/PB9   shared I2C1 control bus
-PA0–PA7   eight panel ADC controls
-PD8–PD15  safety and operating controls
-PC6–PC9   SLS-1 state outputs
+PB8/PB9   I2C1
+PA0–PA7   panel ADC
+PD8–PD15  safety/user controls
+PC6–PC9   SLS-1
 ```
-
-Exact codec transport:
 
 ```text
 48 kHz LRCLK
 12.288 MHz BCLK
 24.576 MHz MCLK
-8 × 32-bit TDM slots
-PCM3168A address 0x44
-MCP4728 address 0x60
+8 × 32-bit TDM
+PCM3168A 0x44
+MCP4728 0x60
 ```
 
 Documents:
 
-- [V5.2 — MCU Pin Allocation Register](docs/v5.2-mcu-pin-allocation-register.md)
-- [V5.2 — PCM3168A Clock and Interface Proof](docs/v5.2-pcm3168a-clock-and-interface-proof.md)
-- [V5.2 — MCU Pin and Codec Configuration Cross-Check](docs/v5.2-mcu-pin-and-codec-cross-check.md)
-
-Closed for schematic preparation:
-
-```text
-R1  PCM3168A clock/configuration
-R10 STM32H743VIT6 pin allocation
-```
+- [V5.2 — MCU Pin Allocation](docs/v5.2-mcu-pin-allocation-register.md)
+- [V5.2 — PCM3168A Proof](docs/v5.2-pcm3168a-clock-and-interface-proof.md)
+- [V5.2 — Digital Cross-Check](docs/v5.2-mcu-pin-and-codec-cross-check.md)
 
 ## Active lane
 
@@ -188,114 +173,122 @@ Status: review branch.
 
 Documents:
 
-- [V5.2 — Prototype A Power, Current and Thermal Budget](docs/v5.2-power-current-and-thermal-budget.md)
-- [V5.2 — SSI2164 / MCP4728 Fail-Safe Control](docs/v5.2-ssi2164-mcp4728-fail-safe-control.md)
-- [V5.2 — Return Limiter and OPA1679 Allocation](docs/v5.2-return-limiter-and-opamp-allocation.md)
-- [V5.2 — Supervisor, Watchdog and Thonkiconn Proof](docs/v5.2-supervisor-watchdog-and-thonkiconn-proof.md)
+- [Power, Current and Thermal Budget](docs/v5.2-power-current-and-thermal-budget.md)
+- [SSI2164 / MCP4728 Fail-Safe Control](docs/v5.2-ssi2164-mcp4728-fail-safe-control.md)
+- [Return Limiter and OPA1679 Allocation](docs/v5.2-return-limiter-and-opamp-allocation.md)
+- [Supervisor, Watchdog and Thonkiconn Proof](docs/v5.2-supervisor-watchdog-and-thonkiconn-proof.md)
+- [Power and Analogue Preflight](docs/v5.2-power-and-analogue-preflight-register.md)
 
-### Locked power targets
+## Locked power targets
 
 ```text
 3.3 V design load = 500 mA
 quiet 5 V design load = 265 mA
 ±12 V analogue-core allowance = 100 mA per rail
-prototype bench allocation:
+bench planning:
   +12 V = 425 mA
   −12 V = 110 mA
 ```
 
-TPS62160 starting values:
+Regulator starting points:
 
 ```text
 3.3 V rail:
   RTOP = 374 kΩ
   RBOTTOM = 120 kΩ
   nominal = 3.293 V
+  L = 2.2 µH
+  COUT = 22 µF effective target
 
-5 V pre-rail:
+quiet-5 V pre-rail:
   RTOP = 698 kΩ
   RBOTTOM = 120 kΩ
   nominal = 5.453 V
-
-both rails:
-  L = 2.2 µH
-  CIN = 10 µF local minimum target
+  L = 3.3 µH
   COUT = 22 µF effective target
 ```
 
-### Locked fail-safe VCA control
+The 3.3 µH quiet-pre-rail correction keeps the first-pass design in continuous conduction at the 265 mA load.
+
+## Locked fail-safe VCA control
 
 ```text
-SSI2164 control range = 0 V to +3.3 V
-0 V    = unity maximum
-+3.3 V = approximately −100 dB attenuation
-negative control voltage forbidden
+SSI control range = 0 V to +3.3 V
+0 V = unity
++3.3 V ≈ maximum attenuation
+negative control forbidden
 ```
 
-TMUX1574 selection:
+TMUX1574:
 
 ```text
-safe/default input = +3.3 V attenuation reference
-normal input = MCP4728 output
-SEL low = safe attenuation
-SEL high = normal DAC control
-hardware fault can always force SEL low
+safe/default input = +3.3 V
+normal input = MCP4728
+SEL low = safe
+SEL high = normal
+hardware fault can force SEL low
 ```
 
-MCP4728 EEPROM safe request:
+MCP4728 EEPROM requests `0xFFF` on every channel, but the hardware selector remains authoritative.
+
+## Locked timing distinction
 
 ```text
-VREF = VDD
-GAIN = 1
-normal mode
-all four DAC codes = 0xFFF
+20 ms = asserted fault to wet/Return suppression
 ```
 
-The EEPROM state is secondary; the hardware selector is authoritative.
-
-### Locked timing interpretation
-
-```text
-20 ms requirement = asserted fault to wet/Return suppression
-```
-
-TPS3431 remains the slower independent MCU-hang detector:
+TPS3431 remains the slower independent hang detector:
 
 ```text
 approximately 200 ms nominal
-approximately 170–230 ms documented window
+approximately 170–230 ms window
 ```
 
-It does not claim to detect a frozen MCU within 20 ms.
+It does not claim 20 ms hang detection.
 
-### Locked Return safety
+## Corrected Return safety
+
+```text
+combined small-signal transfer from core Return source
+through DAC-R, Break and analogue Return to RETURN_LIMITED
+≤ 1.000
+```
+
+Hard limit and fixed feed:
 
 ```text
 RET-01
-→ 2.2 kΩ series resistor
-→ Schottky clamp to buffered ±2.5 V references
+→ 2.2 kΩ
+→ clamp to buffered ±2.5 V references
 → RETURN_LIMITED
-→ fixed feed gain 30.1 kΩ / 40.2 kΩ
-→ nominal magnitude 0.7488
-→ 1% worst-case approximately 0.764
+→ RIN 40.2 kΩ / RF 27.4 kΩ
+→ nominal feed 0.6816
+→ 1% worst-case 0.6954
 ```
 
-SSI Return gain cannot exceed unity, so calculated normal small-signal loop gain remains below 0.85.
+Calculated normal loop gain remains below 0.70 and below the 0.85 ceiling.
 
-Only `RETURN_LIMITED` may cross the Return-sheet feedback boundary.
+Headroom:
 
-### Locked OPA1679 count
+```text
+5.6 Vpp clamp × 0.6816 = 3.82 Vpp Return
+3.82 Vpp + 2.00 Vpp Present = 5.82 Vpp
+```
+
+This remains below the 6 Vpp internal target.
+
+## OPA1679 count
 
 ```text
 7 × OPA1679
-28 assigned channels
+28 provisional assigned channels
 56.0 mA per rail typical
 78.4 mA per rail worst-case
 ```
 
-No casual spare op-amp package is authorised.
+Native schematic accounting must confirm the allocation.
 
-### WQP518MA status
+## WQP518MA status
 
 Accepted for schematic:
 
@@ -305,39 +298,37 @@ pin 2 tip
 pin 3 normally-connected tip switch
 ```
 
-Still required before PCB:
+Still blocked before PCB:
 
-- independent footprint check against current manufacturer drawing
-- barrel keepout/hole check
-- panel axis and nut/washer clearance
+- independent footprint check
+- barrel keepout/hole
+- panel axis and hardware stack
 - physical sample measurement
 
-A community library marked incomplete is reference-only.
-
-## Risk state after this lane
+## Risk state
 
 Closed for schematic preparation:
 
 ```text
-R3  SSI2164 control safety
-R4  MCP4728 startup architecture
-R6  quiet 5 V rail calculation
-R7  3.3 V current budget
-R9  OPA1679 count/current
+R3 SSI2164 safety
+R4 MCP4728 startup architecture
+R6 quiet-5 V calculation
+R7 3.3 V budget
+R9 OPA1679 count/current
 ```
 
-Partially closed:
+Partly closed:
 
 ```text
-R5  watchdog timing accepted; footprint/assembly open
-R8  jack symbol/switching accepted; footprint/mechanical open
+R5 watchdog timing accepted; footprint/assembly open
+R8 jack symbol/switching accepted; footprint/mechanical open
 R12 Return calculation accepted; schematic/bench proof open
 ```
 
 Still open:
 
 ```text
-R2  SRAM/DMA firmware placement
+R2 SRAM/DMA firmware placement
 R11 unused codec analogue treatment
 ```
 
@@ -347,7 +338,7 @@ R11 unused codec analogue treatment
 V5.2 — Native hierarchical schematic capture and ERC
 ```
 
-Schematic capture must use the accepted hierarchy:
+Hierarchy:
 
 ```text
 00_TOP
@@ -364,22 +355,22 @@ Schematic capture must use the accepted hierarchy:
 
 Before schematic acceptance:
 
-- every selected symbol and physical pin is verified
-- passive values preserve the accepted calculations
-- every supply pin is decoupled
-- unused codec analogue inputs are terminated correctly
-- Return safety is independently reviewed
-- ERC passes with only documented intentional exceptions
+- symbols and physical pins verified
+- passive values preserve accepted calculations
+- all supply pins decoupled
+- unused codec analogue inputs correctly terminated
+- Return safety independently reviewed
+- ERC passes with documented exceptions only
 
 ## PCB gate
 
 PCB placement, routing, fabrication and purchasing remain forbidden until:
 
-- the hierarchical schematic is complete
+- hierarchical schematic is complete
 - ERC passes
-- hardware-relevant risks are closed
-- component packages are independently verified
-- WQP518MA footprint and panel alignment are accepted
+- hardware-relevant risks close
+- packages and footprints are independently verified
+- WQP518MA panel alignment is accepted
 - Return limiter independence is accepted
 
 Only then may the project enter:
@@ -390,24 +381,9 @@ V5.3 — Prototype A PCB placement and routing
 
 ## Later work
 
-### Internal voice source
-
-Only after Memory Core Prototype A proves the grief engine:
-
-- constrained Scale
-- Tone / Shape / Sub / Overtone
-- Glide / Drift
-- Fade / Wither
-- internal voice integration into Present
-
-### Finish-demo lane
+Internal voice source begins only after Prototype A proves the grief engine.
 
 No final demo media during component, schematic or PCB work.
-
-A later demo must be honestly labelled as either:
-
-- browser reference demonstration; or
-- hardware prototype demonstration.
 
 ## Permanent non-goals
 
