@@ -1,0 +1,172 @@
+name: KiCad test service sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/capture_test_service_sheet.py"
+      - "tools/validate_test_service_capture.py"
+      - ".github/workflows/kicad-test-service-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/09_TEST_SERVICE*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+  pull_request:
+    paths:
+      - "tools/capture_test_service_sheet.py"
+      - "tools/validate_test_service_capture.py"
+      - ".github/workflows/kicad-test-service-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/09_TEST_SERVICE*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  test-service-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed test service stage
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/09_TEST_SERVICE_CAPTURED"
+          if [ -f "$marker" ]; then
+            echo "service=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed test/service capture; generation will be skipped."
+          else
+            echo "service=false" >> "$GITHUB_OUTPUT"
+            echo "Test/service remains a scaffold; first capture is active."
+          fi
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Generate read-only test service sheet
+        if: steps.stage.outputs.service == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_test_service_sheet.py 2>&1 | tee build/generator/test-service-sheet.log
+
+      - name: Validate test service capture contract
+        run: python tools/validate_test_service_capture.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce zero errors and all-sheet warning policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          if errors:
+              raise SystemExit(f'Test/service stage has {errors} ERC error(s)')
+          if codes:
+              raise SystemExit(f'All sheets are captured; ERC warnings are not permitted: {sorted(set(codes))}')
+
+          captured = (
+              '01 POWER / PROTECTION', '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION', '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET', '06 RETURN / BREAK / LIMITER',
+              '07 OUTPUT / MUTE / PROTECTION',
+              '08 CONTROLS / STATE / SAFE SELECTOR', '09 TEST / SERVICE',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} retains temporary isolated labels')
+          if warnings:
+              raise SystemExit(f'All-sheet capture has {warnings} warning(s)')
+          print('Test/service ERC: PASS — 0 errors, 0 warnings across all nine sheets')
+          PY
+
+      - name: Promote only the first passing native artifact
+        if: github.event_name == 'push' && steps.stage.outputs.service == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add "$root/09_TEST_SERVICE.kicad_sch" "$root/09_TEST_SERVICE_CAPTURED"
+          if git diff --cached --quiet; then
+            echo "No validated test/service artifact to promote."
+            exit 0
+          fi
+          git commit -m "Capture ERC-validated test service sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-service-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-service-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-service-erc-report
+          path: build/erc
+          if-no-files-found: ignore
