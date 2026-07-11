@@ -9,6 +9,7 @@ on:
       - "tools/capture_codec_conversion_sheet.py"
       - "tools/capture_codec_conversion_sheet_v2.py"
       - "tools/capture_output_mute_protection_sheet.py"
+      - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/validate_output_mute_protection_capture.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
@@ -22,6 +23,7 @@ on:
       - "tools/capture_codec_conversion_sheet.py"
       - "tools/capture_codec_conversion_sheet_v2.py"
       - "tools/capture_output_mute_protection_sheet.py"
+      - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/validate_output_mute_protection_capture.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
@@ -82,7 +84,7 @@ jobs:
           mkdir -p build/generator
           set -o pipefail
           python tools/capture_codec_conversion_sheet_v2.py 2>&1 | tee build/generator/output-sheet.log
-          python tools/capture_output_mute_protection_sheet.py 2>&1 | tee -a build/generator/output-sheet.log
+          python tools/capture_output_mute_protection_sheet_v2.py 2>&1 | tee -a build/generator/output-sheet.log
 
       - name: Validate output, mute, protection and shared U32 contracts
         run: python tools/validate_output_mute_protection_capture.py
