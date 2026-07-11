@@ -118,6 +118,25 @@ def append_symbol_library(path: Path) -> None:
     path.write_text(stripped[:-1] + render_symbol() + ")\n", encoding="utf-8")
 
 
+def _number_pattern(value: float) -> str:
+    integer = int(value)
+    if value == integer:
+        return rf"{integer}(?:\.0+)?"
+    return re.escape(f"{value:.2f}".rstrip("0").rstrip("."))
+
+
+def serialized_component_position(text: str, unit: int) -> tuple[float, float]:
+    pattern = (
+        rf'\(symbol\s+\(lib_id "{re.escape(LIB_ID)}"\)\s+'
+        rf'\(at ([+-]?[0-9.]+) ([+-]?[0-9.]+) [^)]+\)\s+'
+        rf'\(unit {unit}\)'
+    )
+    matches = re.findall(pattern, text, re.DOTALL)
+    if len(matches) != 1:
+        raise RuntimeError(f"Expected one serialized U32 unit {unit}, found {len(matches)}")
+    return (float(matches[0][0]), float(matches[0][1]))
+
+
 def repair_label(
     text: str,
     name: str,
@@ -125,9 +144,30 @@ def repair_label(
     unit: int,
     pin: str,
 ) -> str:
-    """Compatibility no-op: OPA1679 multi-unit labels serialize at native pins."""
-    del name, component_position, unit, pin
-    return text
+    """Move one API-mirrored label to the serialized U32 physical pin."""
+    del component_position
+    position = serialized_component_position(text, unit)
+    _pin_name, _pin_type, side, row = UNITS[unit][str(pin)]
+    local_y = HALF_HEIGHT - 2.54 * row
+    x = position[0] - 10.16 if side == "left" else position[0] + 10.16
+    wrong_y = position[1] + local_y
+    right_y = position[1] - local_y
+    pattern = (
+        rf'(\(label "{re.escape(name)}"\s+\(at )'
+        rf'{_number_pattern(x)} {_number_pattern(wrong_y)} 0(?:\.0+)?(\))'
+    )
+    repaired, count = re.subn(
+        pattern,
+        rf"\g<1>{round(x, 2)} {round(right_y, 2)} 0\g<2>",
+        text,
+        count=1,
+    )
+    if count != 1:
+        raise RuntimeError(
+            f"Expected one mirrored label {name} for U32 unit {unit} pin {pin} "
+            f"at {(round(x, 2), round(wrong_y, 2))}, found {count}"
+        )
+    return repaired
 
 
 def repair_hierarchical_shape(
