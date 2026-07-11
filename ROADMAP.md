@@ -19,13 +19,9 @@ Hardware version = final destination.
 - on-screen keyboard
 - computer keyboard input
 - MIDI keyboard input
-- MIDI diagnostics and raw monitor tools
-- duplicate MIDI filtering
-- Shape / Sub / Overtone / Drift
-- Tone / Fade / Echo / Amplitude
-- Scale / Glide / Weight / Wither
+- diagnostics and safe panic/release behaviour
+- accepted emotional control language
 - functional oscilloscope
-- safe release and MIDI panic behaviour
 
 ### v4.0 — Whole-instrument definition complete
 
@@ -34,7 +30,7 @@ Hardware version = final destination.
 - performance controls separated conceptually from diagnostics
 - no final demo media authorised
 
-Spec documents:
+Documents:
 
 - [V4.0 — Whole Synth Build Spec](docs/whole-synth-build-spec-v4.0.md)
 - [V4.0 — Whole Synth Definition Pass](docs/v4.0-whole-synth-definition-pass.md)
@@ -42,46 +38,23 @@ Spec documents:
 ### v4.1 — Performance / advanced layout separation complete
 
 - public performance surface shown first
-- panic/release remains visible
-- MIDI connection/status remains visible
-- effect tests, Wither delay, and diagnostics moved into advanced/test area
+- panic/release and MIDI status remain visible
+- test and diagnostic controls moved into an advanced area
 - no sound-engine changes
 - no demo media
-- project goal corrected in the repo
 
-Spec document:
+Document:
 
 - [V4.1 — Performance / Advanced Layout Separation](docs/v4.1-performance-advanced-layout.md)
 
-## Active lane
+## Completed hardware-definition work
 
-### v5.0 — Hardware Translation Spec
+### v5.0 — Hardware Translation Spec complete
 
-Status: draft in progress.
-
-Spec documents:
-
-- [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
-- [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
-
-Purpose:
-
-- translate the accepted browser reference into a circuit-board synth architecture
-- preserve Merrin Voice 01 / Constrained Grief identity
-- reconcile the established `Scale → Tone → Envelope → Room → Memory` canon with the newer hardware-heart decision
-- lock the analogue / digital / hybrid split
-- lock the Memory / Ghost / Return interaction
-- define Absence, Pressure, and Break as hardware behaviours
-- lock SMD-first electronic construction
-- define the first prototype boundary
-- define the next circuit-design lane
-
-## Locked V5.0 direction
-
-The hardware direction is hybrid.
+The hardware direction is locked as:
 
 ```text
-Analogue present path
+Analogue Present path
 +
 shared digital Memory / Ghost / Return core
 +
@@ -96,7 +69,7 @@ GHOST
 RETURN
 ```
 
-Support states/blocks:
+Support blocks:
 
 ```text
 ABSENCE
@@ -104,129 +77,190 @@ PRESSURE
 BREAK
 ```
 
-Oscillators and quantisation are secondary support systems.
+V5.0 also locked:
 
-They must not be built before the grief engine is proven.
-
-## Locked construction method
-
-Merrin Grief Synth circuit boards are SMD-first.
-
-```text
-Electronic circuitry = surface mount by default.
-Panel/mechanical hardware = through-hole where appropriate.
-```
-
-Through-hole exceptions may include:
-
-- potentiometers
-- jacks
-- switches
-- encoders
-- power and board connectors
-- programming/service headers
-- test points
-- mechanically stressed parts
-- parts not reasonably available in SMD
-
-Exact SMD packages remain deferred until component and schematic selection.
-
-The later design should favour practical, inspectable, repairable SMD packages rather than unnecessarily tiny parts.
-
-## First hardware prototype
-
-```text
-Memory Core Prototype A
-```
-
-Prototype A uses external audio as the Present signal.
-
-Its job is to prove:
-
-- Memory retains and degrades sound
-- Ghost is derived from Memory and feels thin/detached
-- Return alters future Memory behaviour
-- Return influences Absence
-- Pressure and Break create controlled damage
-- feedback and reset remain safe
-
-Prototype A is an SMD-first hardware design.
-
-Temporary development headers, panel controls, and jacks may be through-hole, but the signal-processing and control circuitry must target SMD implementation.
-
-Prototype A is not the final synth, oscillator board, final panel, or production PCB.
-
-## V5.0 allowed work
-
-- functional architecture
-- analogue/digital boundaries
-- signal-flow definition
-- control-language translation
+- Memory Core Prototype A as the first hardware build
+- external audio as the Prototype A Present source
+- oscillator and quantizer work deferred
+- SMD-first electronic construction
+- through-hole mechanical exceptions only where appropriate
+- Thonkiconn-family 3.5 mm PCB-mount jacks as the default audio/CV connector
+- exact components, packages, jack variants, and footprints deferred
 - SLS-1 state-light requirements
-- HIL-1 panel-layout requirements
-- SMD-first construction rules
-- safety/reset requirements
-- prototype boundary
-- acceptance tests
+- HIL-1 layout requirements
+- no schematic or PCB work in V5.0
 
-## V5.0 forbidden work
+Documents:
 
-- KiCad
-- schematic capture
-- PCB layout
-- processor or component selection
-- exact footprint/package selection
-- BOM
-- hardware shopping
-- oscillator-board design
-- final enclosure design
-- demo media
-- DBHT-1 expansion
-- M A C work
-- VST or VCV work
-- sequencer work
-- presets
-- recording/export
+- [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
+- [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
 
-## Next lane after V5.0 acceptance
+## Active lane
+
+### v5.1 — Memory Core Prototype A circuit-block design
+
+Status: draft in review branch.
+
+Document:
+
+- [V5.1 — Memory Core Prototype A Circuit-Block Design](docs/v5.1-memory-core-prototype-a-circuit-block-design.md)
+
+Purpose:
+
+- define detailed functional blocks
+- define signal direction and capture points
+- define signal-level targets
+- define gain staging
+- define ADC/DAC functional boundaries
+- define Return safety and bounded feedback
+- define boot/reset/mute/fault behaviour
+- define test points
+- define SMD-oriented functional zones
+- define Thonkiconn audio-jack roles
+- define bench acceptance tests
+
+## Locked V5.1 refinement
+
+Memory captures the shaped Present signal after Pressure and Absence.
 
 ```text
-V5.1 — Memory Core Prototype A circuit-block design
+Raw input
+  ↓
+Pressure
+  ↓
+Absence
+  ↓
+Shaped Present
+  ├── direct analogue Present path
+  └── Memory-input summing node
 ```
 
-V5.1 should define:
+Limited Return re-enters only through the Memory-input summing node.
 
-- detailed block boundaries
-- signal levels
-- gain staging
-- conversion boundaries
-- Return safety path
-- reset/mute path
-- test points
-- bench acceptance procedure
+Raw Return may not bypass:
+
+```text
+Break
+↓
+analogue Return nonlinearity
+↓
+hard Return limiter
+```
+
+## V5.1 signal targets
+
+Prototype A targets:
+
+- expected external input range of approximately 0.2–10 Vpp after trim
+- non-damaging input survival within ±12 V at the jack
+- 2 Vpp nominal internal analogue audio
+- at least 6 Vpp internal headroom before unintended clipping
+- approximately −12 dBFS nominal converter ingress
+- below −3 dBFS converter peak target before intended limiting
+- approximately 2 Vpp nominal output
+- no more than 10 Vpp maximum normal output
+- approximately 0.85 maximum normal small-signal Return loop gain
+- bounded complete Return behaviour at every valid setting
+
+These are prototype design targets, not final production-format claims.
+
+## V5.1 functional conversion channels
+
+The design requires:
+
+```text
+1 functional mono ADC ingress
+3 functional DAC outputs:
+  Memory
+  Ghost
+  Return send
+```
+
+The exact converter device count and architecture remain deferred.
+
+## V5.1 safety rules
+
+- direct Present bypasses the digital core
+- boot begins with wet and Return paths muted
+- reset forces Return to zero before clearing Memory
+- core fault forces ERROR-MUTED
+- hard Return limiting remains active independently of normal DSP behaviour
+- final output remains independently controllable
+- no path may bypass the Return limiter
+
+## V5.1 allowed work
+
+- circuit-block architecture
+- interface and level targets
+- functional conversion-channel count
+- safety logic
+- test-point requirements
+- bench procedure
 - SMD-oriented circuit partitioning
+- jack-role definition
 
-V5.1 still should not begin PCB layout.
+## V5.1 forbidden work
 
-Schematic design follows only after the circuit-block design is accepted.
+- exact component selection
+- processor, ADC, DAC, or codec selection
+- resistor/capacitor values
+- exact SMD packages
+- exact Thonkiconn variant or footprint
+- schematic capture
+- KiCad project creation
+- PCB placement or routing
+- BOM
+- purchasing
+- oscillator work
+- MIDI/CV expansion
+- final panel/enclosure work
+- demo media
+
+## Next lane after V5.1 acceptance
+
+```text
+V5.2 — Prototype A schematic and component-selection lane
+```
+
+V5.2 may:
+
+- select active and passive parts
+- select practical SMD packages
+- select exact Thonkiconn variants and verified footprints
+- select converter and control architecture
+- capture the schematic
+- run ERC and schematic-stage checks
+
+V5.2 must not begin PCB placement or routing until the schematic, Return safety paths, and ERC results are accepted.
 
 ## Later lanes
+
+### PCB lane
+
+Only after accepted schematic and ERC:
+
+- PCB placement
+- routing
+- ground/reference implementation
+- panel alignment
+- design-rule checking
+- fabrication outputs
 
 ### Internal voice-source translation
 
 Only after Memory Core Prototype A proves the grief engine:
 
-- translate constrained Scale behaviour
-- translate Tone / Shape / Sub / Overtone
-- translate Glide / Drift
-- translate Fade / Wither and the Lingering Voice envelope
-- decide how the internal voice joins the Present input
+- constrained Scale behaviour
+- Tone / Shape / Sub / Overtone
+- Glide / Drift
+- Fade / Wither and the Lingering Voice envelope
+- internal voice integration into Present
 
 ### Physical format decision
 
-Do not decide final packaging before prototype evidence.
+Do not lock final packaging before prototype evidence.
 
-Later options may be evaluated against the evidence:
+Possible later formats:
 
 - integrated desktop instrument
 - core voice plus separate effects
@@ -234,7 +268,7 @@ Later options may be evaluated against the evidence:
 
 ### Finish-demo lane
 
-Do not record final demo media during hardware translation.
+Do not record final demo media during architecture, circuit-block, schematic, or PCB work.
 
 A later demo must be labelled honestly as either:
 
@@ -246,9 +280,9 @@ It must not present the browser reference as the finished circuit-board instrume
 ## Permanent non-goals
 
 - becoming a general-purpose synth
-- adding features because they are technically possible
+- adding features because they are possible
 - hiding important behaviour behind menus
-- presets before the instrument behaviour is stable
+- presets before behaviour is stable
 - sequencer expansion
 - unrelated plugin frameworks
 - allowing the oscillator to become more important than Memory / Ghost / Return
