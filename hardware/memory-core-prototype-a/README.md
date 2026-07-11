@@ -9,7 +9,8 @@ NATIVE HIERARCHY CAPTURED
 02_MCU_CLOCK_DEBUG COMPLETE / ERC VALIDATED
 03_CODEC_CONVERSION COMPLETE / ERC VALIDATED
 06_RETURN_BREAK_LIMITER COMPLETE / ERC VALIDATED
-04_INPUT_PRESSURE_ABSENCE NEXT
+04_INPUT_PRESSURE_ABSENCE COMPLETE / ERC VALIDATED
+05_MEMORY_GHOST_WET NEXT
 PCB WORK BLOCKED
 ```
 
@@ -26,8 +27,8 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 ├── 01_POWER_PROTECTION.kicad_sch       CAPTURED / ERC VALIDATED
 ├── 02_MCU_CLOCK_DEBUG.kicad_sch        CAPTURED / ERC VALIDATED
 ├── 03_CODEC_CONVERSION.kicad_sch       CAPTURED / ERC VALIDATED
-├── 04_INPUT_PRESSURE_ABSENCE.kicad_sch NEXT CAPTURE
-├── 05_MEMORY_GHOST_WET.kicad_sch       INTERFACE SCAFFOLD
+├── 04_INPUT_PRESSURE_ABSENCE.kicad_sch CAPTURED / ERC VALIDATED
+├── 05_MEMORY_GHOST_WET.kicad_sch       NEXT CAPTURE
 ├── 06_RETURN_BREAK_LIMITER.kicad_sch   CAPTURED / ERC VALIDATED
 ├── 07_OUTPUT_MUTE_PROTECTION.kicad_sch INTERFACE SCAFFOLD
 ├── 08_CONTROLS_STATE.kicad_sch         CAPTURED / ERC VALIDATED
@@ -41,30 +42,21 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 - PCM3168A conversion uses one ADC ingress and three DAC roles: Memory, Ghost and Return send.
 - Return passes through Break, analogue Return shaping and the independent limiter boundary.
 - Sheet 06 may export only `RETURN_LIMITED`, `RETURN_FEED`, and `ABSENCE_INFLUENCE`.
-- Raw Return DAC, SSI2164 output, Break output, normalised Return and clamp nodes remain local to sheet 06.
+- Sheet 04 accepts only fixed `RETURN_FEED` and bounded `ABSENCE_INFLUENCE` from sheet 06.
+- Direct Present splits after protected, AC-coupled unity buffering and before Pressure or Absence.
+- `ADC_ANALOG_IN` is formed only from `SHAPED_PRESENT` plus fixed `RETURN_FEED`.
+- Raw Return, Break, limiter-internal and clamp nets remain excluded from sheet 04.
 - `WATCHDOG_HEARTBEAT` enters the power/protection and hardware-fault system.
 - TMUX1574 safe-control release remains a controls/safety-sheet responsibility.
 - Eight panel controls and three operating inputs are explicit signals between sheets 08 and 02.
 - Global ground is established from sheet 01 and shared by captured sheets.
-- Sheets 03 and 06 receive the accepted ±12 V analogue rails for OPA1679 stages.
+- Captured analogue sheets receive the accepted ±12 V rails.
 
 The machine-readable interface list is stored in `hierarchy-manifest.json`.
 
 ## Captured sheet 01 — Power / Protection
 
-Captured functions:
-
-- protected positive and negative 12 V rail entry;
-- provisional current limiting, reverse-polarity protection and ferrite filtering;
-- 3.293 V TPS62160 digital regulator;
-- 5.453 V TPS62160 codec preregulator;
-- TPS7A2050 quiet 5 V codec-analogue regulator;
-- TPS3808G33 supervision and manual reset;
-- TPS3431 independent watchdog;
-- active-low open-drain `HARDWARE_FAULT_N` combination;
-- rail, fault and watchdog test points;
-- explicit source annotations after passive conversion boundaries;
-- global GND source.
+Captured protected ±12 V entry, regulated 3.3 V and quiet 5 V domains, supervision, watchdog, `HARDWARE_FAULT_N`, test points and global GND.
 
 Validation:
 
@@ -82,18 +74,7 @@ Still open:
 
 ## Captured sheet 08 — Controls / State / Safe Selector
 
-Captured functions:
-
-- MCP4728 four-channel normal-control DAC;
-- I²C pull-ups and ready/busy test point;
-- TMUX1574 four-channel fail-safe selector;
-- +3.3 V default attenuation inputs;
-- hardware-fault clamp overriding MCU release;
-- four filtered and bounded SSI2164 control outputs;
-- eight panel-potentiometer ADC signals;
-- `SERVICE_TEST`, `RESET_CLEAR` and `SAFE_MUTE` inputs;
-- four transistor-driven SLS-1 state outputs;
-- global GND and safety test points.
+Captured MCP4728 normal controls, TMUX1574 fail-safe selection, hardware-fault override, four bounded SSI2164 controls, eight panel ADC controls, operating inputs and SLS-1 state drivers.
 
 Locked selector rule:
 
@@ -120,25 +101,7 @@ Still open:
 
 ## Captured sheet 02 — MCU / Clock / Debug
 
-Captured functions:
-
-- project-local `STM32H743VIT6_LQFP100` symbol containing all 100 physical pins;
-- exact LQFP-100 pin numbers from ST DS12110 Rev 11;
-- accepted SAI1 allocation on PE2–PE6;
-- I²C1 on PB8/PB9;
-- eight panel ADC inputs on PA0–PA7;
-- codec reset/mute, fault sense, watchdog and safe-release signals on PD8–PD12;
-- service, reset and safe-mute inputs on PD13–PD15;
-- SLS-1 outputs on PC6–PC9;
-- SWDIO and SWCLK on PA13/PA14;
-- BOOT0 deterministic pull-down;
-- five VDD/VSS supply pairs;
-- filtered VDDA/VREF+ analogue supply;
-- VBAT tied to Prototype A 3.3 V;
-- both VCAP outputs with dedicated 2.2 µF capacitors;
-- 24.576 MHz external CMOS HSE source in bypass mode;
-- SWD service connector and digital/safety test points;
-- explicit no-connect markers on every unused MCU pin.
+Captured the STM32H743VIT6 LQFP-100 physical-pin map, SAI1 TDM transport, I²C1, panel/safety/state signals, supplies, references, 24.576 MHz HSE bypass source, SWD and unused-pin treatment.
 
 Validation:
 
@@ -164,20 +127,7 @@ Still open:
 
 ## Captured sheet 03 — Codec / Conversion
 
-Captured functions:
-
-- project-local PCM3168A symbol containing all 64 package pins plus PowerPAD;
-- quiet local 5 V analogue and 3.3 V digital branches with ferrite filtering and decoupling;
-- VCOMAD, VCOMDA, VREFAD1 and VREFAD2 local decoupling;
-- 24.576 MHz MCLK, 12.288 MHz BCLK and 48 kHz LRCLK slave connections;
-- eight-slot TDM data on DIN1/DOUT1;
-- I²C mode at address `0x44`;
-- active-low reset/mute gate;
-- ADC1 single-ended-to-differential OPA1679 ingress at ±1/3 gain;
-- passive anti-alias conditioning referenced to VCOMAD;
-- Memory, Ghost and Return DAC1–3 differential-to-single-ended filters;
-- three used DAC outputs at approximately 0.747 gain;
-- explicit test points, spare op-amp treatment and unused converter treatment.
+Captured PCM3168A power/control/TDM, one differential ADC ingress, Memory/Ghost/Return DAC reconstruction, analogue level translation, and explicit unused-channel treatment.
 
 Locked ADC level relationship:
 
@@ -229,8 +179,6 @@ Still open:
 
 ## Captured sheet 06 — Return / Break / Limiter
 
-`06_RETURN_BREAK_LIMITER.kicad_sch` replaces the temporary Return scaffold and preserves the most safety-critical analogue boundary.
-
 Captured signal route:
 
 ```text
@@ -244,32 +192,12 @@ bounded Break stage
   ↓
 unity Return normaliser
   ↓
-2.2 kΩ clamp isolation
-  ↓
-buffered ±2.5 V dual-polarity Schottky clamp
+independent dual-polarity limiter
   ↓
 RETURN_LIMITED
   ├── fixed 0.6816 RETURN_FEED
-  └── rectified, smoothed and 3 V-bounded ABSENCE_INFLUENCE
+  └── bounded ABSENCE_INFLUENCE
 ```
-
-Captured functions:
-
-- project-local five-unit `SSI2164S_APPLICATION` symbol with verified physical pin map;
-- Return VCA on channel 3: pin 10 `IIN3`, pin 11 `VC3`, pin 12 `IOUT3`;
-- SSI2164 MODE pin open for Class-AB operation;
-- SSI2164 ±12 V power and analogue-ground connections;
-- 20 kΩ input and required stability network;
-- OPA1679 transimpedance conversion for the current-output VCA;
-- unity-gain bounded Break stage with bandwidth loss and antiparallel soft clipping;
-- unity Return normalisation so Break plus normalisation remains no greater than unity at small signal;
-- buffered +2.5 V and −2.5 V clamp references derived independently from protected analogue rails;
-- dual-polarity Schottky hard limiter isolated by 2.2 kΩ;
-- buffered `RETURN_LIMITED` output;
-- fixed inverting `RETURN_FEED` stage using 40.2 kΩ input and 27.4 kΩ feedback;
-- precision positive-envelope path producing slow, bounded `ABSENCE_INFLUENCE`;
-- test points at every safety-critical stage;
-- reserved no-connect SSI2164 units 1, 2 and 4, pending replacement by real sheet-05 circuitry.
 
 Locked limiter/feed relationship:
 
@@ -287,26 +215,6 @@ RETURN_FEED magnitude
 ≈ 3.82 Vpp maximum nominal RETURN_FEED
 ```
 
-The Return feed is inverting. The later sheet-04 Memory-input summing stage must restore the accepted loop polarity and may receive no raw Return net.
-
-Export boundary:
-
-```text
-allowed from sheet 06:
-RETURN_LIMITED
-RETURN_FEED
-ABSENCE_INFLUENCE
-
-forbidden from sheet 06:
-raw DAC Return
-SSI2164 current output
-Break output
-normalised Return
-clamp references
-clamp node
-rectifier internal nodes
-```
-
 Validation:
 
 ```text
@@ -317,30 +225,104 @@ restricted-export contract passed
 native KiCad 10 parse passed
 0 hierarchical ERC errors
 no temporary interface-harness warnings on 06_RETURN_BREAK_LIMITER
-first generated-artifact gate passed
+committed-file rerun passed with generation and repair skipped
 ```
-
-ERC and contract review drove correction of:
-
-1. mirrored Y coordinates from the pinned API's project-local multi-unit pin helper;
-2. physically swapped MODE/GND/V+/V− attachments that pin-name checking alone did not expose;
-3. missing SSI2164 units 1, 2 and 4;
-4. brittle numeric-format assumptions in the validation contract;
-5. an incorrect temporary interpretation that confused `RETURN_LIMITED` amplitude with the attenuated `RETURN_FEED` amplitude.
 
 Still open:
 
 - exact SSI2164 SOP-16 footprint and physical-pin review;
 - exact OPA1679 TSSOP-14 footprints;
-- exact soft-clip, Schottky and 3 V clamp diode selections and footprints;
-- reference-divider tolerance, source/sink-current and temperature review;
+- exact soft-clip, Schottky and control-clamp diode selections;
 - measured SSI2164 control law and unity-gain point;
-- measured Break and normaliser small-signal gain;
-- measured `RETURN_LIMITED` clamp thresholds and recovery;
-- measured `RETURN_FEED` gain and complete loop gain;
-- independent schematic-stage Return safety review after sheet 04 is integrated;
+- measured Break and normaliser gain;
+- measured limiter thresholds and recovery;
+- measured complete loop gain;
+- independent Return safety review after integrated analogue capture;
 - 30-minute worst-setting endurance test;
-- removal of reserved SSI2164 units 1, 2 and 4 from sheet 06 when sheet 05 captures their real circuits.
+- replacement of reserved SSI2164 units when sheet 05 is captured.
+
+## Captured sheet 04 — Input / Pressure / Absence
+
+Captured signal route:
+
+```text
+WQP518MA / Thonkiconn input
+  ↓
+quiet no-cable normal
+  ↓
+series protection + rail clamps + RF rejection
+  ↓
+AC coupling + unity input buffer
+  ├── DIRECT_PRESENT
+  └── Pressure
+        ↓
+      Return-derived Absence attenuation
+        ↓
+      SHAPED_PRESENT
+        ↓
+      inverting unity Memory sum with fixed RETURN_FEED
+        ↓
+      ADC buffer and 47 Ω isolation
+        ↓
+      ADC_ANALOG_IN
+```
+
+Captured functions:
+
+- switched mono input-jack application symbol;
+- grounded normal contact for deterministic quiet no-cable operation;
+- 1 kΩ input protection, ±12 V Schottky rail clamps, 1 MΩ reference and 220 pF RF filtering;
+- AC coupling and post-coupling bias;
+- unity OPA1679 input buffer;
+- isolated `DIRECT_PRESENT` split before Pressure and Absence;
+- unity inverting Pressure stage with feedback soft clipping and controlled high-frequency loss;
+- bounded `ABSENCE_INFLUENCE` mapping to approximately −8 V through 0 V JFET gate drive;
+- J113-class shunt attenuation after Pressure;
+- buffered `SHAPED_PRESENT`;
+- equal-resistor inverting Memory sum using only `SHAPED_PRESENT` and fixed `RETURN_FEED`;
+- final ADC buffer and isolation;
+- test points across the complete ingress and shaping chain.
+
+Locked Memory-input relationship:
+
+```text
+ADC_ANALOG_IN = -(SHAPED_PRESENT + RETURN_FEED)
+
+shaped input resistor = 20 kΩ
+fixed Return input resistor = 20 kΩ
+feedback resistor = 20 kΩ
+```
+
+The inverting Memory sum restores the accepted loop polarity from the inverting sheet-06 `RETURN_FEED`.
+
+Validation:
+
+```text
+input/output hierarchy contract passed
+restricted Return-import contract passed
+quiet normal and Direct Present split captured
+Pressure resistor equality captured
+Absence control mapping captured
+Memory-sum resistor equality captured
+ADC buffer/export boundary repaired and checked
+native KiCad 10 parse passed
+0 hierarchical ERC errors
+no temporary interface-harness warnings on 04_INPUT_PRESSURE_ABSENCE
+committed-file rerun passed with generation and repair skipped
+```
+
+Still open:
+
+- independent WQP518MA physical-pin and footprint verification;
+- Thonkiconn mechanical alignment and panel clearance;
+- exact input-clamp and Pressure diode selections;
+- exact J113-class device, pin map, footprint and `VGS(off)` spread;
+- measured no-cable noise and plug-in transient behaviour;
+- measured input impedance and overvoltage current;
+- measured Pressure threshold, symmetry, gain and bandwidth;
+- measured Absence control law, attenuation, distortion and recovery;
+- measured Memory-sum headroom and full loop polarity/gain;
+- bench confirmation that Direct Present remains unaffected by Pressure, Absence and Return.
 
 ## ERC policy
 
@@ -362,17 +344,6 @@ captured sheets may not retain temporary interface-harness warnings
 
 Remaining scaffold warnings are temporary and are not accepted permanent exceptions.
 
-As each sheet receives its real circuit:
-
-1. remove its temporary interface harness;
-2. connect every hierarchical label to actual circuitry;
-3. rerun full hierarchical ERC;
-4. correct real electrical findings;
-5. document any unavoidable intentional exception;
-6. do not permit new warning classes silently.
-
-The finished component-level schematic must pass ERC with no unexplained errors or warnings.
-
 ## Active capture order
 
 ```text
@@ -381,14 +352,14 @@ The finished component-level schematic must pass ERC with no unexplained errors 
 [x] 02_MCU_CLOCK_DEBUG
 [x] 03_CODEC_CONVERSION
 [x] 06_RETURN_BREAK_LIMITER
-[ ] 04_INPUT_PRESSURE_ABSENCE  NEXT
-[ ] 05_MEMORY_GHOST_WET
+[x] 04_INPUT_PRESSURE_ABSENCE
+[ ] 05_MEMORY_GHOST_WET        NEXT
 [ ] 07_OUTPUT_MUTE_PROTECTION
 [ ] 09_TEST_SERVICE
 [ ] 00_TOP final interface and ERC review
 ```
 
-Sheet 04 must now capture the Thonkiconn input, protection, trim/buffer, Pressure, Absence, direct Present split and the Memory-input summing node. Only the fixed `RETURN_FEED` and bounded `ABSENCE_INFLUENCE` may enter it from sheet 06.
+Sheet 05 must capture the Memory, Ghost and wet analogue paths, consume `MEMORY_DAC`, `GHOST_DAC`, and the three accepted SSI2164 control signals, replace the reserved SSI2164 channel placeholders currently held on sheet 06, and export only `WET_MIX`.
 
 ## Still blocked
 
