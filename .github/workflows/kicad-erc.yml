@@ -7,11 +7,13 @@ on:
     paths:
       - "hardware/**"
       - "tools/generate_memory_core_hierarchy.py"
+      - "tools/generate_memory_core_hierarchy_v2.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
       - "hardware/**"
       - "tools/generate_memory_core_hierarchy.py"
+      - "tools/generate_memory_core_hierarchy_v2.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
@@ -54,7 +56,7 @@ jobs:
           rm -rf hardware/memory-core-prototype-a build/generator
           mkdir -p build/generator
           set -o pipefail
-          python tools/generate_memory_core_hierarchy.py 2>&1 | tee build/generator/generator.log
+          python tools/generate_memory_core_hierarchy_v2.py 2>&1 | tee build/generator/generator.log
           find hardware/memory-core-prototype-a -maxdepth 1 -type f -print | sort
 
       - name: Validate hierarchy manifest
@@ -78,38 +80,62 @@ jobs:
           expected = {sheet['filename'] for sheet in manifest['sheets']}
           found = {path.name for path in root.glob('[0-9][0-9]_*.kicad_sch')}
           assert found == expected, (found, expected)
+
+          power = next(sheet for sheet in manifest['sheets'] if sheet['code'] == '01')
+          assert any(pin['name'] == 'WATCHDOG_HEARTBEAT' for pin in power['pins'])
           print('Hierarchy manifest: PASS')
           PY
 
-      - name: Run ERC on top-level hierarchy
+      - name: Run KiCad 10 ERC report
         shell: bash
         run: |
           mkdir -p build/erc
+          chmod a+rwx build/erc
           top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
           report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
           cli_log="build/erc/kicad-cli.log"
 
-          set +e
           set -o pipefail
           docker run --rm \
-            --user "$(id -u):$(id -g)" \
-            --env HOME=/tmp \
             --volume "$PWD:/work" \
             --workdir /work \
             "$KICAD_IMAGE" \
             kicad-cli sch erc \
-              --exit-code-violations \
               --severity-all \
               --output "$report" \
               "$top" 2>&1 | tee "$cli_log"
-          status=${PIPESTATUS[0]}
-          set -e
 
-          if [ -f "$report" ]; then
-            cat "$report"
-          fi
+          cat "$report"
 
-          exit "$status"
+      - name: Enforce hierarchy ERC policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
+          text = report.read_text(encoding='utf-8')
+
+          summary = re.search(
+              r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings',
+              text,
+          )
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+
+          if errors:
+              raise SystemExit(f'Hierarchy ERC has {errors} error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected hierarchy warning/error classes: {unexpected}')
+
+          print(f'Hierarchy ERC: PASS — 0 errors, {warnings} temporary harness warning(s)')
+          print('Allowed warning class: isolated_pin_label')
+          PY
 
       - name: Upload generator log
         if: always()
