@@ -34,3 +34,5 @@ jobs:
           fi
           git commit -m "Close test service schematic gate"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+
+# One-use closeout workflow; remove after the README commit is confirmed.
