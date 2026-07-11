@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Validate native sheet-05 capture and integrated SSI2164 ownership.
-
-This validator reads emitted KiCad S-expressions directly. KiCad 10 remains the
-authoritative parser in the following ERC step. These checks enforce the bounded
-symbol, physical-pin, shared-device, gain and hierarchy contracts first.
-"""
+"""Validate native sheet-05 capture and integrated SSI2164 ownership."""
 
 from __future__ import annotations
 
@@ -57,7 +52,6 @@ def balanced_block(text: str, start: int) -> str:
 
 
 def instance_blocks(text: str) -> list[str]:
-    """Return native symbol-instance blocks, excluding embedded library symbols."""
     marker = "\n\t(symbol\n\t\t(lib_id "
     blocks: list[str] = []
     offset = 0
@@ -94,6 +88,11 @@ def instances(path: Path) -> list[dict[str, object]]:
                     r'\(property "Reference" "([^"]+)"',
                     "reference",
                 ),
+                "value": required_field(
+                    block,
+                    r'\(property "Value" "([^"]*)"',
+                    "value",
+                ),
                 "unit": int(required_field(block, r'\(unit (\d+)\)', "unit")),
                 "footprint": optional_field(
                     block,
@@ -123,8 +122,7 @@ def unit_text(rendered: str, unit: int) -> str:
         for candidate in range(unit + 1, 6)
     ]
     ends = [index for index in later if index != -1]
-    end = min(ends) if ends else len(rendered)
-    return rendered[start:end]
+    return rendered[start : min(ends) if ends else len(rendered)]
 
 
 def assert_unique_references(rows: list[dict[str, object]], multi_ref: str) -> None:
@@ -195,6 +193,7 @@ def main() -> None:
                 all_ssi.append((path.name, row))
     assert len(all_ssi) == 5, all_ssi
     assert {str(row["reference"]) for _path, row in all_ssi} == {"U60"}
+    assert {str(row["value"]) for _path, row in all_ssi} == {"SSI2164"}
     assert sorted(int(row["unit"]) for _path, row in all_ssi) == [1, 2, 3, 4, 5]
     for path_name, row in all_ssi:
         assert row["footprint"] == "", (path_name, row["unit"], row["footprint"])
@@ -214,9 +213,9 @@ def main() -> None:
     }
 
     for token in (
-        "SSI2164 — MEMORY CH1",
-        "SSI2164 — GHOST CH2",
-        "SSI2164 — WET MASTER CH4",
+        "MEM: pins 2 IIN1, 3 VC1, 4 IOUT1",
+        "GHOST: pins 7 IIN2, 6 VC2, 5 IOUT2",
+        "WET: pins 10 IIN4, 11 VC4, 12 IOUT4",
         "40.2k 1% Memory sum",
         "40.2k 1% Ghost sum",
         "20k 1% half-sum feedback",
@@ -225,13 +224,22 @@ def main() -> None:
         "no second SSI2164 is created",
     ):
         assert token in text05, token
+    for old_value in (
+        "SSI2164 — MEMORY CH1",
+        "SSI2164 — GHOST CH2",
+        "SSI2164 — WET MASTER CH4",
+        "SSI2164 — RETURN CH3",
+        "SSI2164 — COMMON POWER",
+    ):
+        assert old_value not in text05
+        assert old_value not in text06
     assert "visible staged reservations for sheet 05" not in text06
     assert "same physical SSI2164" not in text06
     assert "pins 10 IIN3" not in text06
 
     print("Memory/Ghost/wet hierarchy and output-direction contract: PASS")
     print("SSI2164 symbol and physical-pin contract: PASS")
-    print("SSI2164 five-unit shared ownership and unique-device contract: PASS")
+    print("SSI2164 five-unit shared ownership/value and unique-device contract: PASS")
     print("Memory/Ghost half-sum and WET_MIX export contract: PASS")
 
 
