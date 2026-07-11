@@ -3,11 +3,15 @@
 
 The accepted MCU pin allocation reserves eight ADC inputs and three operating
 inputs, but the first hierarchy scaffold did not expose them between
-08_CONTROLS_STATE and 02_MCU_CLOCK_DEBUG. This amendment adds those signals to
-both hierarchical sheets, the top-level nets, the MCU scaffold and the machine-
-readable manifest.
+08_CONTROLS_STATE and 02_MCU_CLOCK_DEBUG.
 
-It does not alter 01_POWER_PROTECTION or any accepted audio boundary.
+This amendment:
+- adds those signals to the two hierarchical sheets and top-level nets;
+- connects the MCU-side labels to a temporary non-BOM/non-board harness;
+- establishes the power sheet's ground net as KiCad's global GND;
+- updates the machine-readable interface manifest.
+
+It does not alter any accepted audio or Return boundary.
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from kicad_sch_api.core.types import HierarchicalLabelShape
 PROJECT = "MerrinGriefSynthMemoryCoreA"
 ROOT = Path("hardware/memory-core-prototype-a")
 TOP_FILE = ROOT / f"{PROJECT}.kicad_sch"
+POWER_FILE = ROOT / "01_POWER_PROTECTION.kicad_sch"
 MCU_FILE = ROOT / "02_MCU_CLOCK_DEBUG.kicad_sch"
 MANIFEST_FILE = ROOT / "hierarchy-manifest.json"
 MARKER = ROOT / "CONTROLS_INTERFACES_AMENDED"
@@ -73,7 +78,11 @@ def add_sheet_signals(
     side: str,
 ) -> None:
     existing = {pin["name"] for pin in sheet.get("pins", [])}
-    side_pins = [pin for pin in sheet.get("pins", []) if pin.get("rotation") == (180 if side == "left" else 0)]
+    wanted_rotation = 180 if side == "left" else 0
+    side_pins = [
+        pin for pin in sheet.get("pins", [])
+        if pin.get("rotation") == wanted_rotation
+    ]
     next_offset = 5.08 + 2.54 * len(side_pins)
 
     for signal in signals:
@@ -86,36 +95,71 @@ def add_sheet_signals(
             side,
             next_offset,
         )
-        label_at = actual_pin_position(sheet, side, next_offset)
-        top.add_label(signal, position=label_at)
+        top.add_label(signal, position=actual_pin_position(sheet, side, next_offset))
         next_offset += 2.54
 
 
 def amend_mcu_scaffold() -> None:
     sch = ksa.load_schematic(str(MCU_FILE))
-    existing = {
-        label.text for label in sch.hierarchical_labels
-    }
+    existing = {label.text for label in sch.hierarchical_labels}
+    pending = [signal for signal in ALL_SIGNALS if signal not in existing]
 
-    y = 119.38
-    for signal in ALL_SIGNALS:
-        if signal in existing:
-            continue
-        sch.add_hierarchical_label(
-            signal,
-            position=(45.72, y),
-            shape=HierarchicalLabelShape.INPUT,
-            size=1.27,
+    if pending:
+        harness = sch.components.add(
+            "Connector_Generic:Conn_01x11",
+            "J912",
+            "CONTROLS_TO_MCU_NOT_FITTED",
+            position=(170.18, 160.02),
         )
-        y += 5.08
+        harness.in_bom = False
+        harness.on_board = False
+        harness.footprint = ""
+        harness.add_property("Purpose", "Temporary controls hierarchy/ERC harness", hidden=True)
+
+        for number, signal in enumerate(ALL_SIGNALS, start=1):
+            pin = sch.get_component_pin_position("J912", str(number))
+            if pin is None:
+                raise RuntimeError(f"Could not resolve temporary MCU harness pin {number}")
+            label_at = (pin.x - 20.32, pin.y)
+            sch.add_wire(start=(pin.x, pin.y), end=label_at)
+            sch.add_hierarchical_label(
+                signal,
+                position=label_at,
+                shape=HierarchicalLabelShape.INPUT,
+                size=1.27,
+            )
 
     sch.add_text(
         "PANEL / OPERATING INPUTS ADDED BY V5.2 CONTROLS INTERFACE AMENDMENT\n"
-        "Temporary isolated labels remain until 02_MCU_CLOCK_DEBUG is captured.",
+        "J912 is a temporary non-BOM/non-board harness until MCU capture.",
         position=(35.56, 109.22),
         size=1.27,
     )
     sch.save(str(MCU_FILE))
+
+
+def establish_global_ground() -> None:
+    sch = ksa.load_schematic(str(POWER_FILE))
+    references = {component.reference for component in sch.components}
+    if "#PWR0101" not in references:
+        ground = sch.components.add(
+            "power:GND",
+            "#PWR0101",
+            "GND",
+            position=(20.32, 114.30),
+        )
+        ground.in_bom = False
+        ground.on_board = False
+        pin = sch.get_component_pin_position("#PWR0101", "1")
+        if pin is None:
+            raise RuntimeError("Could not resolve global GND power symbol")
+        sch.add_label("GND", position=(pin.x, pin.y))
+        sch.add_text(
+            "Global GND established here and driven by the existing ground PWR_FLAG.",
+            position=(20.32, 121.92),
+            size=1.27,
+        )
+    sch.save(str(POWER_FILE))
 
 
 def amend_manifest() -> None:
@@ -137,6 +181,8 @@ def amend_manifest() -> None:
         "reason": "Expose accepted eight panel ADC signals and three operating inputs between sheets 08 and 02.",
         "panel_signals": list(PANEL_SIGNALS),
         "operating_signals": list(OPERATING_SIGNALS),
+        "mcu_scaffold_harness": "J912 — temporary, non-BOM, non-board",
+        "global_ground_source": "01_POWER_PROTECTION",
     }
 
     MANIFEST_FILE.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
@@ -152,10 +198,11 @@ def main() -> None:
     top.save(str(TOP_FILE))
 
     amend_mcu_scaffold()
+    establish_global_ground()
     amend_manifest()
 
     MARKER.write_text(
-        "Eight panel controls and three operating inputs added between sheets 08 and 02.\n",
+        "Eight panel controls and three operating inputs added between sheets 08 and 02; global GND established.\n",
         encoding="utf-8",
     )
 
