@@ -2,7 +2,11 @@
 
 Merrin Grief Synth should stay small and specific.
 
-Its current job is complete: a browser-first emotional Web Audio synth for one voice, **Constrained Grief**.
+Its current browser job is complete: a browser-first emotional Web Audio synth for one voice, **Constrained Grief**.
+
+The next lane is not final demo media.
+
+The next lane is to define the whole synth built around the existing Constrained Grief voice.
 
 ## Current release
 
@@ -19,25 +23,75 @@ Its current job is complete: a browser-first emotional Web Audio synth for one v
 - Shape glide fixed.
 - README and release polish docs.
 
-## Near-term optional polish
+## Active planning lane
 
-These are allowed only if they do not change the sound identity.
+### v4.0 — Whole synth build spec
 
-- Add a real short audio/video demo recording.
-- Add one actual browser screenshot or short GIF if preferred over the current SVG preview.
-- Add a GitHub Release and tag once release creation is available or done locally.
-- Keep docs current if v3.8 polish changes.
+Status: in progress.
+
+Spec document:
+
+- [V4.0 — Whole Synth Build Spec](docs/whole-synth-build-spec-v4.0.md)
+
+Purpose:
+
+- Define what the completed Merrin Grief Synth is meant to become.
+- Keep Merrin Voice 01 / Constrained Grief as the proven foundation.
+- Decide what belongs in the whole instrument before any finish-demo work.
+- Protect the project from becoming a general-purpose synth.
+
+V4.0 is documentation/specification work only.
+
+Allowed:
+
+- define whole-synth scope
+- define final signal path
+- define main surface controls
+- define diagnostics vs performance controls
+- define required emotional behaviours
+- define explicit non-goals
+- define completion criteria before final demo
+
+Not allowed:
+
+- final demo media
+- fake demo media
+- new synth controls
+- new sound behaviour
+- sequencer work
+- plugin work
+- VCV Rack work
+- MIDI output work
+- general-purpose synth expansion
+
+## Later finish-demo lane
+
+A real audio/video demo belongs after the whole synth is built and accepted.
+
+Do not record or commit final demo media while the project is still in whole-synth definition.
+
+The later finish-demo lane may include:
+
+- real audio/video demo recording
+- browser screenshot or GIF
+- release page
+- final public portfolio text
+- GitHub Release and tag
+
+The demo must show the finished synth, not an unfinished stage.
 
 ## Future tracks
 
-Each of these should be treated as a separate project or issue lane, not mixed into the completed v3.8 browser demo.
+Each of these should be treated as a separate project or issue lane, not mixed into the completed v3.8 browser demo or the v4.0 whole-synth specification.
 
-### Possible v3.9 browser polish
+### Possible browser polish
 
 - Hide advanced test controls behind a simple mode.
 - Add a clearer beginner "how to play" section.
 - Review mobile/tablet display without promising MIDI support there.
 - Preserve current sound behaviour.
+
+This should happen only if it supports the whole-synth build and does not pretend to be final demo work.
 
 ### Possible sample pack
 
@@ -45,11 +99,13 @@ Each of these should be treated as a separate project or issue lane, not mixed i
 - Export labelled WAV files.
 - Keep it as an audio asset project, not a synth-code expansion.
 
+This belongs after the whole synth direction is stable.
+
 ### Possible VST concept
 
 - Document required controls.
 - Define the minimum viable plugin version.
-- Do not start until the browser voice remains stable.
+- Do not start until the browser voice and whole-synth scope remain stable.
 
 ### Possible VCV Rack concept
 
