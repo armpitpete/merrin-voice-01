@@ -3141,4 +3141,249 @@
 			)
 		)
 	)
+	(symbol "SSI2164S_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SSI2164S_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.soundsemiconductor.com/downloads/ssi2164datasheet.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "SSI2164 quad current-in/current-out VCA; five schematic units; SOP-16 footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "SSI2164S_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "IIN1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "VC1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "IOUT1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+		(symbol "SSI2164S_APPLICATION_2_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "IIN2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "7"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "VC2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "IOUT2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+		(symbol "SSI2164S_APPLICATION_3_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "IIN3"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "10"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "VC3"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "11"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "IOUT3"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "12"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+		(symbol "SSI2164S_APPLICATION_4_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "IIN4"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "15"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "VC4"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "14"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "IOUT4"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "13"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+		(symbol "SSI2164S_APPLICATION_5_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "MODE"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -2.54 0)
+				(length 3.81)
+				(name "GND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "8"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "V+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "16"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 -2.54 180)
+				(length 3.81)
+				(name "V-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "9"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
 )
