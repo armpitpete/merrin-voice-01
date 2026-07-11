@@ -12,7 +12,8 @@ NATIVE HIERARCHY CAPTURED
 04_INPUT_PRESSURE_ABSENCE COMPLETE / ERC VALIDATED
 05_MEMORY_GHOST_WET COMPLETE / ERC VALIDATED
 07_OUTPUT_MUTE_PROTECTION COMPLETE / ERC VALIDATED
-09_TEST_SERVICE NEXT
+09_TEST_SERVICE COMPLETE / ERC VALIDATED
+00_TOP FINAL INTEGRATED REVIEW NEXT
 PCB WORK BLOCKED
 ```
 
@@ -34,7 +35,7 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 ├── 06_RETURN_BREAK_LIMITER.kicad_sch   CAPTURED / ERC VALIDATED
 ├── 07_OUTPUT_MUTE_PROTECTION.kicad_sch CAPTURED / ERC VALIDATED
 ├── 08_CONTROLS_STATE.kicad_sch         CAPTURED / ERC VALIDATED
-└── 09_TEST_SERVICE.kicad_sch           NEXT CAPTURE
+└── 09_TEST_SERVICE.kicad_sch           CAPTURED / ERC VALIDATED
 ```
 
 ## Locked interface constraints
@@ -49,6 +50,8 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 - U32 is one physical OPA1679: units 1/5 are on sheet 03; units 2/3/4 are on sheet 07.
 - Sheet 07 consumes only `DIRECT_PRESENT`, `WET_MIX`, `HARDWARE_FAULT_N` and the accepted ±12 V rails.
 - Sheet 07 exports no hierarchical audio or control net; the protected output jack remains local.
+- Sheet 09 consumes eight accepted read-only service signals and exports no hierarchy net.
+- `SERVICE_TEST`, `RESET_CLEAR`, and `SAFE_MUTE` remain operating signals between sheets 08 and 02, not sheet-09 service commands.
 - Sheet 04 accepts only fixed `RETURN_FEED` and bounded `ABSENCE_INFLUENCE` from sheet 06.
 - Direct Present splits after protected, AC-coupled unity buffering and before Pressure or Absence.
 - `ADC_ANALOG_IN` is formed only from `SHAPED_PRESENT` plus fixed `RETURN_FEED`.
@@ -389,6 +392,63 @@ Still open:
 - measured output-protection current and 30-minute endurance;
 - all PCB placement, routing and physical implementation gates.
 
+## Captured sheet 09 — Test / Service
+
+Captured read-only access:
+
+```text
+RAIL_3V3          → 1 kΩ probe isolation
+HARDWARE_FAULT_N  → 47 kΩ probe isolation
+SHAPED_PRESENT    → 22 kΩ probe isolation
+ADC_ANALOG_IN     → 22 kΩ probe isolation
+RETURN_LIMITED    → 22 kΩ probe isolation
+RETURN_FEED       → 22 kΩ probe isolation
+ABSENCE_INFLUENCE → 22 kΩ probe isolation
+WET_MIX           → 22 kΩ probe isolation
+```
+
+The isolated probe nodes feed individual test points `TP900` through `TP907`. `TP908` provides service ground. A logical ten-position header or pad grouping provides the eight probe nodes plus two grounds; it has no accepted footprint.
+
+Locked hierarchy boundary:
+
+```text
+inputs:  RAIL_3V3, HARDWARE_FAULT_N, SHAPED_PRESENT, ADC_ANALOG_IN,
+         RETURN_LIMITED, RETURN_FEED, ABSENCE_INFLUENCE, WET_MIX
+outputs: none
+```
+
+First-pass isolation calculations:
+
+```text
+3.3 V through 1 kΩ short limit ≈ 3.3 mA
+3.3 V through 47 kΩ ≈ 70.2 µA
+22 kΩ into a 10 MΩ instrument adds approximately 0.22% loading
+```
+
+Validation:
+
+```text
+native read-only service capture passed
+eight-input / no-output hierarchy contract passed
+eight probe branches and nine test points passed
+logical ten-position service header pin map passed
+blank connector-footprint boundary passed
+former temporary interface harness removed
+KiCad 10 hierarchical ERC passed across all nine sheets
+0 ERC errors
+0 ERC warnings
+committed-file rerun passed with generation and promotion skipped
+```
+
+Still open:
+
+- exact service connector or pad format;
+- production fixture architecture;
+- test-point footprints and access clearances;
+- current-measurement links for major power branches;
+- measured probe loading and fault-injection limits;
+- all PCB placement, routing and mechanical implementation gates.
+
 ## Captured sheet 04 — Input / Pressure / Absence
 
 Captured signal route:
@@ -490,7 +550,7 @@ isolated_pin_label warnings allowed only on sheets that remain temporary scaffol
 captured sheets may not retain temporary interface-harness warnings
 ```
 
-The integrated sheet-07 gate and current-stage authority gate report `0 errors, 0 warnings`. Temporary scaffold warnings are not accepted permanent exceptions.
+All nine component sheets now report `0 errors, 0 warnings` from committed files. No temporary scaffold warning remains accepted.
 
 ## Active capture order
 
@@ -503,11 +563,11 @@ The integrated sheet-07 gate and current-stage authority gate report `0 errors, 
 [x] 04_INPUT_PRESSURE_ABSENCE
 [x] 05_MEMORY_GHOST_WET
 [x] 07_OUTPUT_MUTE_PROTECTION
-[ ] 09_TEST_SERVICE             NEXT
-[ ] 00_TOP final interface and ERC review
+[x] 09_TEST_SERVICE
+[ ] 00_TOP final interface and ERC review  NEXT
 ```
 
-Sheet 09 is the next bounded capture. It must replace the temporary service harness with the accepted test-point, connector, service-mode, reset/clear and safe-mute access circuitry while keeping production connector, footprint, fixture and panel decisions outside this schematic gate.
+All nine component sheets are captured. The next bounded lane is the final `00_TOP` integrated review: reconcile parent and child interfaces, confirm no temporary harness remains, revalidate shared-device ownership and restricted boundaries, run KiCad 10 ERC from committed files, and document remaining risks without entering PCB or footprint work.
 
 ## Still blocked
 
