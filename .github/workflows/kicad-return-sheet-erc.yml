@@ -7,6 +7,7 @@ on:
     paths:
       - "tools/amend_return_safety_interfaces.py"
       - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/repair_return_ssi_units.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
@@ -18,6 +19,7 @@ on:
     paths:
       - "tools/amend_return_safety_interfaces.py"
       - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/repair_return_ssi_units.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
@@ -84,7 +86,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          python tools/capture_return_break_limiter_sheet.py 2>&1 | tee -a build/generator/return-sheet.log
+          python tools/capture_return_break_limiter_sheet_v2.py 2>&1 | tee -a build/generator/return-sheet.log
           python tools/repair_return_ssi_units.py 2>&1 | tee -a build/generator/return-sheet.log
 
       - name: Validate Return capture contract
@@ -93,6 +95,7 @@ jobs:
           import importlib.util
           import math
           import re
+          from collections import Counter
           from pathlib import Path
 
           import kicad_sch_api as ksa
@@ -143,11 +146,6 @@ jobs:
           for number, name in (('15', 'IIN3'), ('14', 'VC3'), ('13', 'IOUT3')):
               assert f'(name "{name}"' in body
               assert f'(number "{number}"' in body
-          assert 'IIN3' not in re.search(
-              r'\(symbol "SSI2164S_MULTI_4_1"(?P<body>.*?)\n\t\t\)',
-              symbol_text,
-              re.DOTALL,
-          ).group('body')
 
           library = library_path.read_text(encoding='utf-8')
           assert '(symbol "SSI2164S_MULTI"' in library
@@ -159,9 +157,25 @@ jobs:
           ssi_units = sorted(
               component._data.unit
               for component in schematic.components
-              if component.reference == 'U60'
+              if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
           )
           assert ssi_units == [3, 5], ssi_units
+
+          references = [
+              component.reference
+              for component in schematic.components
+              if not component.reference.startswith('#')
+          ]
+          duplicate_refs = sorted(
+              reference
+              for reference, count in Counter(references).items()
+              if count > 1 and reference != 'U60'
+          )
+          assert not duplicate_refs, duplicate_refs
+          assert references.count('C610') == 1
+          assert references.count('C611') == 1
+          assert references.count('C640') == 1
+          assert references.count('C641') == 1
 
           sheet_text = sheet_path.read_text(encoding='utf-8')
           for token in (
@@ -183,22 +197,22 @@ jobs:
               'RAIL_P12': repair.actual_pin_position(repair.POWER_POSITION, 'right', 2),
           }
           for name, (x, y) in positions.items():
-              pattern = rf'\(label "{re.escape(name)}"\s+\(at {x:g} {y:g} 0\)'
-              if not re.search(pattern, sheet_text):
-                  # KiCad may serialise integer-equivalent values with .0.
-                  pattern = (
-                      rf'\(label "{re.escape(name)}"\s+\(at '
-                      rf'{x}(?:0*)? {y}(?:0*)? 0(?:\.0+)?\)'
-                  )
-                  assert re.search(pattern, sheet_text), (name, x, y)
+              x_pattern = rf'{int(x)}(?:\.0+)?' if x == int(x) else re.escape(str(x))
+              y_pattern = rf'{int(y)}(?:\.0+)?' if y == int(y) else re.escape(str(y))
+              assert re.search(
+                  rf'\(label "{re.escape(name)}"\s+\(at {x_pattern} {y_pattern} 0(?:\.0+)?\)',
+                  sheet_text,
+              ), (name, x, y)
 
           mode_x, mode_y = repair.actual_pin_position(repair.POWER_POSITION, 'left', 1)
+          mode_x_pattern = rf'{int(mode_x)}(?:\.0+)?' if mode_x == int(mode_x) else re.escape(str(mode_x))
+          mode_y_pattern = rf'{int(mode_y)}(?:\.0+)?' if mode_y == int(mode_y) else re.escape(str(mode_y))
           assert re.search(
-              rf'\(no_connect\s+\(at {mode_x:g} {mode_y:g}\)',
+              rf'\(no_connect\s+\(at {mode_x_pattern} {mode_y_pattern}\)',
               sheet_text,
           )
 
-          print('Return official pin map, safety interfaces, gain contract and multi-unit placement: PASS')
+          print('Return official pin map, safety interfaces, unique references, gain contract and multi-unit placement: PASS')
           PY
 
       - name: Run KiCad 10 hierarchical ERC
