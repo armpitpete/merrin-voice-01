@@ -9,7 +9,7 @@
     min-height: 100dvh !important;
     display: grid !important;
     grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto auto auto auto auto !important;
+    grid-template-rows: auto auto auto auto auto auto auto !important;
     gap: 6px !important;
     align-items: start !important;
     align-content: start !important;
@@ -35,13 +35,20 @@
     grid-row: 4 !important;
   }
 
-  .landscape-columns {
+  .landscape-columns,
+  .performance-columns {
     grid-column: 1 !important;
     grid-row: 5 !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 6px !important;
     align-items: start !important;
+    min-height: 0 !important;
+  }
+
+  .advanced-test-layer {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
     min-height: 0 !important;
   }
 
@@ -54,10 +61,7 @@
   }
 
   .oscilloscope-panel {
-    grid-column: 1 !important;
-    grid-row: 6 !important;
     min-height: 0 !important;
-    margin-bottom: 12px !important;
   }
 
   .signal-path {
@@ -88,6 +92,15 @@
     text-overflow: ellipsis !important;
   }
 
+  #midiStatus {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
   .playable-controls #playControls.grid,
   .emotion-controls .grid4 {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -98,7 +111,7 @@
   }
 
   .playable-controls .control[style],
-  .effect-tests .control[style] {
+  .advanced-test-layer .control[style] {
     margin-top: 5px !important;
   }
 }
