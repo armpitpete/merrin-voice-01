@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Current entrypoint for 01_POWER_PROTECTION native capture.
 
-The implementation lives in `capture_power_protection_sheet_v3.py`, which
-includes the stock-symbol correction plus the first KiCad 10 ERC repairs.
+The implementation lives in `capture_power_protection_sheet_v3.py`. It contains
+all reviewed KiCad 10 repairs, including the final removal of the redundant
+quiet-5-V source flag.
 """
 
 from __future__ import annotations
