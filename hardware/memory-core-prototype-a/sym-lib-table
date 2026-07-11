@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "MerrinLab_PrototypeA") (type "KiCad") (uri "${KIPRJMOD}/MerrinLab_PrototypeA.kicad_sym") (options "") (descr "Verified Prototype A schematic symbols; footprints pending"))
+)

@@ -1,0 +1,497 @@
+(kicad_symbol_lib
+	(version 20241209)
+	(generator "capture_power_protection_sheet.py")
+	(generator_version "1.0")
+	(symbol "TPS62160DGK"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS62160DGK"
+			(at 0 -11.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps62160.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "1 A adjustable synchronous step-down converter, VSSOP-8 verified pin map"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "TPS62160DGK_1_1"
+			(rectangle
+				(start -6.35 8.89)
+				(end 6.35 -8.89)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 6.3500000000000005 0)
+				(length 3.81)
+				(name "VIN"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 3.8100000000000005 0)
+				(length 3.81)
+				(name "EN"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 1.2700000000000005 0)
+				(length 3.81)
+				(name "FB"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 -1.2699999999999996 0)
+				(length 3.81)
+				(name "VOS"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -3.8099999999999987 0)
+				(length 3.81)
+				(name "PGND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -6.35 0)
+				(length 3.81)
+				(name "AGND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin open_collector line
+				(at 10.16 6.3500000000000005 180)
+				(length 3.81)
+				(name "PG"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "8"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_out line
+				(at 10.16 1.2700000000000005 180)
+				(length 3.81)
+				(name "SW"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "7"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "TPS7A2050PDBV"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS7A2050PDBV"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps7a20.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "300 mA low-noise 5 V LDO, SOT-23-5 verified pin map"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "TPS7A2050PDBV_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "IN"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "EN"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -2.54 0)
+				(length 3.81)
+				(name "GND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_out line
+				(at 10.16 5.08 180)
+				(length 3.81)
+				(name "OUT"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin no_connect line
+				(at 10.16 -2.54 180)
+				(length 3.81)
+				(name "NC"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "TPS3808G33DBV"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS3808G33DBV"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps3808.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "3.3 V supervisor with programmable delay, SOT-23-6 verified pin map"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "TPS3808G33DBV_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "VDD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "SENSE"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "MR_N"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 -2.54 0)
+				(length 3.81)
+				(name "CT"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -5.079999999999999 0)
+				(length 3.81)
+				(name "GND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin open_collector line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "RESET_N"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "TPS3431DRB"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPS3431DRB"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps3431.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "Independent programmable watchdog, VSON-8 plus exposed pad verified pin map"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "TPS3431DRB_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "VDD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "CWD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "EN"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -2.54 0)
+				(length 3.81)
+				(name "GND"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 -5.079999999999999 0)
+				(length 3.81)
+				(name "EP"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "9"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 5.08 180)
+				(length 3.81)
+				(name "SET1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "WDI"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin open_collector line
+				(at 10.16 0.0 180)
+				(length 3.81)
+				(name "WDO_N"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "7"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin open_collector line
+				(at 10.16 -2.54 180)
+				(length 3.81)
+				(name "ENOUT_N"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "8"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+)
