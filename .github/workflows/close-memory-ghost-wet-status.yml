@@ -1,0 +1,34 @@
+name: Close Memory Ghost wet status
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/close_memory_ghost_wet_status.py"
+      - ".github/workflows/close-memory-ghost-wet-status.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  close-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Apply bounded status update
+        run: python tools/close_memory_ghost_wet_status.py
+
+      - name: Commit hardware status documentation
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            hardware/memory-core-prototype-a/README.md \
+            hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md \
+            hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md
+          git commit -m "Close Memory Ghost wet schematic gate"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
