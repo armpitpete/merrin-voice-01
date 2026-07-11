@@ -6,12 +6,14 @@ on:
       - v5.2-native-schematic-capture-erc
     paths:
       - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/repair_input_adc_net.py"
       - ".github/workflows/kicad-input-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE*"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
   pull_request:
     paths:
       - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/repair_input_adc_net.py"
       - ".github/workflows/kicad-input-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE*"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -61,13 +63,14 @@ jobs:
           docker run --rm "$KICAD_IMAGE" kicad-cli --version
           docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
 
-      - name: Capture 04 input Pressure Absence sheet
+      - name: Capture and repair 04 input Pressure Absence sheet
         if: steps.stage.outputs.input == 'false'
         shell: bash
         run: |
           mkdir -p build/generator
           set -o pipefail
           python tools/capture_input_pressure_absence_sheet.py 2>&1 | tee build/generator/input-sheet.log
+          python tools/repair_input_adc_net.py 2>&1 | tee -a build/generator/input-sheet.log
 
       - name: Validate input capture contract
         run: |
@@ -131,6 +134,7 @@ jobs:
               'DIRECT_PRESENT',
               'SHAPED_PRESENT',
               'ADC_ANALOG_IN',
+              'ADC_BUFFER',
               'RETURN_FEED',
               'ABSENCE_INFLUENCE',
               '22k Pressure input',
