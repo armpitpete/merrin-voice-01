@@ -20,6 +20,7 @@ permissions:
 
 env:
   KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
 
 jobs:
   schematic-erc:
@@ -30,17 +31,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install KiCad CLI and pinned schematic generator
+      - name: Install symbol libraries and pinned schematic generator
         run: |
           sudo apt-get update
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            kicad \
             kicad-symbols
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
-          kicad-cli --version
           python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
           test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        shell: bash
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
 
       - name: Generate native hierarchy and interface capture
         shell: bash
@@ -85,11 +91,17 @@ jobs:
 
           set +e
           set -o pipefail
-          kicad-cli sch erc \
-            --exit-code-violations \
-            --severity-all \
-            --output "$report" \
-            "$top" 2>&1 | tee "$cli_log"
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env HOME=/tmp \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --exit-code-violations \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee "$cli_log"
           status=${PIPESTATUS[0]}
           set -e
 
