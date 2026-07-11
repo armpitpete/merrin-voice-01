@@ -2245,4 +2245,900 @@
 			)
 		)
 	)
+	(symbol "PCM3168A_PAP_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 45.720000000000006 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "PCM3168A_PAP_APPLICATION"
+			(at 0 -45.720000000000006 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/pcm3168a.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "PCM3168A application-specific 64-pin HTQFP + PowerPAD symbol; TI SBAS452A"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "PCM3168A_PAP_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 43.18000000000001)
+				(end 6.35 -43.18000000000001)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_out line
+				(at -10.16 40.64000000000001 0)
+				(length 3.81)
+				(name "VCOMAD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 38.10000000000001 0)
+				(length 3.81)
+				(name "AGNDAD2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 35.56000000000001 0)
+				(length 3.81)
+				(name "VCCAD2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 33.02000000000001 0)
+				(length 3.81)
+				(name "RST"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 30.480000000000008 0)
+				(length 3.81)
+				(name "OVF"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 27.940000000000005 0)
+				(length 3.81)
+				(name "LRCKAD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 25.400000000000006 0)
+				(length 3.81)
+				(name "BCKAD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "7"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 22.860000000000007 0)
+				(length 3.81)
+				(name "DOUT1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "8"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 20.320000000000007 0)
+				(length 3.81)
+				(name "DOUT2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "9"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 17.78000000000001 0)
+				(length 3.81)
+				(name "DOUT3"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "10"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 15.240000000000006 0)
+				(length 3.81)
+				(name "DGND2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "11"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 12.700000000000006 0)
+				(length 3.81)
+				(name "VDD2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "12"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 10.160000000000004 0)
+				(length 3.81)
+				(name "ZERO"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "13"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 7.6200000000000045 0)
+				(length 3.81)
+				(name "VCCDA1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "14"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_out line
+				(at -10.16 5.080000000000005 0)
+				(length 3.81)
+				(name "VCOMDA"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "15"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 2.5400000000000063 0)
+				(length 3.81)
+				(name "AGNDDA1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "16"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 7.105427357601002e-15 0)
+				(length 3.81)
+				(name "VOUT8+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "17"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -2.539999999999992 0)
+				(length 3.81)
+				(name "VOUT8-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "18"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -5.079999999999991 0)
+				(length 3.81)
+				(name "VOUT7+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "19"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -7.61999999999999 0)
+				(length 3.81)
+				(name "VOUT7-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "20"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -10.159999999999997 0)
+				(length 3.81)
+				(name "VOUT6+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "21"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -12.699999999999996 0)
+				(length 3.81)
+				(name "VOUT6-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "22"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -15.239999999999995 0)
+				(length 3.81)
+				(name "VOUT5+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "23"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -17.779999999999994 0)
+				(length 3.81)
+				(name "VOUT5-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "24"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -20.319999999999993 0)
+				(length 3.81)
+				(name "VOUT4+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "25"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -22.86 0)
+				(length 3.81)
+				(name "VOUT4-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "26"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -25.39999999999999 0)
+				(length 3.81)
+				(name "VOUT3+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "27"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -27.939999999999998 0)
+				(length 3.81)
+				(name "VOUT3-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "28"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -30.47999999999999 0)
+				(length 3.81)
+				(name "VOUT2+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "29"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -33.019999999999996 0)
+				(length 3.81)
+				(name "VOUT2-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "30"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -35.55999999999999 0)
+				(length 3.81)
+				(name "VOUT1+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "31"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -38.099999999999994 0)
+				(length 3.81)
+				(name "VOUT1-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "32"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 40.64000000000001 180)
+				(length 3.81)
+				(name "AGNDDA2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "33"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 38.10000000000001 180)
+				(length 3.81)
+				(name "VCCDA2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "34"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 35.56000000000001 180)
+				(length 3.81)
+				(name "LRCKDA"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "35"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 33.02000000000001 180)
+				(length 3.81)
+				(name "BCKDA"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "36"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 30.480000000000008 180)
+				(length 3.81)
+				(name "DIN1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "37"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 27.940000000000005 180)
+				(length 3.81)
+				(name "DIN2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "38"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 25.400000000000006 180)
+				(length 3.81)
+				(name "DIN3"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "39"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 22.860000000000007 180)
+				(length 3.81)
+				(name "DIN4"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "40"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 20.320000000000007 180)
+				(length 3.81)
+				(name "SCKI"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "41"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 17.78000000000001 180)
+				(length 3.81)
+				(name "MC/SCL/FMT"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "42"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin bidirectional line
+				(at 10.16 15.240000000000006 180)
+				(length 3.81)
+				(name "MDI/SDA/DEMP"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "43"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 12.700000000000006 180)
+				(length 3.81)
+				(name "MDO/ADR1/MD1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "44"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 10.160000000000004 180)
+				(length 3.81)
+				(name "MS/ADR0/MD0"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "45"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 7.6200000000000045 180)
+				(length 3.81)
+				(name "VDD1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "46"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 5.080000000000005 180)
+				(length 3.81)
+				(name "DGND1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "47"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 2.5400000000000063 180)
+				(length 3.81)
+				(name "MODE"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "48"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 7.105427357601002e-15 180)
+				(length 3.81)
+				(name "VCCAD1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "49"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 -2.539999999999992 180)
+				(length 3.81)
+				(name "AGNDAD1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "50"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -5.079999999999991 180)
+				(length 3.81)
+				(name "VIN1-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "51"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -7.61999999999999 180)
+				(length 3.81)
+				(name "VIN1+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "52"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -10.159999999999997 180)
+				(length 3.81)
+				(name "VIN2-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "53"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -12.699999999999996 180)
+				(length 3.81)
+				(name "VIN2+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "54"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -15.239999999999995 180)
+				(length 3.81)
+				(name "VIN3-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "55"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -17.779999999999994 180)
+				(length 3.81)
+				(name "VIN3+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "56"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -20.319999999999993 180)
+				(length 3.81)
+				(name "VIN4-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "57"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -22.86 180)
+				(length 3.81)
+				(name "VIN4+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "58"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_out line
+				(at 10.16 -25.39999999999999 180)
+				(length 3.81)
+				(name "VREFAD1"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "59"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_out line
+				(at 10.16 -27.939999999999998 180)
+				(length 3.81)
+				(name "VREFAD2"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "60"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -30.47999999999999 180)
+				(length 3.81)
+				(name "VIN5-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "61"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -33.019999999999996 180)
+				(length 3.81)
+				(name "VIN5+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "62"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -35.55999999999999 180)
+				(length 3.81)
+				(name "VIN6-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "63"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -38.099999999999994 180)
+				(length 3.81)
+				(name "VIN6+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "64"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 -40.64 180)
+				(length 3.81)
+				(name "POWERPAD"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "65"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "OPA1679_PW_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 13.969999999999999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "OPA1679_PW_APPLICATION"
+			(at 0 -13.969999999999999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/opa1679.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "OPA1679 quad audio op amp; TSSOP-14 pin map; footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "OPA1679_PW_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 11.43)
+				(end 6.35 -11.43)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin output line
+				(at -10.16 8.89 0)
+				(length 3.81)
+				(name "OUT_A"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 6.35 0)
+				(length 3.81)
+				(name "IN_A-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "IN_A+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at -10.16 1.2699999999999996 0)
+				(length 3.81)
+				(name "V+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 -3.8100000000000005 0)
+				(length 3.81)
+				(name "IN_B+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "5"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 -6.350000000000001 0)
+				(length 3.81)
+				(name "IN_B-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "6"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at -10.16 -8.89 0)
+				(length 3.81)
+				(name "OUT_B"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "7"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 8.89 180)
+				(length 3.81)
+				(name "OUT_C"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "8"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 6.35 180)
+				(length 3.81)
+				(name "IN_C-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "9"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 3.8099999999999996 180)
+				(length 3.81)
+				(name "IN_C+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "10"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin power_in line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "V-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "11"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -3.8100000000000005 180)
+				(length 3.81)
+				(name "IN_D+"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "12"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at 10.16 -6.350000000000001 180)
+				(length 3.81)
+				(name "IN_D-"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "13"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin output line
+				(at 10.16 -8.89 180)
+				(length 3.81)
+				(name "OUT_D"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "14"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
 )

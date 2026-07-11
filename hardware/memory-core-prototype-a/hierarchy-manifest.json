@@ -223,6 +223,14 @@
         {
           "name": "RETURN_DAC",
           "direction": "output"
+        },
+        {
+          "name": "RAIL_P12",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "input"
         }
       ]
     },
@@ -533,5 +541,13 @@
     ],
     "mcu_scaffold_harness": "J912 \u2014 temporary, non-BOM, non-board",
     "global_ground_source": "01_POWER_PROTECTION"
+  },
+  "codec_analogue_rail_amendment": {
+    "reason": "OPA1679 converter-boundary stages use the accepted \u00b112 V analogue rails.",
+    "rails": [
+      "RAIL_P12",
+      "RAIL_N12"
+    ],
+    "scope": "03_CODEC_CONVERSION only"
   }
 }

@@ -871,7 +871,7 @@
 		(uuid "538a34bd-363b-46b4-ad30-addb23e5a7d4")
 	)
 	(label "PANEL_MEMORY_TIME"
-		(at 152.4 60.96 0)
+		(at 152.4 60.96 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -881,7 +881,7 @@
 		(uuid "60457d47-c335-4b17-9841-e5e04bc6d9ad")
 	)
 	(label "PANEL_MEMORY_FADE"
-		(at 152.4 58.42 0)
+		(at 152.4 58.42 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -891,7 +891,7 @@
 		(uuid "19e457ad-cce8-463d-a6ee-03596fb4afb5")
 	)
 	(label "PANEL_MEMORY_BLUR"
-		(at 152.4 55.88 0)
+		(at 152.4 55.88 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -901,7 +901,7 @@
 		(uuid "1e7bb926-1368-4604-9274-c0532d8ea1c7")
 	)
 	(label "PANEL_GHOST_DISTANCE"
-		(at 152.4 53.34 0)
+		(at 152.4 53.34 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -911,7 +911,7 @@
 		(uuid "95a6974e-2eb8-471c-82b1-e5152a347141")
 	)
 	(label "PANEL_GHOST_DRIFT"
-		(at 152.4 50.8 0)
+		(at 152.4 50.8 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -921,7 +921,7 @@
 		(uuid "ab28a927-02b5-447c-90e0-3c6e2e9c13de")
 	)
 	(label "PANEL_GHOST_PRESENCE"
-		(at 152.4 48.26 0)
+		(at 152.4 48.26 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -931,7 +931,7 @@
 		(uuid "2bb96b9c-0868-4ba1-a1e2-ba98d14092bb")
 	)
 	(label "PANEL_RETURN_AMOUNT"
-		(at 152.4 45.72 0)
+		(at 152.4 45.72 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -941,7 +941,7 @@
 		(uuid "60f7ed5a-cec7-4b19-b04e-5f181ef63c6b")
 	)
 	(label "PANEL_PRESENT_WET"
-		(at 152.4 43.18 0)
+		(at 152.4 43.18 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -951,7 +951,7 @@
 		(uuid "4e66245e-0f21-4fd7-80ff-87c9df7673fb")
 	)
 	(label "SERVICE_TEST"
-		(at 152.4 40.64 0)
+		(at 152.4 40.64 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -961,7 +961,7 @@
 		(uuid "18141733-42e9-4a3b-9cc5-7c197dcd6f7e")
 	)
 	(label "RESET_CLEAR"
-		(at 152.4 38.1 0)
+		(at 152.4 38.1 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -971,7 +971,7 @@
 		(uuid "6e40b477-7c6c-445f-8623-b2f15db7f611")
 	)
 	(label "SAFE_MUTE"
-		(at 152.4 35.56 0)
+		(at 152.4 35.56 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -981,7 +981,7 @@
 		(uuid "f39dc863-9918-4934-a40e-89406f20b586")
 	)
 	(label "PANEL_MEMORY_TIME"
-		(at 259.08 198.12 0)
+		(at 259.08 198.12 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -991,7 +991,7 @@
 		(uuid "88f5d674-1160-4e21-be43-70866340d089")
 	)
 	(label "PANEL_MEMORY_FADE"
-		(at 259.08 200.66 0)
+		(at 259.08 200.66 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1001,7 +1001,7 @@
 		(uuid "8754e124-c345-4ffd-b5ea-ac942e3801e7")
 	)
 	(label "PANEL_MEMORY_BLUR"
-		(at 259.08 203.2 0)
+		(at 259.08 203.2 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1011,7 +1011,7 @@
 		(uuid "d0e8ddb4-74d0-4c44-8eec-43a32774c2a0")
 	)
 	(label "PANEL_GHOST_DISTANCE"
-		(at 259.08 205.74 0)
+		(at 259.08 205.74 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1021,7 +1021,7 @@
 		(uuid "069ea1c1-f46f-48ed-96c2-f2527655af99")
 	)
 	(label "PANEL_GHOST_DRIFT"
-		(at 259.08 208.28 0)
+		(at 259.08 208.28 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1031,7 +1031,7 @@
 		(uuid "e20ff9a4-ac85-44f7-8bc1-e00642bfbd62")
 	)
 	(label "PANEL_GHOST_PRESENCE"
-		(at 259.08 210.82 0)
+		(at 259.08 210.82 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1041,7 +1041,7 @@
 		(uuid "07164e25-6c9a-4175-a5f0-88e5d321d44e")
 	)
 	(label "PANEL_RETURN_AMOUNT"
-		(at 259.08 213.36 0)
+		(at 259.08 213.36 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1051,7 +1051,7 @@
 		(uuid "77b32aa5-91a4-4ad0-b021-b30d1b425723")
 	)
 	(label "PANEL_PRESENT_WET"
-		(at 259.08 215.9 0)
+		(at 259.08 215.9 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1061,7 +1061,7 @@
 		(uuid "0d8faf5b-61af-4946-816b-58a2cc9c53f2")
 	)
 	(label "SERVICE_TEST"
-		(at 259.08 218.44 0)
+		(at 259.08 218.44 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1071,7 +1071,7 @@
 		(uuid "e058eae5-248c-4c94-b92d-51784a12bf0b")
 	)
 	(label "RESET_CLEAR"
-		(at 259.08 220.98 0)
+		(at 259.08 220.98 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1081,7 +1081,7 @@
 		(uuid "8d5a3e2c-9b41-42d2-a3ed-32230d01ecf2")
 	)
 	(label "SAFE_MUTE"
-		(at 259.08 223.52 0)
+		(at 259.08 223.52 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1089,6 +1089,26 @@
 			(justify left bottom)
 		)
 		(uuid "349c79d9-b688-42c8-9899-e1d2fa7ba580")
+	)
+	(label "RAIL_P12"
+		(at 284.48 43.18 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2afa2b36-af5b-460e-81cc-5743b5352341")
+	)
+	(label "RAIL_N12"
+		(at 284.48 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6aa5f42d-ff57-4269-ada2-770461913e6d")
 	)
 	(text "MEMORY CORE PROTOTYPE A — NATIVE HIERARCHICAL SCHEMATIC"
 		(exclude_from_sim no)
@@ -1718,6 +1738,26 @@
 				(justify right)
 			)
 		)
+		(pin "RAIL_P12" input
+			(at 284.48 43.18 180)
+			(uuid "502a6163-adbe-42b2-bad1-a44ea206731f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "RAIL_N12" input
+			(at 284.48 40.64 180)
+			(uuid "2d00fcb9-5991-4c1a-8546-83cc5514c8d0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 		(instances
 			(project "MerrinGriefSynthMemoryCoreA"
 				(path "/ea499acf-881c-477d-99db-4f6dec6846fd"
@@ -2329,7 +2369,7 @@
 			)
 		)
 		(pin "PANEL_MEMORY_TIME" output
-			(at 259.08 198.12 0)
+			(at 259.08 198.12 0.0000)
 			(uuid "e6c807f3-fece-4dee-9e3c-cc0b26af503c")
 			(effects
 				(font
@@ -2339,7 +2379,7 @@
 			)
 		)
 		(pin "PANEL_MEMORY_FADE" output
-			(at 259.08 200.66 0)
+			(at 259.08 200.66 0.0000)
 			(uuid "b6f588ab-c111-4574-9178-59dedddb5854")
 			(effects
 				(font
@@ -2349,7 +2389,7 @@
 			)
 		)
 		(pin "PANEL_MEMORY_BLUR" output
-			(at 259.08 203.2 0)
+			(at 259.08 203.2 0.0000)
 			(uuid "5a689c6f-5be7-4bb3-9683-b8becfc5afc8")
 			(effects
 				(font
@@ -2359,7 +2399,7 @@
 			)
 		)
 		(pin "PANEL_GHOST_DISTANCE" output
-			(at 259.08 205.74 0)
+			(at 259.08 205.74 0.0000)
 			(uuid "7311c35d-d1d2-4e49-a5b6-101e6170f7e2")
 			(effects
 				(font
@@ -2369,7 +2409,7 @@
 			)
 		)
 		(pin "PANEL_GHOST_DRIFT" output
-			(at 259.08 208.28 0)
+			(at 259.08 208.28 0.0000)
 			(uuid "7451a1ea-8380-4470-ba43-5ca397d29ff3")
 			(effects
 				(font
@@ -2379,7 +2419,7 @@
 			)
 		)
 		(pin "PANEL_GHOST_PRESENCE" output
-			(at 259.08 210.82 0)
+			(at 259.08 210.82 0.0000)
 			(uuid "e13b7573-4d05-4ae1-b3f3-cb6656fbb57a")
 			(effects
 				(font
@@ -2389,7 +2429,7 @@
 			)
 		)
 		(pin "PANEL_RETURN_AMOUNT" output
-			(at 259.08 213.36 0)
+			(at 259.08 213.36 0.0000)
 			(uuid "2d1af079-f2a8-4073-9dd4-68c84dd17a91")
 			(effects
 				(font
@@ -2399,7 +2439,7 @@
 			)
 		)
 		(pin "PANEL_PRESENT_WET" output
-			(at 259.08 215.9 0)
+			(at 259.08 215.9 0.0000)
 			(uuid "77bc8ca9-417f-4d85-aabe-6d7372e145ec")
 			(effects
 				(font
@@ -2409,7 +2449,7 @@
 			)
 		)
 		(pin "SERVICE_TEST" output
-			(at 259.08 218.44 0)
+			(at 259.08 218.44 0.0000)
 			(uuid "ea562098-5236-4e6d-97ea-439eb824888c")
 			(effects
 				(font
@@ -2419,7 +2459,7 @@
 			)
 		)
 		(pin "RESET_CLEAR" output
-			(at 259.08 220.98 0)
+			(at 259.08 220.98 0.0000)
 			(uuid "e2a61b28-4844-4c9e-8cde-8c24f9c283bc")
 			(effects
 				(font
@@ -2429,7 +2469,7 @@
 			)
 		)
 		(pin "SAFE_MUTE" output
-			(at 259.08 223.52 0)
+			(at 259.08 223.52 0.0000)
 			(uuid "77af18f6-98f5-466f-9bce-f062d876f440")
 			(effects
 				(font
