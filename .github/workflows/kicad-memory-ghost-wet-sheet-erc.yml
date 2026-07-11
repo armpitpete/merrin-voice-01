@@ -7,9 +7,11 @@ on:
     paths:
       - "tools/capture_memory_ghost_wet_sheet.py"
       - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/repair_memory_ghost_wet_ssi_units.py"
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_return_ssi_units.py"
       - "tools/validate_memory_ghost_wet_capture.py"
       - ".github/workflows/kicad-memory-ghost-wet-sheet-erc.yml"
       - ".github/workflows/kicad-return-sheet-erc.yml"
@@ -23,9 +25,11 @@ on:
     paths:
       - "tools/capture_memory_ghost_wet_sheet.py"
       - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/repair_memory_ghost_wet_ssi_units.py"
       - "tools/capture_return_break_limiter_sheet.py"
       - "tools/capture_return_break_limiter_sheet_v2.py"
       - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_return_ssi_units.py"
       - "tools/validate_memory_ghost_wet_capture.py"
       - ".github/workflows/kicad-memory-ghost-wet-sheet-erc.yml"
       - ".github/workflows/kicad-return-sheet-erc.yml"
