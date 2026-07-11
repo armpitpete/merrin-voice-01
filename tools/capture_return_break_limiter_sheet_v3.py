@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Run sheet 06 and repair exact output directions in the native file.
-
-This layers the accepted collision-free reference repair from v2 with the
-pinned kicad-sch-api workaround. Its public hierarchical-label method ignores
-``shape``; this wrapper changes only the three locked sheet-06 exports from the
-default ``input`` serialisation to ``output``. Electrical topology is unchanged.
-"""
+"""Run sheet 06, restore SSI pin attachments, and set native outputs."""
 
 from __future__ import annotations
 
@@ -14,14 +8,25 @@ import re
 import sys
 from pathlib import Path
 
-BASE_PATH = Path(__file__).with_name("capture_return_break_limiter_sheet_v2.py")
-SPEC = importlib.util.spec_from_file_location("return_break_limiter_capture_v2", BASE_PATH)
-if SPEC is None or SPEC.loader is None:
-    raise RuntimeError(f"Could not load Return capture wrapper: {BASE_PATH}")
 
-reviewed = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = reviewed
-SPEC.loader.exec_module(reviewed)
+def load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+reviewed = load(
+    "return_break_limiter_capture_v2",
+    Path(__file__).with_name("capture_return_break_limiter_sheet_v2.py"),
+)
+physical = load(
+    "return_ssi_physical_repair",
+    Path(__file__).with_name("repair_return_ssi_units.py"),
+)
 
 
 def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
@@ -43,6 +48,7 @@ def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
 
 def main() -> None:
     reviewed.main()
+    physical.main()
     repair_output_directions(reviewed.base.SHEET_FILE, reviewed.base.HIER_OUTPUTS)
     print(
         "Sheet-06 native output directions repaired: "
