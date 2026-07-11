@@ -3386,4 +3386,170 @@
 			)
 		)
 	)
+	(symbol "WQP518MA_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "WQP518MA_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "Switched 3.5 mm mono input jack application symbol; physical pin map and footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "WQP518MA_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin passive line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "TIP"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "TIP_NORMAL"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "SLEEVE"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "J113_SHUNT_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "J113_SHUNT_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "N-channel JFET used as voltage-controlled shunt; pin map and footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "J113_SHUNT_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin passive line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "D"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "G"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 5.08 180)
+				(length 3.81)
+				(name "S"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
 )
