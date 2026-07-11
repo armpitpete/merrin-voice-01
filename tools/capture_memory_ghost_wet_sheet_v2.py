@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Run the reviewed sheet-05 generator with explicit KiCad label directions.
+"""Run sheet 05 and repair exact output directions in the native file.
 
-The pinned kicad-sch-api text manager accepts direction strings. Passing the
-HierarchicalLabelShape enum object makes it fall back to ``input``. This wrapper
-preserves the reviewed electrical design and normalises only that API boundary.
+The pinned kicad-sch-api public ``add_hierarchical_label`` method accepts a
+``shape`` argument but does not forward it to the created label. Every new
+label therefore serialises as ``input``. This wrapper preserves the reviewed
+electrical capture, then changes only the named sheet-05 output to ``output``.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -22,17 +24,27 @@ sys.modules[SPEC.name] = base
 SPEC.loader.exec_module(base)
 
 
-def direction_safe_add_hier(sch, name, position, shape, end):
-    direction = shape.value if hasattr(shape, "value") else str(shape)
-    sch.add_hierarchical_label(name, position=position, shape=direction, size=1.27)
-    sch.add_wire(start=position, end=end)
-    sch.add_label(name, position=end)
+def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
+    text = path.read_text(encoding="utf-8")
+    for name in output_names:
+        pattern = re.compile(
+            rf'(\(hierarchical_label "{re.escape(name)}"\s+\(shape )([^)]+)(\))',
+            re.MULTILINE,
+        )
+        text, count = pattern.subn(
+            lambda match: match.group(1) + "output" + match.group(3),
+            text,
+            count=1,
+        )
+        if count != 1:
+            raise RuntimeError(f"Expected exactly one hierarchical label for {name}, found {count}")
+    path.write_text(text, encoding="utf-8")
 
 
 def main() -> None:
-    base.add_hier = direction_safe_add_hier
     base.build()
-    print("Sheet-05 hierarchical label directions emitted as explicit strings")
+    repair_output_directions(base.SHEET_FILE, base.HIER_OUTPUTS)
+    print("Sheet-05 native output direction repaired: WET_MIX=output")
 
 
 if __name__ == "__main__":
