@@ -6,12 +6,14 @@ on:
       - v5.2-native-schematic-capture-erc
     paths:
       - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/repair_return_ssi_units.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
   pull_request:
     paths:
       - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/repair_return_ssi_units.py"
       - ".github/workflows/kicad-return-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -61,13 +63,14 @@ jobs:
           docker run --rm "$KICAD_IMAGE" kicad-cli --version
           docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
 
-      - name: Capture 06 Return Break limiter sheet
+      - name: Capture and repair 06 Return Break limiter sheet
         if: steps.stage.outputs.return == 'false'
         shell: bash
         run: |
           mkdir -p build/generator
           set -o pipefail
           python tools/capture_return_break_limiter_sheet.py 2>&1 | tee build/generator/return-sheet.log
+          python tools/repair_return_ssi_units.py 2>&1 | tee -a build/generator/return-sheet.log
 
       - name: Validate Return capture contract
         run: |
@@ -76,9 +79,12 @@ jobs:
           import math
           from pathlib import Path
 
+          import kicad_sch_api as ksa
+
           root = Path('hardware/memory-core-prototype-a')
           assert (root / '06_RETURN_BREAK_LIMITER_CAPTURED').exists()
           sheet_path = root / '06_RETURN_BREAK_LIMITER.kicad_sch'
+          library_path = root / 'MerrinLab_PrototypeA.kicad_sym'
           assert sheet_path.exists()
 
           spec = importlib.util.spec_from_file_location(
@@ -86,6 +92,12 @@ jobs:
           )
           module = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(module)
+
+          repair_spec = importlib.util.spec_from_file_location(
+              'return_repair', 'tools/repair_return_ssi_units.py'
+          )
+          repair = importlib.util.module_from_spec(repair_spec)
+          repair_spec.loader.exec_module(repair)
 
           expected_outputs = {'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE'}
           assert set(module.HIER_OUTPUTS) == expected_outputs
@@ -96,26 +108,49 @@ jobs:
           unit5 = {pin[0]: pin[1] for pin in module.SSI_UNITS[5]}
           assert unit5 == {'1': 'MODE', '8': 'GND', '16': 'V+', '9': 'V-'}
 
+          assert repair.actual_pin_position((91.44, 91.44), 'left', 2) == (81.28, 88.9)
+          assert repair.actual_pin_position((91.44, 91.44), 'right', 2) == (101.6, 88.9)
+          assert repair.actual_pin_position((91.44, 129.54), 'left', 4) == (81.28, 132.08)
+          assert repair.actual_pin_position((91.44, 129.54), 'right', 2) == (101.6, 127.0)
+          assert repair.actual_pin_position((91.44, 129.54), 'right', 4) == (101.6, 132.08)
+
           assert module.FIXED_FEED_RIN == '40.2k'
           assert module.FIXED_FEED_RF == '27.4k'
           assert math.isclose(module.FIXED_FEED_NOMINAL, 27.4 / 40.2, rel_tol=0, abs_tol=1e-12)
           assert module.LIMIT_REFERENCE == '2.5V'
           assert module.LIMIT_SERIES == '2.2k'
 
-          library = (root / 'MerrinLab_PrototypeA.kicad_sym').read_text(encoding='utf-8')
+          library = library_path.read_text(encoding='utf-8')
           assert '(symbol "SSI2164S_APPLICATION"' in library
-          assert '(symbol "SSI2164S_APPLICATION_3_1"' in library
-          assert '(symbol "SSI2164S_APPLICATION_5_1"' in library
+          for unit in range(1, 6):
+              assert f'(symbol "SSI2164S_APPLICATION_{unit}_1"' in library
           assert '(symbol "OPA1679_PW_APPLICATION"' in library
+
+          cache = ksa.get_symbol_cache()
+          cache.add_library_path(str(library_path.resolve()))
+          schematic = ksa.load_schematic(str(sheet_path))
+          ssi_units = sorted(
+              component._data.unit
+              for component in schematic.components
+              if component.reference == 'U50'
+          )
+          assert ssi_units == [1, 2, 3, 4, 5], ssi_units
 
           sheet_text = sheet_path.read_text(encoding='utf-8')
           for token in (
               'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE',
               '40.2k', '27.4k', '2.2k', 'SSI2164',
+              'reserved no-connect placeholders',
           ):
               assert token in sheet_text, token
+          assert '(label "SSI_IIN3"\n\t\t(at 81.28 88.9 0)' in sheet_text
+          assert '(label "SSI_IOUT3"\n\t\t(at 101.6 88.9 0)' in sheet_text
+          assert '(label "GND"\n\t\t(at 81.28 132.08 0)' in sheet_text
+          assert '(label "RAIL_P12"\n\t\t(at 101.6 127.0 0)' in sheet_text
+          assert '(label "RAIL_N12"\n\t\t(at 101.6 132.08 0)' in sheet_text
+          assert '(no_connect\n\t\t(at 81.28 127.0)' in sheet_text
 
-          print('Return safety, SSI2164 and fixed-feed contract: PASS')
+          print('Return safety, SSI2164 unit placement and fixed-feed contract: PASS')
           PY
 
       - name: Run KiCad 10 hierarchical ERC
