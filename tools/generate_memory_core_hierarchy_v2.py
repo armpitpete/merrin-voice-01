@@ -13,9 +13,20 @@ native schematic and the base generator is consolidated.
 
 from __future__ import annotations
 
+import importlib.util
+import sys
 from dataclasses import replace
+from pathlib import Path
 
-from tools import generate_memory_core_hierarchy as base
+
+BASE_PATH = Path(__file__).with_name("generate_memory_core_hierarchy.py")
+SPEC = importlib.util.spec_from_file_location("memory_core_hierarchy_base", BASE_PATH)
+if SPEC is None or SPEC.loader is None:
+    raise RuntimeError(f"Could not load base hierarchy generator: {BASE_PATH}")
+
+base = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = base
+SPEC.loader.exec_module(base)
 
 
 def corrected_pin_position(
@@ -39,7 +50,7 @@ def corrected_pin_position(
     return (x + offset, y + height)
 
 
-def corrected_sheets() -> tuple[base.SheetDefinition, ...]:
+def corrected_sheets():
     sheets = list(base.SHEETS)
     power = sheets[0]
 
