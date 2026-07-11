@@ -49,6 +49,35 @@ STRUCTURAL_REPAIRS = (
     ),
 )
 
+# Keep the six safety-critical coordinates deterministic after the schematic API
+# writes equivalent KiCad numeric forms such as 0.0000 and 127.
+SERIALISATION_NORMALISATIONS = (
+    (
+        r'(\(label "SSI_IIN3"\s+\(at 81\.28 88\.9 )0(?:\.0+)?(\))',
+        r'\g<1>0\g<2>',
+    ),
+    (
+        r'(\(label "SSI_IOUT3"\s+\(at 101\.6 88\.9 )0(?:\.0+)?(\))',
+        r'\g<1>0\g<2>',
+    ),
+    (
+        r'(\(label "GND"\s+\(at 81\.28 132\.08 )0(?:\.0+)?(\))',
+        r'\g<1>0\g<2>',
+    ),
+    (
+        r'(\(label "RAIL_P12"\s+\(at 101\.6 )127(?:\.0+)? 0(?:\.0+)?(\))',
+        r'\g<1>127.0 0\g<2>',
+    ),
+    (
+        r'(\(label "RAIL_N12"\s+\(at 101\.6 132\.08 )0(?:\.0+)?(\))',
+        r'\g<1>0\g<2>',
+    ),
+    (
+        r'(\(no_connect\s+\(at 81\.28 )127(?:\.0+)?(\))',
+        r'\g<1>127.0\g<2>',
+    ),
+)
+
 VALUE_REPLACEMENTS = {
     '"SSI2164 RETURN CH3"': '"SSI2164"',
     '"SSI2164 POWER"': '"SSI2164"',
@@ -117,8 +146,14 @@ def main():
     )
     sch.save(str(SHEET_FILE))
 
+    final_text = SHEET_FILE.read_text(encoding="utf-8")
+    for pattern, replacement in SERIALISATION_NORMALISATIONS:
+        final_text = apply_one_regex(final_text, pattern, replacement)
+    SHEET_FILE.write_text(final_text, encoding="utf-8")
+
     print("Corrected SSI2164 channel-3 and power-unit physical pin attachments")
     print("Placed reserved U50 units 1, 2 and 4 with explicit no-connect pins")
+    print("Normalised safety-critical SSI2164 coordinate serialisation")
 
 
 if __name__ == "__main__":
