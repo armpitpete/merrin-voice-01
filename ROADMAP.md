@@ -2,11 +2,20 @@
 
 Merrin Grief Synth should stay small and specific.
 
-Its current browser job is complete: a browser-first emotional Web Audio synth for one voice, **Constrained Grief**.
+Its current browser job is complete: a browser-first emotional Web Audio proof-of-voice for one voice, **Constrained Grief**.
+
+The browser synth is the reference instrument.
+
+The long-term goal is a real circuit-board synth.
+
+```text
+Browser version = proof-of-voice / control reference.
+Hardware version = final destination.
+```
 
 The next lane is not final demo media.
 
-The next lane is to define the whole synth built around the existing Constrained Grief voice.
+The next lane is to make the browser reference clean enough to translate into hardware.
 
 ## Current release
 
@@ -23,37 +32,37 @@ The next lane is to define the whole synth built around the existing Constrained
 - Shape glide fixed.
 - README and release polish docs.
 
-## Active planning lane
+## Active implementation lane
 
-### v4.0 — Whole synth definition
+### v4.1 — Performance / advanced layout separation
 
-Status: definition pass started.
+Status: PR open.
 
 Spec documents:
 
 - [V4.0 — Whole Synth Build Spec](docs/whole-synth-build-spec-v4.0.md)
 - [V4.0 — Whole Synth Definition Pass](docs/v4.0-whole-synth-definition-pass.md)
+- [V4.1 — Performance / Advanced Layout Separation](docs/v4.1-performance-advanced-layout.md)
 
 Purpose:
 
-- Define what the completed Merrin Grief Synth is meant to become.
 - Keep Merrin Voice 01 / Constrained Grief as the proven foundation.
-- Decide what belongs in the whole instrument before any finish-demo work.
+- Treat the browser synth as the accepted proof-of-voice and control reference.
+- Make the performance surface clear before hardware translation.
+- Move browser/test/diagnostic controls into an advanced/test layer.
 - Protect the project from becoming a general-purpose synth.
-- Define the smallest next implementation lane after the definition is accepted.
+- Prepare for a later hardware translation spec.
 
-V4.0 is documentation/specification work only.
+V4.1 is layout/clarity work only.
 
 Allowed:
 
-- define whole-synth scope
-- define final signal path
-- define main surface controls
-- define diagnostics vs performance controls
-- define required emotional behaviours
-- define explicit non-goals
-- define completion criteria before final demo
-- identify the next small implementation lane
+- separate performance layer from advanced/test layer
+- keep panic/release visible
+- keep MIDI connection/status visible
+- keep diagnostics available but advanced
+- preserve current sound behaviour
+- clarify browser-reference / hardware-destination status in docs
 
 Not allowed:
 
@@ -68,46 +77,65 @@ Not allowed:
 - general-purpose synth expansion
 - DBHT-1 expansion work
 - M A C controller work
+- PCB layout
+- schematic design
+- part selection
+- BOM
+- KiCad files
 - hardware expansion work
 
-## Next likely implementation lane
+## Next likely lane after V4.1
 
-Only after the V4.0 definition is accepted, the next likely implementation lane is:
+Only after V4.1 is accepted, the next real lane is:
 
 ```text
-V4.1 — Separate performance layer from advanced/test layer
+V5.0 — Hardware Translation Spec
 ```
 
-This should not add sound features.
+V5.0 should translate the accepted browser reference into a circuit-board synth architecture.
+
+V5.0 should decide:
+
+- analogue / digital / hybrid split
+- voice block architecture
+- control scanning / MIDI / CV handling
+- panel controls
+- safety/reset behaviour
+- LED/state behaviour using SLS-1
+- panel/layout behaviour using HIL-1
+- prototype boundary
+- first-board scope
+
+V5.0 should not start by opening KiCad.
 
 ## Later finish-demo lane
 
-A real audio/video demo belongs after the whole synth is built and accepted.
+A real audio/video demo belongs after the reference/hardware stage is honest.
 
-Do not record or commit final demo media while the project is still in whole-synth definition.
+Do not record or commit final demo media while the project is still in browser-reference cleanup or hardware translation.
 
 The later finish-demo lane may include:
 
 - real audio/video demo recording
-- browser screenshot or GIF
+- browser reference walkthrough if clearly labelled as reference
+- hardware prototype demo once hardware exists
+- screenshot or GIF
 - release page
 - final public portfolio text
 - GitHub Release and tag
 
-The demo must show the finished synth, not an unfinished stage.
+The demo must not make a browser reference look like a finished hardware instrument.
 
 ## Future tracks
 
-Each of these should be treated as a separate project or issue lane, not mixed into the completed v3.8 browser demo or the v4.0 whole-synth specification.
+Each of these should be treated as a separate project or issue lane, not mixed into the current browser reference cleanup or the hardware translation spec.
 
-### Possible browser polish
+### Possible browser reference polish
 
-- Hide advanced test controls behind a simple mode.
 - Add a clearer beginner "how to play" section.
 - Review mobile/tablet display without promising MIDI support there.
 - Preserve current sound behaviour.
-
-This should happen only if it supports the whole-synth build and does not pretend to be final demo work.
+- Keep the page honest that it is a reference instrument.
 
 ### Possible sample pack
 
@@ -115,20 +143,20 @@ This should happen only if it supports the whole-synth build and does not preten
 - Export labelled WAV files.
 - Keep it as an audio asset project, not a synth-code expansion.
 
-This belongs after the whole synth direction is stable.
+This belongs after the reference direction is stable.
 
 ### Possible VST concept
 
 - Document required controls.
 - Define the minimum viable plugin version.
-- Do not start until the browser voice and whole-synth scope remain stable.
+- Do not start until the browser reference, whole-synth scope, and hardware direction remain stable.
 
 ### Possible VCV Rack concept
 
 - Define a small module identity.
 - Keep it emotion-shaped rather than general modular feature creep.
 
-## Explicit non-goals for the current browser demo
+## Explicit non-goals for the current browser reference
 
 - Becoming a general-purpose synth.
 - Adding presets.
@@ -139,3 +167,4 @@ This belongs after the whole synth direction is stable.
 - Adding channel routing.
 - Adding plugin framework work.
 - Adding more sound controls just because they are possible.
+- Pretending the browser reference is the final circuit-board synth.
