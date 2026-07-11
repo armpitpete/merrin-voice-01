@@ -1091,7 +1091,7 @@
 		(uuid "349c79d9-b688-42c8-9899-e1d2fa7ba580")
 	)
 	(label "RAIL_P12"
-		(at 284.48 43.18 0)
+		(at 284.48 43.18 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1101,7 +1101,7 @@
 		(uuid "2afa2b36-af5b-460e-81cc-5743b5352341")
 	)
 	(label "RAIL_N12"
-		(at 284.48 40.64 0)
+		(at 284.48 40.64 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1109,6 +1109,26 @@
 			(justify left bottom)
 		)
 		(uuid "6aa5f42d-ff57-4269-ada2-770461913e6d")
+	)
+	(label "RAIL_3V3"
+		(at 284.48 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fc893d50-2c7d-4f8b-8839-28eaa4d94d83")
+	)
+	(label "HARDWARE_FAULT_N"
+		(at 284.48 139.7 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "92ff3948-d73b-48ed-a7bf-8615caee4dd2")
 	)
 	(text "MEMORY CORE PROTOTYPE A — NATIVE HIERARCHICAL SCHEMATIC"
 		(exclude_from_sim no)
@@ -2102,6 +2122,26 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+		(pin "RAIL_3V3" input
+			(at 284.48 142.24 180)
+			(uuid "ecb2a56d-53c4-4da5-a31c-f4566f182971")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "HARDWARE_FAULT_N" input
+			(at 284.48 139.7 180)
+			(uuid "6e35ec8e-921c-4902-ba67-615e236cc204")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 			)
 		)
 		(instances

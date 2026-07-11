@@ -340,6 +340,14 @@
         {
           "name": "ABSENCE_INFLUENCE",
           "direction": "output"
+        },
+        {
+          "name": "RAIL_3V3",
+          "direction": "input"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "input"
         }
       ]
     },
@@ -549,5 +557,13 @@
       "RAIL_N12"
     ],
     "scope": "03_CODEC_CONVERSION only"
+  },
+  "return_safety_interface_amendment": {
+    "reason": "Sheet 06 requires RAIL_3V3 for bounded control clamps and HARDWARE_FAULT_N to neutralise ABSENCE_INFLUENCE during fault.",
+    "signals": [
+      "RAIL_3V3",
+      "HARDWARE_FAULT_N"
+    ],
+    "scope": "06_RETURN_BREAK_LIMITER only"
   }
 }
