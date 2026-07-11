@@ -13,6 +13,7 @@ on:
       - "tools/capture_power_protection_sheet_v3.py"
       - "tools/amend_controls_state_interfaces.py"
       - "tools/capture_controls_state_sheet.py"
+      - "tools/capture_controls_state_sheet_v2.py"
       - ".github/workflows/kicad-erc.yml"
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - "tools/capture_power_protection_sheet_v3.py"
       - "tools/amend_controls_state_interfaces.py"
       - "tools/capture_controls_state_sheet.py"
+      - "tools/capture_controls_state_sheet_v2.py"
       - ".github/workflows/kicad-erc.yml"
   workflow_dispatch:
 
@@ -106,7 +108,7 @@ jobs:
         run: |
           mkdir -p build/generator
           set -o pipefail
-          python tools/capture_controls_state_sheet.py 2>&1 | tee build/generator/controls-sheet.log
+          python tools/capture_controls_state_sheet_v2.py 2>&1 | tee build/generator/controls-sheet.log
 
       - name: Validate hierarchy and stage markers
         run: |
