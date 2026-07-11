@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """ERC repair wrapper for 01_POWER_PROTECTION.
 
-Repairs only the findings from the first component-level KiCad 10 ERC run:
+Repairs the component-level KiCad 10 findings:
 
 - use KiCad's stock `Device:L_Ferrite` symbol;
 - move R6 so it cannot physically join R5's CT node;
-- add explicit post-protection and post-regulator PWR_FLAG annotations.
+- add source annotations only after passive protection/conversion boundaries.
 
-Circuit behaviour and accepted values are unchanged.
+`RAIL_5V_CODEC` is driven directly by the TPS7A2050 power-output pin and must
+not receive a second PWR_FLAG.
 """
 
 from __future__ import annotations
@@ -49,7 +50,6 @@ def corrected_add_two_pin(
     footprint="",
 ):
     if reference == "R6":
-        # Avoid the R5 pin-2 / R6 pin-1 physical overlap found by ERC.
         position = (251.46, 91.44)
     return original_add_two_pin(
         sch,
@@ -79,18 +79,17 @@ def main() -> None:
         ("#FLG05", "RAIL_N12", (137.16, 106.68)),
         ("#FLG06", "RAIL_3V3", (248.92, 66.04)),
         ("#FLG07", "RAIL_5V45_PRE", (248.92, 116.84)),
-        ("#FLG08", "RAIL_5V_CODEC", (320.04, 116.84)),
     ):
         add_power_flag(sch, reference, net, position)
 
     sch.add_text(
         "PWR_FLAG markers identify rails after passive protection/conversion boundaries for ERC.\n"
-        "They are schematic source annotations, not additional physical parts.",
+        "RAIL_5V_CODEC is driven directly by U3 and needs no source annotation.",
         position=(251.46, 167.64),
         size=1.27,
     )
     sch.save(str(base.POWER_SHEET))
-    print("Applied post-boundary power-source annotations and supervisor spacing repair.")
+    print("Applied final power-source annotations and supervisor spacing repair.")
 
 
 if __name__ == "__main__":
