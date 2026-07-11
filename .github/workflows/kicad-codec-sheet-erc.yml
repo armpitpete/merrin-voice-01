@@ -7,8 +7,12 @@ on:
     paths:
       - "tools/amend_codec_analog_rails.py"
       - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/opa1679_multi_support.py"
+      - "tools/validate_output_mute_protection_capture.py"
       - ".github/workflows/kicad-codec-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
       - "hardware/memory-core-prototype-a/CODEC_ANALOG_RAILS_AMENDED"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
@@ -17,8 +21,12 @@ on:
     paths:
       - "tools/amend_codec_analog_rails.py"
       - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/opa1679_multi_support.py"
+      - "tools/validate_output_mute_protection_capture.py"
       - ".github/workflows/kicad-codec-sheet-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
       - "hardware/memory-core-prototype-a/CODEC_ANALOG_RAILS_AMENDED"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
@@ -41,23 +49,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Detect committed codec stage
+      - name: Detect committed codec and output stages
         id: stage
         shell: bash
         run: |
           root="hardware/memory-core-prototype-a"
-          if [ -f "$root/CODEC_ANALOG_RAILS_AMENDED" ]; then
-            echo "rails=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "rails=false" >> "$GITHUB_OUTPUT"
-          fi
-          if [ -f "$root/03_CODEC_CONVERSION_CAPTURED" ]; then
-            echo "codec=true" >> "$GITHUB_OUTPUT"
-            echo "Using committed codec/conversion capture."
-          else
-            echo "codec=false" >> "$GITHUB_OUTPUT"
-            echo "Codec/conversion remains a scaffold."
-          fi
+          test -f "$root/CODEC_ANALOG_RAILS_AMENDED" && rails=true || rails=false
+          test -f "$root/03_CODEC_CONVERSION_CAPTURED" && codec=true || codec=false
+          test -f "$root/07_OUTPUT_MUTE_PROTECTION_CAPTURED" && output=true || output=false
+          echo "rails=$rails" >> "$GITHUB_OUTPUT"
+          echo "codec=$codec" >> "$GITHUB_OUTPUT"
+          echo "output=$output" >> "$GITHUB_OUTPUT"
+          echo "rails=$rails codec=$codec output=$output"
 
       - name: Install symbol libraries and pinned schematic generator
         run: |
@@ -112,38 +115,29 @@ jobs:
           )
           module = importlib.util.module_from_spec(spec)
           spec.loader.exec_module(module)
-
           assert len(module.PCM_PIN_NAMES) == 65
           assert set(module.PCM_PIN_NAMES) == set(range(1, 66))
           required = {
-              4: 'CODEC_RST_HW_N',
-              6: 'CODEC_LRCLK',
-              7: 'CODEC_BCLK',
-              8: 'CODEC_DOUT',
-              27: 'RETURN_DAC_P',
-              29: 'GHOST_DAC_P',
-              31: 'MEMORY_DAC_P',
-              35: 'CODEC_LRCLK',
-              36: 'CODEC_BCLK',
-              37: 'CODEC_DIN',
-              41: 'CODEC_MCLK',
-              42: 'CTRL_I2C_SCL',
-              43: 'CTRL_I2C_SDA',
-              44: 'GND',
-              45: 'GND',
-              48: 'GND',
-              51: 'ADC_VIN1_N',
-              52: 'ADC_VIN1_P',
-              65: 'GND',
+              4: 'CODEC_RST_HW_N', 6: 'CODEC_LRCLK', 7: 'CODEC_BCLK',
+              8: 'CODEC_DOUT', 27: 'RETURN_DAC_P', 29: 'GHOST_DAC_P',
+              31: 'MEMORY_DAC_P', 35: 'CODEC_LRCLK', 36: 'CODEC_BCLK',
+              37: 'CODEC_DIN', 41: 'CODEC_MCLK', 42: 'CTRL_I2C_SCL',
+              43: 'CTRL_I2C_SDA', 44: 'GND', 45: 'GND', 48: 'GND',
+              51: 'ADC_VIN1_N', 52: 'ADC_VIN1_P', 65: 'GND',
           }
           for pin, net in required.items():
-              assert module.PCM_SELECTED_NETS[pin] == net, (pin, module.PCM_SELECTED_NETS.get(pin), net)
+              assert module.PCM_SELECTED_NETS[pin] == net
 
           library = (root / 'MerrinLab_PrototypeA.kicad_sym').read_text(encoding='utf-8')
           assert '(symbol "PCM3168A_PAP_APPLICATION"' in library
           assert '(symbol "OPA1679_PW_APPLICATION"' in library
+          if (root / '07_OUTPUT_MUTE_PROTECTION_CAPTURED').exists():
+              assert '(symbol "OPA1679_PW_MULTI"' in library
           print('Codec physical-pin, hierarchy and symbol contract: PASS')
           PY
+          if [ -f hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION_CAPTURED ]; then
+            python tools/validate_output_mute_protection_capture.py
+          fi
 
       - name: Run KiCad 10 hierarchical ERC
         shell: bash
@@ -169,8 +163,7 @@ jobs:
           import re
           from pathlib import Path
 
-          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
-          text = report.read_text(encoding='utf-8')
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
           summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
           if not summary:
               raise SystemExit('ERC summary was not found')
@@ -184,9 +177,10 @@ jobs:
               raise SystemExit(f'Unexpected ERC classes: {unexpected}')
 
           captured = (
-              '01 POWER / PROTECTION',
-              '02 MCU / CLOCK / DEBUG',
-              '03 CODEC / CONVERSION',
+              '01 POWER / PROTECTION', '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION', '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET', '06 RETURN / BREAK / LIMITER',
+              '07 OUTPUT / MUTE / PROTECTION',
               '08 CONTROLS / STATE / SAFE SELECTOR',
           )
           for sheet_name in captured:
@@ -196,8 +190,7 @@ jobs:
                   re.DOTALL,
               )
               if match and '[isolated_pin_label]:' in match.group('body'):
-                  raise SystemExit(f'{sheet_name} still contains temporary isolated interface labels')
-
+                  raise SystemExit(f'{sheet_name} retains temporary isolated labels')
           print(f'Codec-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
           PY
 
@@ -217,12 +210,10 @@ jobs:
             "$root/03_CODEC_CONVERSION.kicad_sch" \
             "$root/03_CODEC_CONVERSION_CAPTURED" \
             "$root/MerrinLab_PrototypeA.kicad_sym"
-
           if git diff --cached --quiet; then
             echo "No validated codec stage to promote."
             exit 0
           fi
-
           git commit -m "Capture ERC-validated codec conversion sheet"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
