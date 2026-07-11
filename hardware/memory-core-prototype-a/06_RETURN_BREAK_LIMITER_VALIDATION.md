@@ -6,7 +6,7 @@
 GENERATED ARTIFACT: PASS
 SYMBOL / PIN CONTRACT: PASS
 KICAD 10 HIERARCHICAL ERC: PASS
-COMMITTED-FILE RERUN: PENDING THIS COMMIT
+COMMITTED-FILE RERUN: PASS
 PCB / FOOTPRINT / MECHANICAL AUTHORITY: NOT GRANTED
 ```
 
@@ -87,4 +87,22 @@ The dedicated Return workflow passed:
 - full hierarchical ERC with zero errors;
 - strict captured-sheet warning policy.
 
-This record intentionally triggers the second gate against the committed native files. The status may be changed to `COMMITTED-FILE RERUN: PASS` only after the workflow skips generation and validates the committed sheet directly.
+## Committed-file rerun result
+
+The second Return workflow run detected the committed stage and therefore skipped:
+
+```text
+Return safety-interface amendment
+generation
+multi-unit repair
+promotion
+```
+
+It then passed:
+
+- the symbol/pin and staged-unit contract against the committed native file;
+- the unique-reference check;
+- KiCad 10 hierarchical ERC;
+- the strict captured-sheet warning policy.
+
+`06_RETURN_BREAK_LIMITER` is closed at schematic-capture level. Physical footprint review, integrated Return safety review, measured loop gain, limiter threshold/recovery measurements, and the 30-minute worst-setting endurance test remain later gates.
