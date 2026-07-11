@@ -1,0 +1,222 @@
+name: KiCad MCU sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/capture_mcu_clock_debug_sheet.py"
+      - ".github/workflows/kicad-mcu-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/02_MCU_CLOCK_DEBUG*"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  pull_request:
+    paths:
+      - "tools/capture_mcu_clock_debug_sheet.py"
+      - ".github/workflows/kicad-mcu-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/02_MCU_CLOCK_DEBUG*"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  mcu-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed MCU sheet
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/02_MCU_CLOCK_DEBUG_CAPTURED"
+          if [ -f "$marker" ]; then
+            echo "mcu=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed MCU/clock/debug capture."
+          else
+            echo "mcu=false" >> "$GITHUB_OUTPUT"
+            echo "MCU/clock/debug remains a scaffold."
+          fi
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Capture 02 MCU clock and debug sheet
+        if: steps.stage.outputs.mcu == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_mcu_clock_debug_sheet.py 2>&1 | tee build/generator/mcu-sheet.log
+
+      - name: Validate MCU capture contract
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          assert (root / '02_MCU_CLOCK_DEBUG_CAPTURED').exists()
+          assert (root / '02_MCU_CLOCK_DEBUG.kicad_sch').exists()
+
+          spec = importlib.util.spec_from_file_location(
+              'mcu_capture',
+              'tools/capture_mcu_clock_debug_sheet.py',
+          )
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+
+          assert len(module.PIN_NAMES) == 100
+          assert set(module.PIN_NAMES) == set(range(1, 101))
+
+          required = {
+              1: 'CODEC_MCLK',
+              2: 'CODEC_DOUT',
+              3: 'CODEC_LRCLK',
+              4: 'CODEC_BCLK',
+              5: 'CODEC_DIN',
+              22: 'PANEL_MEMORY_TIME',
+              31: 'PANEL_PRESENT_WET',
+              55: 'CODEC_RESET_N',
+              56: 'CODEC_MUTE_N',
+              57: 'HARDWARE_FAULT_N',
+              58: 'WATCHDOG_HEARTBEAT',
+              59: 'SAFE_CONTROL_RELEASE',
+              63: 'STATE_LED_R',
+              66: 'STATE_LED_AUX',
+              72: 'SWDIO',
+              76: 'SWCLK',
+              95: 'CTRL_I2C_SCL',
+              96: 'CTRL_I2C_SDA',
+          }
+          for pin, net in required.items():
+              assert module.SELECTED_NETS[pin] == net, (pin, module.SELECTED_NETS.get(pin), net)
+
+          library = (root / 'MerrinLab_PrototypeA.kicad_sym').read_text(encoding='utf-8')
+          assert '(symbol "STM32H743VIT6_LQFP100"' in library
+          assert '(symbol "OSC_CMOS_4PIN"' in library
+          print('MCU physical-pin and symbol contract: PASS')
+          PY
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce MCU-stage ERC policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
+          text = report.read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+
+          if errors:
+              raise SystemExit(f'MCU schematic stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated interface labels')
+
+          print(f'MCU-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote first passing MCU sheet
+        if: >-
+          github.event_name == 'push' &&
+          steps.stage.outputs.mcu == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/02_MCU_CLOCK_DEBUG.kicad_sch" \
+            "$root/02_MCU_CLOCK_DEBUG_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+
+          if git diff --cached --quiet; then
+            echo "No validated MCU stage to promote."
+            exit 0
+          fi
+
+          git commit -m "Capture ERC-validated MCU clock and debug sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcu-sheet-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcu-sheet-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcu-sheet-erc-report
+          path: build/erc
+          if-no-files-found: ignore
