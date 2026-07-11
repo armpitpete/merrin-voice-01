@@ -1,0 +1,617 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "3e677a7a-14f7-4fc9-a2c2-bb668690bae1")
+	(paper "A4")
+	(title_block
+		(title "Memory Core Prototype A — MEMORY / GHOST / WET")
+		(rev "V5.2 hierarchy capture")
+		(company "MerrinLab")
+		(comment 1 "Interface harness is temporary and excluded from BOM/board.")
+	)
+	(lib_symbols
+		(symbol "Connector_Generic:Conn_01x08"
+			(pin_names
+				(offset 1.016) hide
+			)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x08"
+				(at 0 -12.7 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_description" "Generic connector, single row, 01x08, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "Conn_01x08_1_1"
+				(rectangle
+					(start -1.27 -10.033)
+					(end 0 -10.287)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -7.493)
+					(end 0 -7.747)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 5.207)
+					(end 0 4.953)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 7.747)
+					(end 0 7.493)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 8.89)
+					(end 1.27 -11.43)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 7.62 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 5.08 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -7.62 0)
+					(length 3.81)
+					(name "Pin_7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -10.16 0)
+					(length 3.81)
+					(name "Pin_8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x08")
+		(at 170.18 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2f0c5f5c-2991-40e7-8063-07484e98f184")
+		(property "Reference" "J905"
+			(at 170.18 111.76 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SHEET_INTERFACE_NOT_FITTED"
+			(at 170.18 88.9 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 170.18 101.6 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/7bf1ae46-811e-4580-beab-c2de92a44966"
+			(at 172.72 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Purpose" "Temporary hierarchy/ERC harness"
+			(at 172.72 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e9749a36-6b50-4650-87cf-600a72d8231e")
+		)
+		(pin "2"
+			(uuid "c1aa8c24-b844-4c71-bbd0-60df3c41969f")
+		)
+		(pin "3"
+			(uuid "8e100304-92ab-4b50-ba02-f6bef6e2ed63")
+		)
+		(pin "4"
+			(uuid "46044409-b644-4a18-89a7-e70b64ec1b76")
+		)
+		(pin "5"
+			(uuid "1576400b-8e4e-4e2b-b07a-b001dccee8db")
+		)
+		(pin "6"
+			(uuid "9c729e77-25a5-44bc-8c40-5fa4e8516560")
+		)
+		(pin "7"
+			(uuid "509cbb74-03c8-4143-85c2-24fc6362aef7")
+		)
+		(pin "8"
+			(uuid "1c483e4d-e646-4751-bb17-516718d8602f")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/7bf1ae46-811e-4580-beab-c2de92a44966"
+					(reference "J905")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 165.1 93.98) (xy 144.78 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "233eb9ba-2d3a-43ee-b188-f1bfe0027e4b")
+	)
+	(wire
+		(pts
+			(xy 165.1 96.52) (xy 144.78 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d0fe1f6c-0bda-443d-9773-c9e7d89859e5")
+	)
+	(wire
+		(pts
+			(xy 165.1 99.06) (xy 144.78 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6fe95ac0-122b-4d1b-b9e2-09e76d8b5a22")
+	)
+	(wire
+		(pts
+			(xy 165.1 101.6) (xy 144.78 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f192488-dad4-4bcc-84fc-16a44fb505e7")
+	)
+	(wire
+		(pts
+			(xy 165.1 104.14) (xy 144.78 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "398b649c-3f9e-4929-ae0e-3792be69119b")
+	)
+	(wire
+		(pts
+			(xy 165.1 106.68) (xy 144.78 106.68)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "02eb945c-6aa9-4537-b883-f58c589db70d")
+	)
+	(wire
+		(pts
+			(xy 165.1 109.22) (xy 144.78 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eb02d0e7-1a18-44f5-a8ee-7d0c0faf14d9")
+	)
+	(wire
+		(pts
+			(xy 165.1 111.76) (xy 144.78 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c84cb914-0a5d-4514-88f5-f9a180783c7b")
+	)
+	(hierarchical_label "RAIL_P12"
+		(shape input)
+		(at 144.78 93.98 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a0b6e212-5f49-4697-9eb4-0b434fcb3a33")
+	)
+	(hierarchical_label "RAIL_N12"
+		(shape input)
+		(at 144.78 96.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4155d1ef-ad2f-4786-81bf-d2a4e9b5aba8")
+	)
+	(hierarchical_label "MEMORY_DAC"
+		(shape input)
+		(at 144.78 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "83f7f738-4b14-4ceb-aa15-ef52ff68a7cd")
+	)
+	(hierarchical_label "GHOST_DAC"
+		(shape input)
+		(at 144.78 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3ed7c311-ce87-449f-b053-aa41e9932283")
+	)
+	(hierarchical_label "VCA_MEMORY_CTRL"
+		(shape input)
+		(at 144.78 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "ac0303ce-5a9b-4a2b-890c-083955eaf0ae")
+	)
+	(hierarchical_label "VCA_GHOST_CTRL"
+		(shape input)
+		(at 144.78 106.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9e4d8e6f-4fb9-4921-b96b-09fa22d47d63")
+	)
+	(hierarchical_label "VCA_WET_CTRL"
+		(shape input)
+		(at 144.78 109.22 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6ec0923b-f50b-4177-b92e-e07ec038283b")
+	)
+	(hierarchical_label "WET_MIX"
+		(shape input)
+		(at 144.78 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "517dcb3d-0a99-4aee-a269-3cdc7b67a48e")
+	)
+	(rectangle
+		(start 33.02 20.32)
+		(end 271.78 187.96)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(fill
+			(type none)
+		)
+		(uuid "4cb75e10-762a-4068-8819-3e99fbe1a20a")
+	)
+	(text "05 — MEMORY / GHOST / WET"
+		(exclude_from_sim no)
+		(at 38.1 25.4 0.0000)
+		(effects
+			(font
+				(size 2.54 2.54)
+			)
+		)
+		(uuid "6e3baefb-1450-4cc0-b3f8-af8a6a895da7")
+	)
+	(text "HIERARCHY / INTERFACE CAPTURE ONLY — CIRCUIT CONTENT NOT YET ACCEPTED"
+		(exclude_from_sim no)
+		(at 38.1 33.02 0.0000)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "455af300-8171-4a32-a7a3-438594a415b5")
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

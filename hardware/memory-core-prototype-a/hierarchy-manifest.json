@@ -1,0 +1,429 @@
+{
+  "project": "MerrinGriefSynthMemoryCoreA",
+  "stage": "hierarchy-and-interface-capture",
+  "temporary_interface_harnesses": true,
+  "top_schematic": "MerrinGriefSynthMemoryCoreA.kicad_sch",
+  "return_sheet_allowed_outputs": [
+    "ABSENCE_INFLUENCE",
+    "RETURN_FEED",
+    "RETURN_LIMITED"
+  ],
+  "sheets": [
+    {
+      "code": "01",
+      "title": "POWER / PROTECTION",
+      "filename": "01_POWER_PROTECTION.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_P12",
+          "direction": "output"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "output"
+        },
+        {
+          "name": "RAIL_3V3",
+          "direction": "output"
+        },
+        {
+          "name": "RAIL_5V_CODEC",
+          "direction": "output"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "output"
+        },
+        {
+          "name": "WATCHDOG_HEARTBEAT",
+          "direction": "input"
+        }
+      ]
+    },
+    {
+      "code": "02",
+      "title": "MCU / CLOCK / DEBUG",
+      "filename": "02_MCU_CLOCK_DEBUG.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_3V3",
+          "direction": "input"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_DOUT",
+          "direction": "input"
+        },
+        {
+          "name": "CTRL_I2C_SDA",
+          "direction": "bidirectional"
+        },
+        {
+          "name": "CODEC_MCLK",
+          "direction": "output"
+        },
+        {
+          "name": "CODEC_BCLK",
+          "direction": "output"
+        },
+        {
+          "name": "CODEC_LRCLK",
+          "direction": "output"
+        },
+        {
+          "name": "CODEC_DIN",
+          "direction": "output"
+        },
+        {
+          "name": "CTRL_I2C_SCL",
+          "direction": "output"
+        },
+        {
+          "name": "CODEC_RESET_N",
+          "direction": "output"
+        },
+        {
+          "name": "CODEC_MUTE_N",
+          "direction": "output"
+        },
+        {
+          "name": "SAFE_CONTROL_RELEASE",
+          "direction": "output"
+        },
+        {
+          "name": "WATCHDOG_HEARTBEAT",
+          "direction": "output"
+        },
+        {
+          "name": "STATE_LED_R",
+          "direction": "output"
+        },
+        {
+          "name": "STATE_LED_G",
+          "direction": "output"
+        },
+        {
+          "name": "STATE_LED_B",
+          "direction": "output"
+        },
+        {
+          "name": "STATE_LED_AUX",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "03",
+      "title": "CODEC / CONVERSION",
+      "filename": "03_CODEC_CONVERSION.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_3V3",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_5V_CODEC",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_MCLK",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_BCLK",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_LRCLK",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_DIN",
+          "direction": "input"
+        },
+        {
+          "name": "CTRL_I2C_SCL",
+          "direction": "input"
+        },
+        {
+          "name": "CTRL_I2C_SDA",
+          "direction": "bidirectional"
+        },
+        {
+          "name": "CODEC_RESET_N",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_MUTE_N",
+          "direction": "input"
+        },
+        {
+          "name": "ADC_ANALOG_IN",
+          "direction": "input"
+        },
+        {
+          "name": "CODEC_DOUT",
+          "direction": "output"
+        },
+        {
+          "name": "MEMORY_DAC",
+          "direction": "output"
+        },
+        {
+          "name": "GHOST_DAC",
+          "direction": "output"
+        },
+        {
+          "name": "RETURN_DAC",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "04",
+      "title": "INPUT / PRESSURE / ABSENCE",
+      "filename": "04_INPUT_PRESSURE_ABSENCE.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_P12",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "input"
+        },
+        {
+          "name": "RETURN_FEED",
+          "direction": "input"
+        },
+        {
+          "name": "ABSENCE_INFLUENCE",
+          "direction": "input"
+        },
+        {
+          "name": "DIRECT_PRESENT",
+          "direction": "output"
+        },
+        {
+          "name": "SHAPED_PRESENT",
+          "direction": "output"
+        },
+        {
+          "name": "ADC_ANALOG_IN",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "05",
+      "title": "MEMORY / GHOST / WET",
+      "filename": "05_MEMORY_GHOST_WET.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_P12",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "input"
+        },
+        {
+          "name": "MEMORY_DAC",
+          "direction": "input"
+        },
+        {
+          "name": "GHOST_DAC",
+          "direction": "input"
+        },
+        {
+          "name": "VCA_MEMORY_CTRL",
+          "direction": "input"
+        },
+        {
+          "name": "VCA_GHOST_CTRL",
+          "direction": "input"
+        },
+        {
+          "name": "VCA_WET_CTRL",
+          "direction": "input"
+        },
+        {
+          "name": "WET_MIX",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "06",
+      "title": "RETURN / BREAK / LIMITER",
+      "filename": "06_RETURN_BREAK_LIMITER.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_P12",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "input"
+        },
+        {
+          "name": "RETURN_DAC",
+          "direction": "input"
+        },
+        {
+          "name": "VCA_RETURN_CTRL",
+          "direction": "input"
+        },
+        {
+          "name": "RETURN_LIMITED",
+          "direction": "output"
+        },
+        {
+          "name": "RETURN_FEED",
+          "direction": "output"
+        },
+        {
+          "name": "ABSENCE_INFLUENCE",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "07",
+      "title": "OUTPUT / MUTE / PROTECTION",
+      "filename": "07_OUTPUT_MUTE_PROTECTION.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_P12",
+          "direction": "input"
+        },
+        {
+          "name": "RAIL_N12",
+          "direction": "input"
+        },
+        {
+          "name": "DIRECT_PRESENT",
+          "direction": "input"
+        },
+        {
+          "name": "WET_MIX",
+          "direction": "input"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "input"
+        }
+      ]
+    },
+    {
+      "code": "08",
+      "title": "CONTROLS / STATE / SAFE SELECTOR",
+      "filename": "08_CONTROLS_STATE.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_3V3",
+          "direction": "input"
+        },
+        {
+          "name": "CTRL_I2C_SCL",
+          "direction": "input"
+        },
+        {
+          "name": "CTRL_I2C_SDA",
+          "direction": "bidirectional"
+        },
+        {
+          "name": "SAFE_CONTROL_RELEASE",
+          "direction": "input"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "input"
+        },
+        {
+          "name": "STATE_LED_R",
+          "direction": "input"
+        },
+        {
+          "name": "STATE_LED_G",
+          "direction": "input"
+        },
+        {
+          "name": "STATE_LED_B",
+          "direction": "input"
+        },
+        {
+          "name": "STATE_LED_AUX",
+          "direction": "input"
+        },
+        {
+          "name": "VCA_MEMORY_CTRL",
+          "direction": "output"
+        },
+        {
+          "name": "VCA_GHOST_CTRL",
+          "direction": "output"
+        },
+        {
+          "name": "VCA_RETURN_CTRL",
+          "direction": "output"
+        },
+        {
+          "name": "VCA_WET_CTRL",
+          "direction": "output"
+        }
+      ]
+    },
+    {
+      "code": "09",
+      "title": "TEST / SERVICE",
+      "filename": "09_TEST_SERVICE.kicad_sch",
+      "pins": [
+        {
+          "name": "RAIL_3V3",
+          "direction": "input"
+        },
+        {
+          "name": "HARDWARE_FAULT_N",
+          "direction": "input"
+        },
+        {
+          "name": "SHAPED_PRESENT",
+          "direction": "input"
+        },
+        {
+          "name": "ADC_ANALOG_IN",
+          "direction": "input"
+        },
+        {
+          "name": "RETURN_LIMITED",
+          "direction": "input"
+        },
+        {
+          "name": "RETURN_FEED",
+          "direction": "input"
+        },
+        {
+          "name": "ABSENCE_INFLUENCE",
+          "direction": "input"
+        },
+        {
+          "name": "WET_MIX",
+          "direction": "input"
+        }
+      ]
+    }
+  ],
+  "blocked": [
+    "PCB placement",
+    "PCB routing",
+    "fabrication outputs",
+    "purchasing",
+    "oscillator expansion",
+    "MIDI/CV expansion",
+    "demo media"
+  ]
+}
