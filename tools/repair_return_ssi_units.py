@@ -3,12 +3,13 @@
 
 The pinned schematic API currently mirrors the Y coordinate of pins from
 project-local multi-unit symbols when `Component.get_pin_position()` is used.
-This script corrects the four channel-3/power-unit attachments using the known
+This script corrects the channel-3/power-unit attachments using the known
 symbol geometry and places channels 1, 2 and 4 as explicit reserved units.
 Those reserved units are removed/replaced by real wet circuitry when sheet 05
 is captured.
 """
 
+import re
 from pathlib import Path
 
 import kicad_sch_api as ksa
@@ -19,20 +20,36 @@ SYMBOL_LIBRARY = ROOT / "MerrinLab_PrototypeA.kicad_sym"
 LIB_ID = "MerrinLab_PrototypeA:SSI2164S_APPLICATION"
 
 # Corrections use actual KiCad pin coordinates for the custom symbol:
-# actual_y = component_y - local_symbol_y.
-TEXT_REPLACEMENTS = {
-    '(label "SSI_IIN3"\n\t\t(at 81.28 93.98 0)':
-        '(label "SSI_IIN3"\n\t\t(at 81.28 88.9 0)',
-    '(label "SSI_IOUT3"\n\t\t(at 101.6 93.98 0)':
-        '(label "SSI_IOUT3"\n\t\t(at 101.6 88.9 0)',
-    '(label "GND"\n\t\t(at 81.28 127.0 0)':
-        '(label "GND"\n\t\t(at 81.28 132.08 0)',
-    '(label "RAIL_P12"\n\t\t(at 101.6 132.08 0)':
-        '(label "RAIL_P12"\n\t\t(at 101.6 127.0 0)',
-    '(label "RAIL_N12"\n\t\t(at 101.6 127.0 0)':
-        '(label "RAIL_N12"\n\t\t(at 101.6 132.08 0)',
-    '(no_connect\n\t\t(at 81.28 132.08)':
-        '(no_connect\n\t\t(at 81.28 127.0)',
+# actual_y = component_y - local_symbol_y. Patterns tolerate KiCad's equivalent
+# integer/decimal serialisation, such as 127 and 127.0.
+STRUCTURAL_REPAIRS = (
+    (
+        r'(\(label "SSI_IIN3"\s+\(at 81\.28 )93\.98( 0\))',
+        r'\g<1>88.9\g<2>',
+    ),
+    (
+        r'(\(label "SSI_IOUT3"\s+\(at 101\.6 )93\.98( 0\))',
+        r'\g<1>88.9\g<2>',
+    ),
+    (
+        r'(\(label "GND"\s+\(at 81\.28 )127(?:\.0)?( 0\))',
+        r'\g<1>132.08\g<2>',
+    ),
+    (
+        r'(\(label "RAIL_P12"\s+\(at 101\.6 )132\.08( 0\))',
+        r'\g<1>127\g<2>',
+    ),
+    (
+        r'(\(label "RAIL_N12"\s+\(at 101\.6 )127(?:\.0)?( 0\))',
+        r'\g<1>132.08\g<2>',
+    ),
+    (
+        r'(\(no_connect\s+\(at 81\.28 )132\.08(\))',
+        r'\g<1>127\g<2>',
+    ),
+)
+
+VALUE_REPLACEMENTS = {
     '"SSI2164 RETURN CH3"': '"SSI2164"',
     '"SSI2164 POWER"': '"SSI2164"',
 }
@@ -53,16 +70,25 @@ def actual_pin_position(position, side, row):
     return (round(x, 2), round(y, 2))
 
 
+def apply_one_regex(text, pattern, replacement):
+    repaired, count = re.subn(pattern, replacement, text, count=1)
+    if count != 1:
+        raise RuntimeError(f"Expected one structural SSI repair target, found {count}: {pattern!r}")
+    return repaired
+
+
 def replace_exact(text, old, new):
     count = text.count(old)
     if count != 1:
-        raise RuntimeError(f"Expected one exact SSI repair target, found {count}: {old!r}")
+        raise RuntimeError(f"Expected one SSI value repair target, found {count}: {old!r}")
     return text.replace(old, new, 1)
 
 
 def main():
     text = SHEET_FILE.read_text(encoding="utf-8")
-    for old, new in TEXT_REPLACEMENTS.items():
+    for pattern, replacement in STRUCTURAL_REPAIRS:
+        text = apply_one_regex(text, pattern, replacement)
+    for old, new in VALUE_REPLACEMENTS.items():
         text = replace_exact(text, old, new)
     SHEET_FILE.write_text(text, encoding="utf-8")
 
