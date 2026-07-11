@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate current V5.2 native-capture authority before or after sheet 09."""
+"""Validate current V5.2 native-capture authority before or after final review."""
 
 from __future__ import annotations
 
@@ -22,7 +22,14 @@ CAPTURED_BASE = (
 
 def main() -> None:
     manifest = json.loads((ROOT / "hierarchy-manifest.json").read_text(encoding="utf-8"))
-    assert manifest["stage"] == "hierarchy-and-interface-capture"
+    stage = manifest["stage"]
+    assert stage in {
+        "hierarchy-and-interface-capture",
+        "component-capture-complete",
+    }, stage
+    if stage == "component-capture-complete":
+        assert manifest["temporary_interface_harnesses"] is False
+        assert manifest["component_sheets_captured"] is True
     assert len(manifest["sheets"]) == 9
     assert {sheet["code"] for sheet in manifest["sheets"]} == {
         f"{number:02d}" for number in range(1, 10)
@@ -59,7 +66,9 @@ def main() -> None:
     assert (ROOT / "MerrinLab_PrototypeA.kicad_sym").exists()
     assert (ROOT / "sym-lib-table").exists()
 
-    if (ROOT / "09_TEST_SERVICE_CAPTURED").exists():
+    if (ROOT / "00_TOP_FINAL_REVIEW_COMPLETE").exists():
+        print("Current schematic authority: final top review artifact present: PASS")
+    elif (ROOT / "09_TEST_SERVICE_CAPTURED").exists():
         print("Current schematic authority: all nine component sheets captured: PASS")
     else:
         print("Current schematic authority: eight captured sheets and sheet 09 scaffold: PASS")
