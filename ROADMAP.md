@@ -2,169 +2,253 @@
 
 Merrin Grief Synth should stay small and specific.
 
-Its current browser job is complete: a browser-first emotional Web Audio proof-of-voice for one voice, **Constrained Grief**.
+The browser instrument is the accepted proof-of-voice and control reference for **Constrained Grief**.
 
-The browser synth is the reference instrument.
-
-The long-term goal is a real circuit-board synth.
+The final destination is a real circuit-board synth.
 
 ```text
 Browser version = proof-of-voice / control reference.
 Hardware version = final destination.
 ```
 
-The next lane is not final demo media.
+## Completed browser-reference work
 
-The next lane is to make the browser reference clean enough to translate into hardware.
+### v3.8 — Voice and MIDI reference complete
 
-## Current release
+- Constrained Grief voice identity
+- on-screen keyboard
+- computer keyboard input
+- MIDI keyboard input
+- MIDI diagnostics and raw monitor tools
+- duplicate MIDI filtering
+- Shape / Sub / Overtone / Drift
+- Tone / Fade / Echo / Amplitude
+- Scale / Glide / Weight / Wither
+- functional oscilloscope
+- safe release and MIDI panic behaviour
 
-### v3.8 — complete
+### v4.0 — Whole-instrument definition complete
 
-- Browser synth demo.
-- Constrained Grief voice identity.
-- On-screen keyboard.
-- Computer keyboard input.
-- MIDI keyboard input.
-- MIDI diagnostics and raw monitor tools.
-- Diagnostics visibility toggle.
-- Duplicate MIDI filtering.
-- Shape glide fixed.
-- README and release polish docs.
-
-## Active implementation lane
-
-### v4.1 — Performance / advanced layout separation
-
-Status: PR open.
+- browser reference separated from final hardware goal
+- final destination corrected to circuit-board synth
+- performance controls separated conceptually from diagnostics
+- no final demo media authorised
 
 Spec documents:
 
 - [V4.0 — Whole Synth Build Spec](docs/whole-synth-build-spec-v4.0.md)
 - [V4.0 — Whole Synth Definition Pass](docs/v4.0-whole-synth-definition-pass.md)
+
+### v4.1 — Performance / advanced layout separation complete
+
+- public performance surface shown first
+- panic/release remains visible
+- MIDI connection/status remains visible
+- effect tests, Wither delay, and diagnostics moved into advanced/test area
+- no sound-engine changes
+- no demo media
+- project goal corrected in the repo
+
+Spec document:
+
 - [V4.1 — Performance / Advanced Layout Separation](docs/v4.1-performance-advanced-layout.md)
+
+## Active lane
+
+### v5.0 — Hardware Translation Spec
+
+Status: draft in progress.
+
+Spec documents:
+
+- [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
+- [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
 
 Purpose:
 
-- Keep Merrin Voice 01 / Constrained Grief as the proven foundation.
-- Treat the browser synth as the accepted proof-of-voice and control reference.
-- Make the performance surface clear before hardware translation.
-- Move browser/test/diagnostic controls into an advanced/test layer.
-- Protect the project from becoming a general-purpose synth.
-- Prepare for a later hardware translation spec.
+- translate the accepted browser reference into a circuit-board synth architecture
+- preserve Merrin Voice 01 / Constrained Grief identity
+- reconcile the established `Scale → Tone → Envelope → Room → Memory` canon with the newer hardware-heart decision
+- lock the analogue / digital / hybrid split
+- lock the Memory / Ghost / Return interaction
+- define Absence, Pressure, and Break as hardware behaviours
+- lock SMD-first electronic construction
+- define the first prototype boundary
+- define the next circuit-design lane
 
-V4.1 is layout/clarity work only.
+## Locked V5.0 direction
 
-Allowed:
-
-- separate performance layer from advanced/test layer
-- keep panic/release visible
-- keep MIDI connection/status visible
-- keep diagnostics available but advanced
-- preserve current sound behaviour
-- clarify browser-reference / hardware-destination status in docs
-
-Not allowed:
-
-- final demo media
-- fake demo media
-- new synth controls
-- new sound behaviour
-- sequencer work
-- plugin work
-- VCV Rack work
-- MIDI output work
-- general-purpose synth expansion
-- DBHT-1 expansion work
-- M A C controller work
-- PCB layout
-- schematic design
-- part selection
-- BOM
-- KiCad files
-- hardware expansion work
-
-## Next likely lane after V4.1
-
-Only after V4.1 is accepted, the next real lane is:
+The hardware direction is hybrid.
 
 ```text
-V5.0 — Hardware Translation Spec
+Analogue present path
++
+shared digital Memory / Ghost / Return core
++
+analogue nonlinear Return and safety path
 ```
 
-V5.0 should translate the accepted browser reference into a circuit-board synth architecture.
+The defining heart is:
 
-V5.0 should decide:
+```text
+MEMORY
+GHOST
+RETURN
+```
 
-- analogue / digital / hybrid split
-- voice block architecture
-- control scanning / MIDI / CV handling
-- panel controls
-- safety/reset behaviour
-- LED/state behaviour using SLS-1
-- panel/layout behaviour using HIL-1
+Support states/blocks:
+
+```text
+ABSENCE
+PRESSURE
+BREAK
+```
+
+Oscillators and quantisation are secondary support systems.
+
+They must not be built before the grief engine is proven.
+
+## Locked construction method
+
+Merrin Grief Synth circuit boards are SMD-first.
+
+```text
+Electronic circuitry = surface mount by default.
+Panel/mechanical hardware = through-hole where appropriate.
+```
+
+Through-hole exceptions may include:
+
+- potentiometers
+- jacks
+- switches
+- encoders
+- power and board connectors
+- programming/service headers
+- test points
+- mechanically stressed parts
+- parts not reasonably available in SMD
+
+Exact SMD packages remain deferred until component and schematic selection.
+
+The later design should favour practical, inspectable, repairable SMD packages rather than unnecessarily tiny parts.
+
+## First hardware prototype
+
+```text
+Memory Core Prototype A
+```
+
+Prototype A uses external audio as the Present signal.
+
+Its job is to prove:
+
+- Memory retains and degrades sound
+- Ghost is derived from Memory and feels thin/detached
+- Return alters future Memory behaviour
+- Return influences Absence
+- Pressure and Break create controlled damage
+- feedback and reset remain safe
+
+Prototype A is an SMD-first hardware design.
+
+Temporary development headers, panel controls, and jacks may be through-hole, but the signal-processing and control circuitry must target SMD implementation.
+
+Prototype A is not the final synth, oscillator board, final panel, or production PCB.
+
+## V5.0 allowed work
+
+- functional architecture
+- analogue/digital boundaries
+- signal-flow definition
+- control-language translation
+- SLS-1 state-light requirements
+- HIL-1 panel-layout requirements
+- SMD-first construction rules
+- safety/reset requirements
 - prototype boundary
-- first-board scope
+- acceptance tests
 
-V5.0 should not start by opening KiCad.
+## V5.0 forbidden work
 
-## Later finish-demo lane
+- KiCad
+- schematic capture
+- PCB layout
+- processor or component selection
+- exact footprint/package selection
+- BOM
+- hardware shopping
+- oscillator-board design
+- final enclosure design
+- demo media
+- DBHT-1 expansion
+- M A C work
+- VST or VCV work
+- sequencer work
+- presets
+- recording/export
 
-A real audio/video demo belongs after the reference/hardware stage is honest.
+## Next lane after V5.0 acceptance
 
-Do not record or commit final demo media while the project is still in browser-reference cleanup or hardware translation.
+```text
+V5.1 — Memory Core Prototype A circuit-block design
+```
 
-The later finish-demo lane may include:
+V5.1 should define:
 
-- real audio/video demo recording
-- browser reference walkthrough if clearly labelled as reference
-- hardware prototype demo once hardware exists
-- screenshot or GIF
-- release page
-- final public portfolio text
-- GitHub Release and tag
+- detailed block boundaries
+- signal levels
+- gain staging
+- conversion boundaries
+- Return safety path
+- reset/mute path
+- test points
+- bench acceptance procedure
+- SMD-oriented circuit partitioning
 
-The demo must not make a browser reference look like a finished hardware instrument.
+V5.1 still should not begin PCB layout.
 
-## Future tracks
+Schematic design follows only after the circuit-block design is accepted.
 
-Each of these should be treated as a separate project or issue lane, not mixed into the current browser reference cleanup or the hardware translation spec.
+## Later lanes
 
-### Possible browser reference polish
+### Internal voice-source translation
 
-- Add a clearer beginner "how to play" section.
-- Review mobile/tablet display without promising MIDI support there.
-- Preserve current sound behaviour.
-- Keep the page honest that it is a reference instrument.
+Only after Memory Core Prototype A proves the grief engine:
 
-### Possible sample pack
+- translate constrained Scale behaviour
+- translate Tone / Shape / Sub / Overtone
+- translate Glide / Drift
+- translate Fade / Wither and the Lingering Voice envelope
+- decide how the internal voice joins the Present input
 
-- Record a small set of Constrained Grief notes and phrases.
-- Export labelled WAV files.
-- Keep it as an audio asset project, not a synth-code expansion.
+### Physical format decision
 
-This belongs after the reference direction is stable.
+Do not decide final packaging before prototype evidence.
 
-### Possible VST concept
+Later options may be evaluated against the evidence:
 
-- Document required controls.
-- Define the minimum viable plugin version.
-- Do not start until the browser reference, whole-synth scope, and hardware direction remain stable.
+- integrated desktop instrument
+- core voice plus separate effects
+- linked Eurorack boards/modules
 
-### Possible VCV Rack concept
+### Finish-demo lane
 
-- Define a small module identity.
-- Keep it emotion-shaped rather than general modular feature creep.
+Do not record final demo media during hardware translation.
 
-## Explicit non-goals for the current browser reference
+A later demo must be labelled honestly as either:
 
-- Becoming a general-purpose synth.
-- Adding presets.
-- Adding sequencer behaviour.
-- Adding recording features.
-- Adding MIDI output.
-- Adding pitch bend or modulation wheel.
-- Adding channel routing.
-- Adding plugin framework work.
-- Adding more sound controls just because they are possible.
-- Pretending the browser reference is the final circuit-board synth.
+- browser reference demonstration, or
+- hardware prototype demonstration
+
+It must not present the browser reference as the finished circuit-board instrument.
+
+## Permanent non-goals
+
+- becoming a general-purpose synth
+- adding features because they are technically possible
+- hiding important behaviour behind menus
+- presets before the instrument behaviour is stable
+- sequencer expansion
+- unrelated plugin frameworks
+- allowing the oscillator to become more important than Memory / Ghost / Return
