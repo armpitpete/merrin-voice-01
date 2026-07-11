@@ -16,18 +16,15 @@ Hardware version = final destination.
 ### v3.8 — Voice and MIDI reference complete
 
 - Constrained Grief voice identity
-- on-screen keyboard
-- computer keyboard input
-- MIDI keyboard input
-- diagnostics and safe panic/release behaviour
+- keyboard and MIDI input
 - accepted emotional control language
+- diagnostics and safe panic/release behaviour
 - functional oscilloscope
 
 ### v4.0 — Whole-instrument definition complete
 
 - browser reference separated from final hardware goal
 - final destination corrected to circuit-board synth
-- performance controls separated conceptually from diagnostics
 - no final demo media authorised
 
 Documents:
@@ -37,11 +34,9 @@ Documents:
 
 ### v4.1 — Performance / advanced layout separation complete
 
-- public performance surface shown first
-- panic/release and MIDI status remain visible
+- performance surface shown first
 - test and diagnostic controls moved into an advanced area
 - no sound-engine changes
-- no demo media
 
 Document:
 
@@ -51,7 +46,7 @@ Document:
 
 ### v5.0 — Hardware Translation Spec complete
 
-The hardware direction is locked as:
+Locked architecture:
 
 ```text
 Analogue Present path
@@ -61,7 +56,7 @@ shared digital Memory / Ghost / Return core
 analogue nonlinear Return and safety path
 ```
 
-The defining heart is:
+Locked hardware heart:
 
 ```text
 MEMORY
@@ -79,159 +74,235 @@ BREAK
 
 V5.0 also locked:
 
-- Memory Core Prototype A as the first hardware build
-- external audio as the Prototype A Present source
-- oscillator and quantizer work deferred
-- SMD-first electronic construction
-- through-hole mechanical exceptions only where appropriate
-- Thonkiconn-family 3.5 mm PCB-mount jacks as the default audio/CV connector
-- exact components, packages, jack variants, and footprints deferred
-- SLS-1 state-light requirements
-- HIL-1 layout requirements
-- no schematic or PCB work in V5.0
+- Memory Core Prototype A first
+- external audio as Prototype A Present
+- oscillator/quantizer deferred
+- SMD-first electronics
+- Thonkiconn-family 3.5 mm audio/CV jacks
+- SLS-1 state indication
+- HIL-1 layout rules
 
 Documents:
 
 - [V5.0 — Hardware Translation Spec](docs/v5.0-hardware-translation-spec.md)
 - [V5.0 — SMD Construction Rule](docs/v5.0-smd-construction-rule.md)
 
-## Active lane
+### v5.1 — Memory Core Prototype A circuit-block design complete
 
-### v5.1 — Memory Core Prototype A circuit-block design
+V5.1 locked:
 
-Status: draft in review branch.
+- Memory captures shaped Present after Pressure and Absence
+- direct analogue Present bypasses the digital core
+- one mono ADC ingress
+- three DAC outputs: Memory, Ghost, Return send
+- Return path must pass through Break, analogue Return shaping, and a hard limiter
+- only limited Return may re-enter Memory or influence Absence
+- signal-level and gain-staging targets
+- boot/reset/mute/fault behaviour
+- required test points
+- SMD-oriented functional zones
+- bench acceptance procedure
 
 Document:
 
 - [V5.1 — Memory Core Prototype A Circuit-Block Design](docs/v5.1-memory-core-prototype-a-circuit-block-design.md)
 
-Purpose:
+## Active lane
 
-- define detailed functional blocks
-- define signal direction and capture points
-- define signal-level targets
-- define gain staging
-- define ADC/DAC functional boundaries
-- define Return safety and bounded feedback
-- define boot/reset/mute/fault behaviour
-- define test points
-- define SMD-oriented functional zones
-- define Thonkiconn audio-jack roles
-- define bench acceptance tests
+### v5.2 — Prototype A component architecture
 
-## Locked V5.1 refinement
+Status: component architecture and schematic-sheet plan in review branch.
 
-Memory captures the shaped Present signal after Pressure and Absence.
+Documents:
+
+- [V5.2 — Prototype A Component Architecture](docs/v5.2-prototype-a-component-architecture.md)
+- [V5.2 — Prototype A Schematic Sheet Plan](docs/v5.2-prototype-a-schematic-sheet-plan.md)
+
+## Locked V5.2 major components
+
+| Function | Selection | Package target |
+|---|---|---|
+| MCU | STM32H743VIT6 | LQFP-100 |
+| Audio converter | PCM3168A | HTQFP-64 |
+| General audio op amp | OPA1679 | TSSOP-14 |
+| Quad VCA | SSI2164 | SOP-16 |
+| VCA control DAC | MCP4728 | MSOP-10 |
+| 3.3 V supervisor | TPS3808G33 | SOT-23-6 |
+| External watchdog | TPS3431 | VSON-8 |
+| 5 V pre-regulator | TPS62160 | VSSOP-8 |
+| 3.3 V regulator | TPS62160 | VSSOP-8 |
+| Quiet codec LDO | TPS7A2050 | SOT-23-5 |
+| Audio jacks | WQP518MA Thonkiconn | Through-hole PCB mount |
+| Default passives | 0805 | 0805 |
+
+0603 passives are allowed only where dense local circuitry makes 0805 impractical.
+
+## Locked digital architecture
 
 ```text
-Raw input
-  ↓
-Pressure
-  ↓
-Absence
-  ↓
-Shaped Present
-  ├── direct analogue Present path
-  └── Memory-input summing node
+48 kHz audio
+24-bit PCM3168A conversion
+32-bit MCU processing
+2.0-second mono circular history
+384,000-byte main history buffer
+internal MCU SRAM only
 ```
 
-Limited Return re-enters only through the Memory-input summing node.
+Ghost and Return derive from the same retained history.
 
-Raw Return may not bypass:
+No external SDRAM, PSRAM, sample storage, filesystem, presets, USB audio, or MIDI are included in Prototype A.
 
-```text
-Break
-↓
-analogue Return nonlinearity
-↓
-hard Return limiter
-```
-
-## V5.1 signal targets
-
-Prototype A targets:
-
-- expected external input range of approximately 0.2–10 Vpp after trim
-- non-damaging input survival within ±12 V at the jack
-- 2 Vpp nominal internal analogue audio
-- at least 6 Vpp internal headroom before unintended clipping
-- approximately −12 dBFS nominal converter ingress
-- below −3 dBFS converter peak target before intended limiting
-- approximately 2 Vpp nominal output
-- no more than 10 Vpp maximum normal output
-- approximately 0.85 maximum normal small-signal Return loop gain
-- bounded complete Return behaviour at every valid setting
-
-These are prototype design targets, not final production-format claims.
-
-## V5.1 functional conversion channels
-
-The design requires:
+## Locked conversion architecture
 
 ```text
-1 functional mono ADC ingress
-3 functional DAC outputs:
+1 codec ADC channel:
+  shaped Present + limited Return
+
+3 codec DAC channels:
   Memory
   Ghost
   Return send
 ```
 
-The exact converter device count and architecture remain deferred.
+The STM32 is audio clock master.
 
-## V5.1 safety rules
+Preferred clock targets:
 
-- direct Present bypasses the digital core
-- boot begins with wet and Return paths muted
-- reset forces Return to zero before clearing Memory
-- core fault forces ERROR-MUTED
-- hard Return limiting remains active independently of normal DSP behaviour
-- final output remains independently controllable
-- no path may bypass the Return limiter
+- 48 kHz LRCLK
+- 12.288 MHz BCLK for eight 32-bit TDM slots
+- 24.576 MHz MCLK, subject to final codec clock-mode verification
 
-## V5.1 allowed work
+## Locked analogue-control architecture
 
-- circuit-block architecture
-- interface and level targets
-- functional conversion-channel count
-- safety logic
-- test-point requirements
-- bench procedure
-- SMD-oriented circuit partitioning
-- jack-role definition
+SSI2164 channel allocation:
 
-## V5.1 forbidden work
+| Channel | Function |
+|---|---|
+| 1 | Memory level |
+| 2 | Ghost level |
+| 3 | Return level |
+| 4 | wet master / hardware attenuation |
 
-- exact component selection
-- processor, ADC, DAC, or codec selection
-- resistor/capacitor values
-- exact SMD packages
-- exact Thonkiconn variant or footprint
-- schematic capture
-- KiCad project creation
-- PCB placement or routing
-- BOM
-- purchasing
-- oscillator work
-- MIDI/CV expansion
-- final panel/enclosure work
-- demo media
+MCP4728 supplies normal-operation VCA control voltages.
 
-## Next lane after V5.1 acceptance
+A separate hardware clamp must force all wet/Return VCA paths to maximum safe attenuation during:
+
+- power-up
+- reset
+- codec fault
+- MCU fault
+- watchdog fault
+
+Firmware and stored DAC values cannot override the hardware clamp.
+
+## Locked power architecture
+
+Prototype A accepts protected ±12 V rails.
 
 ```text
-V5.2 — Prototype A schematic and component-selection lane
++12 V → TPS62160 ≈5.5 V → TPS7A2050 → quiet 5 V codec analogue
++12 V → TPS62160 → 3.3 V digital
+±12 V direct → OPA1679 / SSI2164 / analogue signal path
 ```
 
-V5.2 may:
+This is a prototype electrical choice, not a final enclosure-format decision.
 
-- select active and passive parts
-- select practical SMD packages
-- select exact Thonkiconn variants and verified footprints
-- select converter and control architecture
-- capture the schematic
-- run ERC and schematic-stage checks
+## Exact audio jack
 
-V5.2 must not begin PCB placement or routing until the schematic, Return safety paths, and ERC results are accepted.
+Prototype A uses:
+
+```text
+WQP518MA Thonkiconn
+```
+
+- J1 AUDIO IN
+- J2 AUDIO OUT
+
+Switched contacts, symbol pins, footprint, panel axis, and mechanical clearances must be checked against the current manufacturer drawing before PCB routing.
+
+## V5.2 schematic hierarchy
+
+```text
+00_TOP
+├── 01_POWER_PROTECTION
+├── 02_MCU_CLOCK_DEBUG
+├── 03_CODEC_CONVERSION
+├── 04_INPUT_PRESSURE_ABSENCE
+├── 05_MEMORY_GHOST_WET
+├── 06_RETURN_BREAK_LIMITER
+├── 07_OUTPUT_MUTE_PROTECTION
+├── 08_CONTROLS_STATE
+└── 09_TEST_SERVICE
+```
+
+The Return sheet may export only:
+
+```text
+RETURN_LIMITED
+ABSENCE_INFLUENCE
+```
+
+Raw DAC Return, Break output, and nonlinear Return may not connect to the Memory-input summing node.
+
+## V5.2 allowed work
+
+- major component selection
+- practical SMD package targets
+- clock/sample-rate architecture
+- buffer/resource budget
+- power architecture
+- watchdog/supervisor architecture
+- jack variant selection
+- hierarchical schematic planning
+- schematic capture
+- ERC and schematic review
+
+## V5.2 forbidden work
+
+- PCB placement
+- PCB routing
+- fabrication files
+- purchasing
+- production pricing
+- oscillator work
+- MIDI/CV/keyboard expansion
+- display/preset/sequencer work
+- final panel/enclosure design
+- demo media
+
+## Remaining V5.2 decisions during schematic capture
+
+- exact HSE crystal/oscillator
+- exact protection parts
+- exact passive values
+- regulator inductors and compensation
+- exact nonlinear Break/Return devices
+- final OPA1679 count
+- exact power connector
+- verified symbols and footprints
+- ERC exceptions, if any
+
+These may be decided only when they preserve the accepted V5.1 behaviour.
+
+## Current stop point
+
+```text
+Review and accept the V5.2 component architecture.
+```
+
+After acceptance, the next task inside V5.2 is:
+
+```text
+Create the hierarchical Prototype A schematic.
+```
+
+PCB placement and routing remain blocked until:
+
+- schematic is complete
+- ERC passes
+- Return safety is independently reviewed
+- component packages are verified
+- WQP518MA footprint and panel alignment are verified
 
 ## Later lanes
 
@@ -239,50 +310,34 @@ V5.2 must not begin PCB placement or routing until the schematic, Return safety 
 
 Only after accepted schematic and ERC:
 
-- PCB placement
-- routing
+- PCB placement and routing
 - ground/reference implementation
 - panel alignment
-- design-rule checking
+- DRC
 - fabrication outputs
 
-### Internal voice-source translation
+### Internal voice source
 
 Only after Memory Core Prototype A proves the grief engine:
 
-- constrained Scale behaviour
+- constrained Scale
 - Tone / Shape / Sub / Overtone
 - Glide / Drift
-- Fade / Wither and the Lingering Voice envelope
+- Fade / Wither
 - internal voice integration into Present
-
-### Physical format decision
-
-Do not lock final packaging before prototype evidence.
-
-Possible later formats:
-
-- integrated desktop instrument
-- core voice plus separate effects
-- linked Eurorack boards/modules
 
 ### Finish-demo lane
 
-Do not record final demo media during architecture, circuit-block, schematic, or PCB work.
+No final demo media during component, schematic, or PCB work.
 
-A later demo must be labelled honestly as either:
-
-- browser reference demonstration, or
-- hardware prototype demonstration
-
-It must not present the browser reference as the finished circuit-board instrument.
+A later demo must be honestly labelled as browser reference or hardware prototype.
 
 ## Permanent non-goals
 
-- becoming a general-purpose synth
-- adding features because they are possible
-- hiding important behaviour behind menus
+- general-purpose synth expansion
+- feature accumulation
+- hidden menu dependence
 - presets before behaviour is stable
 - sequencer expansion
-- unrelated plugin frameworks
+- unrelated plugin work
 - allowing the oscillator to become more important than Memory / Ghost / Return
