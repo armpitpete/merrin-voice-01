@@ -1,0 +1,116 @@
+name: KiCad current schematic stage authority
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "hardware/**"
+      - "tools/validate_current_schematic_stage.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
+      - ".github/workflows/kicad-current-stage-authority.yml"
+  pull_request:
+    paths:
+      - "hardware/**"
+      - "tools/validate_current_schematic_stage.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - "tools/validate_output_control_symbols.py"
+      - ".github/workflows/kicad-current-stage-authority.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  current-stage-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pinned schematic parser
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+
+      - name: Validate current stage and shared devices
+        run: |
+          python tools/validate_current_schematic_stage.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_output_mute_protection_capture.py
+          python tools/validate_output_control_symbols.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          docker pull "$KICAD_IMAGE"
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt \
+              hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch
+          cat build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt
+
+      - name: Enforce current-stage ERC authority
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          if errors:
+              raise SystemExit(f'Current schematic authority has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET',
+              '06 RETURN / BREAK / LIMITER',
+              '07 OUTPUT / MUTE / PROTECTION',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} retains temporary isolated labels')
+
+          print(f'Current schematic authority: PASS — 0 errors, {warnings} sheet-09 scaffold warning(s)')
+          PY
+
+      - name: Upload ERC evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-schematic-stage-erc
+          path: build/erc
+          if-no-files-found: error
