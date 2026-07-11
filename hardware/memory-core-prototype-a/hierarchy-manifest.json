@@ -1,7 +1,7 @@
 {
   "project": "MerrinGriefSynthMemoryCoreA",
-  "stage": "hierarchy-and-interface-capture",
-  "temporary_interface_harnesses": true,
+  "stage": "component-capture-complete",
+  "temporary_interface_harnesses": false,
   "top_schematic": "MerrinGriefSynthMemoryCoreA.kicad_sch",
   "return_sheet_allowed_outputs": [
     "ABSENCE_INFLUENCE",
@@ -565,5 +565,6 @@
       "HARDWARE_FAULT_N"
     ],
     "scope": "06_RETURN_BREAK_LIMITER only"
-  }
+  },
+  "component_sheets_captured": true
 }

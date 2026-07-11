@@ -5534,7 +5534,7 @@
 		(uuid "a9ec1ac3-4ee3-4276-a35d-7818e176925f")
 	)
 	(hierarchical_label "DIRECT_PRESENT"
-		(shape input)
+		(shape output)
 		(at 391.16 30.48 0.0000)
 		(effects
 			(font
@@ -5545,7 +5545,7 @@
 		(uuid "1f0a3554-cb31-42d0-a63b-4a6033a20796")
 	)
 	(hierarchical_label "SHAPED_PRESENT"
-		(shape input)
+		(shape output)
 		(at 391.16 49.53 0.0000)
 		(effects
 			(font
@@ -5556,7 +5556,7 @@
 		(uuid "780890b0-35b0-4cc3-b12e-ad09fe23fcea")
 	)
 	(hierarchical_label "ADC_ANALOG_IN"
-		(shape input)
+		(shape output)
 		(at 391.16 68.58 0.0000)
 		(effects
 			(font

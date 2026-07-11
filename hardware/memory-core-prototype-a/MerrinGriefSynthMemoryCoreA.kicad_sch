@@ -6,7 +6,7 @@
 	(paper "A3")
 	(title_block
 		(title "Merrin Grief Synth — Memory Core Prototype A")
-		(rev "V5.2 native hierarchy capture")
+		(rev "V5.2 integrated schematic review")
 		(company "MerrinLab")
 	)
 	(lib_symbols)
@@ -1140,7 +1140,7 @@
 		)
 		(uuid "2fc6033a-4a4f-47b6-857a-4a2183c2e6ef")
 	)
-	(text "Hierarchy/interface capture. Detailed circuits replace temporary harnesses sheet by sheet."
+	(text "All nine component sheets captured. Final integrated interface and ERC review."
 		(exclude_from_sim no)
 		(at 20.32 15.24 0.0000)
 		(effects

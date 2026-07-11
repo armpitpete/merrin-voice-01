@@ -7110,7 +7110,7 @@
 		(uuid "ea172459-123a-4f74-ab2c-cd0b33ecec1d")
 	)
 	(hierarchical_label "RAIL_P12"
-		(shape input)
+		(shape output)
 		(at 391.16 43.18 0.0000)
 		(effects
 			(font
@@ -7121,7 +7121,7 @@
 		(uuid "bffc71ae-4820-4660-b72d-bba72e51b5d7")
 	)
 	(hierarchical_label "RAIL_N12"
-		(shape input)
+		(shape output)
 		(at 391.16 50.8 0.0000)
 		(effects
 			(font
@@ -7132,7 +7132,7 @@
 		(uuid "41d9638d-1b33-4b1e-b90c-6c19d3cf7221")
 	)
 	(hierarchical_label "RAIL_3V3"
-		(shape input)
+		(shape output)
 		(at 391.16 58.42 0.0000)
 		(effects
 			(font
@@ -7143,7 +7143,7 @@
 		(uuid "58d656d7-465b-48b2-9821-32a1468ba5ea")
 	)
 	(hierarchical_label "RAIL_5V_CODEC"
-		(shape input)
+		(shape output)
 		(at 391.16 66.04 0.0000)
 		(effects
 			(font
@@ -7154,7 +7154,7 @@
 		(uuid "5a96dd0a-e84e-4f6f-b964-c1e5183cad58")
 	)
 	(hierarchical_label "HARDWARE_FAULT_N"
-		(shape input)
+		(shape output)
 		(at 391.16 73.66 0.0000)
 		(effects
 			(font

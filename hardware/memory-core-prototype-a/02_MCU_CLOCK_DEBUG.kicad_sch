@@ -7094,7 +7094,7 @@
 		(uuid "1541f179-de2f-47fd-976b-23badedb2dff")
 	)
 	(hierarchical_label "CTRL_I2C_SDA"
-		(shape input)
+		(shape bidirectional)
 		(at 20.32 49.53 0.0000)
 		(effects
 			(font
@@ -7226,7 +7226,7 @@
 		(uuid "602b8c11-7a5c-48b5-a42a-a28d1ceeb549")
 	)
 	(hierarchical_label "CODEC_MCLK"
-		(shape input)
+		(shape output)
 		(at 391.16 30.48 0.0000)
 		(effects
 			(font
@@ -7237,7 +7237,7 @@
 		(uuid "3f027830-d712-4e38-b755-816ad69ea07f")
 	)
 	(hierarchical_label "CODEC_BCLK"
-		(shape input)
+		(shape output)
 		(at 391.16 36.83 0.0000)
 		(effects
 			(font
@@ -7248,7 +7248,7 @@
 		(uuid "744fa135-5cbe-43ed-9ac1-1707dade3fd0")
 	)
 	(hierarchical_label "CODEC_LRCLK"
-		(shape input)
+		(shape output)
 		(at 391.16 43.18 0.0000)
 		(effects
 			(font
@@ -7259,7 +7259,7 @@
 		(uuid "3c155624-e57b-4460-92ff-34f5767af0f9")
 	)
 	(hierarchical_label "CODEC_DIN"
-		(shape input)
+		(shape output)
 		(at 391.16 49.53 0.0000)
 		(effects
 			(font
@@ -7270,7 +7270,7 @@
 		(uuid "4500aad7-6d1e-4603-af25-9bcd60508876")
 	)
 	(hierarchical_label "CTRL_I2C_SCL"
-		(shape input)
+		(shape output)
 		(at 391.16 55.88 0.0000)
 		(effects
 			(font
@@ -7281,7 +7281,7 @@
 		(uuid "b0132941-907d-4feb-a84b-4f186698944b")
 	)
 	(hierarchical_label "CODEC_RESET_N"
-		(shape input)
+		(shape output)
 		(at 391.16 62.23 0.0000)
 		(effects
 			(font
@@ -7292,7 +7292,7 @@
 		(uuid "39fb7212-608a-4bc4-9807-2cdbee7550c4")
 	)
 	(hierarchical_label "CODEC_MUTE_N"
-		(shape input)
+		(shape output)
 		(at 391.16 68.58 0.0000)
 		(effects
 			(font
@@ -7303,7 +7303,7 @@
 		(uuid "c75258ba-722b-46c8-ba33-279ff0f035e2")
 	)
 	(hierarchical_label "SAFE_CONTROL_RELEASE"
-		(shape input)
+		(shape output)
 		(at 391.16 74.93 0.0000)
 		(effects
 			(font
@@ -7314,7 +7314,7 @@
 		(uuid "1e1f6371-0859-4858-922e-b19f6d3fdefd")
 	)
 	(hierarchical_label "WATCHDOG_HEARTBEAT"
-		(shape input)
+		(shape output)
 		(at 391.16 81.28 0.0000)
 		(effects
 			(font
@@ -7325,7 +7325,7 @@
 		(uuid "3edbf5c5-1713-4c03-8e27-68af3ca16f89")
 	)
 	(hierarchical_label "STATE_LED_R"
-		(shape input)
+		(shape output)
 		(at 391.16 87.63 0.0000)
 		(effects
 			(font
@@ -7336,7 +7336,7 @@
 		(uuid "a50964d1-b67e-4149-9ca0-d0d9432f6541")
 	)
 	(hierarchical_label "STATE_LED_G"
-		(shape input)
+		(shape output)
 		(at 391.16 93.98 0.0000)
 		(effects
 			(font
@@ -7347,7 +7347,7 @@
 		(uuid "ab602595-0ea0-4b8a-96ad-dabbf7653a03")
 	)
 	(hierarchical_label "STATE_LED_B"
-		(shape input)
+		(shape output)
 		(at 391.16 100.33 0.0000)
 		(effects
 			(font
@@ -7358,7 +7358,7 @@
 		(uuid "6c489ab5-f45c-4154-a1d9-70228b9ce1d0")
 	)
 	(hierarchical_label "STATE_LED_AUX"
-		(shape input)
+		(shape output)
 		(at 391.16 106.68 0.0000)
 		(effects
 			(font

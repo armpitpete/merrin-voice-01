@@ -10212,7 +10212,7 @@
 		(uuid "f3255656-35da-45b8-afc9-3fa07de8f130")
 	)
 	(hierarchical_label "CTRL_I2C_SDA"
-		(shape input)
+		(shape bidirectional)
 		(at 20.32 48.26 0.0000)
 		(effects
 			(font
@@ -10289,7 +10289,7 @@
 		(uuid "a54a8f2b-4b47-4c77-87ca-4f443dddb5d1")
 	)
 	(hierarchical_label "VCA_MEMORY_CTRL"
-		(shape input)
+		(shape output)
 		(at 391.16 35.56 0.0000)
 		(effects
 			(font
@@ -10300,7 +10300,7 @@
 		(uuid "fcb3aace-8b7d-401d-aa61-5a8fc774871e")
 	)
 	(hierarchical_label "VCA_GHOST_CTRL"
-		(shape input)
+		(shape output)
 		(at 391.16 41.91 0.0000)
 		(effects
 			(font
@@ -10311,7 +10311,7 @@
 		(uuid "7e30f162-92ac-4d17-a443-4f840bed9e00")
 	)
 	(hierarchical_label "VCA_RETURN_CTRL"
-		(shape input)
+		(shape output)
 		(at 391.16 48.26 0.0000)
 		(effects
 			(font
@@ -10322,7 +10322,7 @@
 		(uuid "d4b0c0e3-c2ef-4629-8375-1ee52f808f3f")
 	)
 	(hierarchical_label "VCA_WET_CTRL"
-		(shape input)
+		(shape output)
 		(at 391.16 54.61 0.0000)
 		(effects
 			(font
@@ -10333,7 +10333,7 @@
 		(uuid "372a7fd5-5a50-49e4-8f34-bf1bae24d816")
 	)
 	(hierarchical_label "PANEL_MEMORY_TIME"
-		(shape input)
+		(shape output)
 		(at 391.16 60.96 0.0000)
 		(effects
 			(font
@@ -10344,7 +10344,7 @@
 		(uuid "843be51d-015c-4f0b-8b46-b86389f3b6d8")
 	)
 	(hierarchical_label "PANEL_MEMORY_FADE"
-		(shape input)
+		(shape output)
 		(at 391.16 67.31 0.0000)
 		(effects
 			(font
@@ -10355,7 +10355,7 @@
 		(uuid "eb118799-e3c8-4cf4-a440-b69f95d28ccb")
 	)
 	(hierarchical_label "PANEL_MEMORY_BLUR"
-		(shape input)
+		(shape output)
 		(at 391.16 73.66 0.0000)
 		(effects
 			(font
@@ -10366,7 +10366,7 @@
 		(uuid "025809c9-e1c9-449f-b75a-fc5b6efe42b9")
 	)
 	(hierarchical_label "PANEL_GHOST_DISTANCE"
-		(shape input)
+		(shape output)
 		(at 391.16 80.01 0.0000)
 		(effects
 			(font
@@ -10377,7 +10377,7 @@
 		(uuid "fd6b7f9d-a72f-4f27-bcc3-ed7a77dae116")
 	)
 	(hierarchical_label "PANEL_GHOST_DRIFT"
-		(shape input)
+		(shape output)
 		(at 391.16 86.36 0.0000)
 		(effects
 			(font
@@ -10388,7 +10388,7 @@
 		(uuid "023ddc07-c338-48e7-b765-13e56837678c")
 	)
 	(hierarchical_label "PANEL_GHOST_PRESENCE"
-		(shape input)
+		(shape output)
 		(at 391.16 92.71 0.0000)
 		(effects
 			(font
@@ -10399,7 +10399,7 @@
 		(uuid "6c419a45-a24b-4824-8c60-f1d3e5ed758d")
 	)
 	(hierarchical_label "PANEL_RETURN_AMOUNT"
-		(shape input)
+		(shape output)
 		(at 391.16 99.06 0.0000)
 		(effects
 			(font
@@ -10410,7 +10410,7 @@
 		(uuid "0e5c7863-99c7-442f-aab5-20076d610592")
 	)
 	(hierarchical_label "PANEL_PRESENT_WET"
-		(shape input)
+		(shape output)
 		(at 391.16 105.41 0.0000)
 		(effects
 			(font
@@ -10421,7 +10421,7 @@
 		(uuid "42989eeb-1f7b-4ca7-a45b-422bbd131e16")
 	)
 	(hierarchical_label "SERVICE_TEST"
-		(shape input)
+		(shape output)
 		(at 391.16 111.76 0.0000)
 		(effects
 			(font
@@ -10432,7 +10432,7 @@
 		(uuid "b82c81c2-b056-4b6f-800b-4ea66838bc93")
 	)
 	(hierarchical_label "RESET_CLEAR"
-		(shape input)
+		(shape output)
 		(at 391.16 118.11 0.0000)
 		(effects
 			(font
@@ -10443,7 +10443,7 @@
 		(uuid "367d25fc-35b7-4e0d-8c19-ebbdb11b95f6")
 	)
 	(hierarchical_label "SAFE_MUTE"
-		(shape input)
+		(shape output)
 		(at 391.16 124.46 0.0000)
 		(effects
 			(font
