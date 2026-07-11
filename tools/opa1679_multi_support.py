@@ -118,6 +118,18 @@ def append_symbol_library(path: Path) -> None:
     path.write_text(stripped[:-1] + render_symbol() + ")\n", encoding="utf-8")
 
 
+def repair_label(
+    text: str,
+    name: str,
+    component_position: tuple[float, float],
+    unit: int,
+    pin: str,
+) -> str:
+    """Compatibility no-op: OPA1679 multi-unit labels serialize at native pins."""
+    del name, component_position, unit, pin
+    return text
+
+
 def repair_hierarchical_shape(
     text: str,
     name: str,
