@@ -81,14 +81,23 @@ jobs:
           mkdir -p build/erc
           top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
           report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          cli_log="build/erc/kicad-cli.log"
 
+          set +e
+          set -o pipefail
           kicad-cli sch erc \
             --exit-code-violations \
             --severity-all \
             --output "$report" \
-            "$top"
+            "$top" 2>&1 | tee "$cli_log"
+          status=${PIPESTATUS[0]}
+          set -e
 
-          cat "$report"
+          if [ -f "$report" ]; then
+            cat "$report"
+          fi
+
+          exit "$status"
 
       - name: Upload generator log
         if: always()
@@ -106,7 +115,7 @@ jobs:
           path: hardware/memory-core-prototype-a
           if-no-files-found: error
 
-      - name: Upload ERC report
+      - name: Upload ERC diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
