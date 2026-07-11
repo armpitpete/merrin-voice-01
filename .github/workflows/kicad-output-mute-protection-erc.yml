@@ -1,0 +1,192 @@
+name: KiCad output mute protection sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/opa1679_multi_support.py"
+      - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/capture_output_mute_protection_sheet.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - ".github/workflows/kicad-output-mute-protection-erc.yml"
+      - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  pull_request:
+    paths:
+      - "tools/opa1679_multi_support.py"
+      - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/capture_output_mute_protection_sheet.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - ".github/workflows/kicad-output-mute-protection-erc.yml"
+      - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  output-mute-protection-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed output stage
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION_CAPTURED"
+          if [ -f "$marker" ]; then
+            echo "output=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed output/mute/protection capture; generation will be skipped."
+          else
+            echo "output=false" >> "$GITHUB_OUTPUT"
+            echo "Output/mute/protection remains a scaffold; first capture is active."
+          fi
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Generate shared U32 codec and output sheets
+        if: steps.stage.outputs.output == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_codec_conversion_sheet_v2.py 2>&1 | tee build/generator/output-sheet.log
+          python tools/capture_output_mute_protection_sheet.py 2>&1 | tee -a build/generator/output-sheet.log
+
+      - name: Validate output, mute, protection and shared U32 contracts
+        run: python tools/validate_output_mute_protection_capture.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce zero errors and captured-sheet warning policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          if errors:
+              raise SystemExit(f'Output/mute/protection stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET',
+              '06 RETURN / BREAK / LIMITER',
+              '07 OUTPUT / MUTE / PROTECTION',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated labels')
+
+          print(f'Output/mute/protection ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote only the first passing native artifact
+        if: github.event_name == 'push' && steps.stage.outputs.output == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/03_CODEC_CONVERSION.kicad_sch" \
+            "$root/03_CODEC_CONVERSION_CAPTURED" \
+            "$root/07_OUTPUT_MUTE_PROTECTION.kicad_sch" \
+            "$root/07_OUTPUT_MUTE_PROTECTION_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+          if git diff --cached --quiet; then
+            echo "No validated output/mute/protection artifact to promote."
+            exit 0
+          fi
+          git commit -m "Capture ERC-validated output mute protection sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-mute-protection-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-mute-protection-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-mute-protection-erc-report
+          path: build/erc
+          if-no-files-found: ignore
