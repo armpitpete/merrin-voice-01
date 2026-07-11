@@ -3728,4 +3728,425 @@
 			)
 		)
 	)
+	(symbol "OPA1679_PW_MULTI"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 8.89 0)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Value" "OPA1679_PW_MULTI"
+			(at 0 -8.89 0)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+				 hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/opa1679.pdf"
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+				 hide
+			)
+		)
+		(property "Description" "OPA1679 quad audio op amp; five-unit TSSOP-14 symbol; official pin map; footprint pending"
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+				 hide
+			)
+		)
+		(symbol "OPA1679_PW_MULTI_1_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "IN_A+" (effects (font (size 0.762 0.762))))
+				(number "3" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "IN_A-" (effects (font (size 0.762 0.762))))
+				(number "2" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_A" (effects (font (size 0.762 0.762))))
+				(number "1" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA1679_PW_MULTI_2_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "IN_B+" (effects (font (size 0.762 0.762))))
+				(number "5" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "IN_B-" (effects (font (size 0.762 0.762))))
+				(number "6" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_B" (effects (font (size 0.762 0.762))))
+				(number "7" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA1679_PW_MULTI_3_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "IN_C+" (effects (font (size 0.762 0.762))))
+				(number "10" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "IN_C-" (effects (font (size 0.762 0.762))))
+				(number "9" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_C" (effects (font (size 0.762 0.762))))
+				(number "8" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA1679_PW_MULTI_4_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "IN_D+" (effects (font (size 0.762 0.762))))
+				(number "12" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "IN_D-" (effects (font (size 0.762 0.762))))
+				(number "13" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_D" (effects (font (size 0.762 0.762))))
+				(number "14" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA1679_PW_MULTI_5_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "V-" (effects (font (size 0.762 0.762))))
+				(number "11" (effects (font (size 1.016 1.016))))
+			)
+			(pin power_in line
+				(at 10.16 3.8099999999999996 180)
+				(length 3.81)
+				(name "V+" (effects (font (size 0.762 0.762))))
+				(number "4" (effects (font (size 1.016 1.016))))
+			)
+		)
+	)
+	(symbol "LTV817S_MUTE_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LTV817S_MUTE_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" "https://optoelectronics.liteon.com/upload/download/DS70-2009-0014/LTV-8X7%20series%20201606.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "LTV-817S-class optocoupler used for fail-muted JFET gate control; SO-4 pin map; footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "LTV817S_MUTE_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "LED_A"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "LED_K"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 0.0 180)
+				(length 3.81)
+				(name "EMITTER"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 5.08 180)
+				(length 3.81)
+				(name "COLLECTOR"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "4"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "NPN_FAULT_INVERTER_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "NPN_FAULT_INVERTER_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "Provisional NPN fault inverter; logical B/C/E pins; exact device and footprint pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "NPN_FAULT_INVERTER_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 2.54 0)
+				(length 3.81)
+				(name "BASE"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 5.08 180)
+				(length 3.81)
+				(name "COLLECTOR"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 0.0 180)
+				(length 3.81)
+				(name "EMITTER"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
+	(symbol "OUTPUT_LEVEL_POT_APPLICATION"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "OUTPUT_LEVEL_POT_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(property "Description" "10k output-level potentiometer; logical low/wiper/high pins; physical part pending"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
+			)
+		)
+		(symbol "OUTPUT_LEVEL_POT_APPLICATION_1_1"
+			(rectangle
+				(start -6.35 7.62)
+				(end 6.35 -7.62)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin passive line
+				(at -10.16 0.0 0)
+				(length 3.81)
+				(name "LOW"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "1"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at 10.16 2.54 180)
+				(length 3.81)
+				(name "WIPER"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "2"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+			(pin passive line
+				(at -10.16 5.08 0)
+				(length 3.81)
+				(name "HIGH"
+					(effects (font (size 0.762 0.762)))
+				)
+				(number "3"
+					(effects (font (size 1.016 1.016)))
+				)
+			)
+		)
+	)
 )

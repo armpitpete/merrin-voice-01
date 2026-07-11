@@ -2,31 +2,1196 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "3d83098c-861e-448e-8cd4-85ebc487f23f")
-	(paper "A4")
+	(uuid "bb2cf091-ee67-4335-a5ee-5c9a0dfecb20")
+	(paper "A3")
 	(title_block
-		(title "Memory Core Prototype A — OUTPUT / MUTE / PROTECTION")
-		(rev "V5.2 hierarchy capture")
+		(title "Memory Core Prototype A — Output / Mute / Protection")
+		(rev "V5.2 component capture 07")
 		(company "MerrinLab")
-		(comment 1 "Interface harness is temporary and excluded from BOM/board.")
+		(comment 1 "U32 units B/C/D complete the physical OPA1679 whose A/power units remain on sheet 03.")
+		(comment 2 "Output jack and active-device footprints remain blocked pending independent review.")
 	)
 	(lib_symbols
-		(symbol "Connector_Generic:Conn_01x05"
+		(symbol "power:GND"
+			(power)
 			(pin_names
-				(offset 1.016) hide
+				(offset 0)
 			)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "J"
-				(at 0 7.62 0)
+			(property "Reference" "#PWR"
+				(at 0 -6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Value" "GND"
+				(at 0 -3.81 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "Conn_01x05"
-				(at 0 -7.62 0)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_description" "Power symbol creates a global label with name \"GND\" , ground"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "GND_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "GND_1_1"
+				(pin power_in line
+					(at 0 0 270)
+					(length 0)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:OPA1679_PW_MULTI"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 8.89 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "OPA1679_PW_MULTI"
+				(at 0 -8.89 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/opa1679.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "OPA1679 quad audio op amp; five-unit TSSOP-14 symbol; official pin map; footprint pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "OPA1679_PW_MULTI_1_1"
+				(rectangle
+					(start -6.35 6.35)
+					(end 6.35 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 3.81 0)
+					(length 3.81)
+					(name "IN_A+"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -1.27 0)
+					(length 3.81)
+					(name "IN_A-"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 1.27 180)
+					(length 3.81)
+					(name "OUT_A"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(symbol "OPA1679_PW_MULTI_2_1"
+				(rectangle
+					(start -6.35 6.35)
+					(end 6.35 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 3.81 0)
+					(length 3.81)
+					(name "IN_B+"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -1.27 0)
+					(length 3.81)
+					(name "IN_B-"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 1.27 180)
+					(length 3.81)
+					(name "OUT_B"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(symbol "OPA1679_PW_MULTI_3_1"
+				(rectangle
+					(start -6.35 6.35)
+					(end 6.35 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 3.81 0)
+					(length 3.81)
+					(name "IN_C+"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -1.27 0)
+					(length 3.81)
+					(name "IN_C-"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 1.27 180)
+					(length 3.81)
+					(name "OUT_C"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(symbol "OPA1679_PW_MULTI_4_1"
+				(rectangle
+					(start -6.35 6.35)
+					(end 6.35 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 3.81 0)
+					(length 3.81)
+					(name "IN_D+"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 -1.27 0)
+					(length 3.81)
+					(name "IN_D-"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "13"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 10.16 1.27 180)
+					(length 3.81)
+					(name "OUT_D"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "14"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(symbol "OPA1679_PW_MULTI_5_1"
+				(rectangle
+					(start -6.35 6.35)
+					(end 6.35 -6.35)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin power_in line
+					(at -10.16 -1.27 0)
+					(length 3.81)
+					(name "V-"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 10.16 3.81 180)
+					(length 3.81)
+					(name "V+"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Device:R"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0)
+			)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_description" "Resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Device:C"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0.254)
+			)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:OUTPUT_LEVEL_POT_APPLICATION"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "OUTPUT_LEVEL_POT_APPLICATION"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "10k output-level potentiometer; logical low/wiper/high pins; physical part pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "OUTPUT_LEVEL_POT_APPLICATION_1_1"
+				(rectangle
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -10.16 0.0000 0)
+					(length 3.81)
+					(name "LOW"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 2.54 180)
+					(length 3.81)
+					(name "WIPER"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 5.08 0)
+					(length 3.81)
+					(name "HIGH"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:J113_SHUNT_APPLICATION"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "J113_SHUNT_APPLICATION"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "N-channel JFET used as voltage-controlled shunt; pin map and footprint pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "J113_SHUNT_APPLICATION_1_1"
+				(rectangle
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -10.16 5.08 0)
+					(length 3.81)
+					(name "D"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -10.16 2.54 0)
+					(length 3.81)
+					(name "G"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 5.08 180)
+					(length 3.81)
+					(name "S"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:NPN_FAULT_INVERTER_APPLICATION"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "NPN_FAULT_INVERTER_APPLICATION"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "Provisional NPN fault inverter; logical B/C/E pins; exact device and footprint pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "NPN_FAULT_INVERTER_APPLICATION_1_1"
+				(rectangle
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 2.54 0)
+					(length 3.81)
+					(name "BASE"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 5.08 180)
+					(length 3.81)
+					(name "COLLECTOR"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0.0000 180)
+					(length 3.81)
+					(name "EMITTER"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:LTV817S_MUTE_APPLICATION"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "LTV817S_MUTE_APPLICATION"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "https://optoelectronics.liteon.com/upload/download/DS70-2009-0014/LTV-8X7%20series%20201606.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "LTV-817S-class optocoupler used for fail-muted JFET gate control; SO-4 pin map; footprint pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "LTV817S_MUTE_APPLICATION_1_1"
+				(rectangle
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin input line
+					(at -10.16 5.08 0)
+					(length 3.81)
+					(name "LED_A"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 0.0000 0)
+					(length 3.81)
+					(name "LED_K"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0.0000 180)
+					(length 3.81)
+					(name "EMITTER"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 5.08 180)
+					(length 3.81)
+					(name "COLLECTOR"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Device:D_Schottky"
+			(pin_numbers hide)
+			(pin_names
+				(offset 1.016) hide
+			)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D_Schottky"
+				(at 0 -2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -49,7 +1214,7 @@
 					) hide
 				)
 			)
-			(property "ki_keywords" "connector"
+			(property "ki_keywords" "diode Schottky"
 				(at 0 0 0)
 				(effects
 					(font
@@ -57,7 +1222,7 @@
 					) hide
 				)
 			)
-			(property "ki_description" "Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(property "ki_description" "Schottky diode"
 				(at 0 0 0)
 				(effects
 					(font
@@ -65,7 +1230,7 @@
 					) hide
 				)
 			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -73,77 +1238,49 @@
 					) hide
 				)
 			)
-			(symbol "Conn_01x05_1_1"
-				(rectangle
-					(start -1.27 -4.953)
-					(end 0 -5.207)
+			(symbol "D_Schottky_0_1"
+				(polyline
+					(pts
+						(xy 1.27 0) (xy -1.27 0)
+					)
 					(stroke
-						(width 0.1524)
+						(width 0)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
+				(polyline
+					(pts
+						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
 					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 5.207)
-					(end 0 4.953)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 6.35)
-					(end 1.27 -6.35)
 					(stroke
 						(width 0.254)
 						(type default)
 					)
 					(fill
-						(type background)
+						(type none)
 					)
 				)
+				(polyline
+					(pts
+						(xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_Schottky_1_1"
 				(pin passive line
-					(at -5.08 5.08 0)
-					(length 3.81)
-					(name "Pin_1"
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -159,9 +1296,9 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
-					(length 3.81)
-					(name "Pin_2"
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -176,53 +1313,208 @@
 						)
 					)
 				)
+			)
+		)
+		(symbol "MerrinLab_PrototypeA:WQP518MA_APPLICATION"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "WQP518MA_APPLICATION"
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Description" "Switched 3.5 mm mono input jack application symbol; physical pin map and footprint pending"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "WQP518MA_APPLICATION_1_1"
+				(rectangle
+					(start -6.35 7.62)
+					(end 6.35 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
 				(pin passive line
-					(at -5.08 0 0)
+					(at -10.16 5.08 0)
 					(length 3.81)
-					(name "Pin_3"
+					(name "TIP"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 2.54 0)
+					(length 3.81)
+					(name "TIP_NORMAL"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -10.16 0.0000 0)
+					(length 3.81)
+					(name "SLEEVE"
+						(effects
+							(font
+								(size 0.762 0.762)
 							)
 						)
 					)
 					(number "3"
 						(effects
 							(font
-								(size 1.27 1.27)
+								(size 1.016 1.016)
 							)
 						)
 					)
 				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
+			)
+		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0.762) hide
+			)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
 					)
 				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					) hide
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
 				(pin passive line
-					(at -5.08 -5.08 0)
-					(length 3.81)
-					(name "Pin_5"
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
 						(effects
 							(font
 								(size 1.27 1.27)
 							)
 						)
 					)
-					(number "5"
+					(number "1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -234,35 +1526,35 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x05")
-		(at 170.18 101.6 0)
+		(lib_id "power:GND")
+		(at 203.2 284.48 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
 		(on_board no)
 		(dnp no)
 		(fields_autoplaced no)
-		(uuid "52636b16-36fb-48ab-96eb-71aabce55543")
-		(property "Reference" "J907"
-			(at 170.18 109.22 0.0000)
+		(uuid "a57829fa-f162-47df-af6b-9831a3e26fd9")
+		(property "Reference" "#PWR0701"
+			(at 203.2 278.13 0.0000)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
 			)
 		)
-		(property "Value" "SHEET_INTERFACE_NOT_FITTED"
-			(at 170.18 93.98 0.0000)
+		(property "Value" "GND"
+			(at 203.2 289.56 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 170.18 101.6 0.0000)
+			(at 203.2 284.48 0.0000)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -271,7 +1563,7 @@
 			)
 		)
 		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
-			(at 172.72 106.6799 0)
+			(at 205.74 289.5599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -279,8 +1571,48 @@
 				(justify left)
 			)
 		)
-		(property "Purpose" "Temporary hierarchy/ERC harness"
-			(at 172.72 106.6799 0)
+		(pin "1"
+			(uuid "0391f584-da0f-47fa-99a7-e79ccef3feef")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "#PWR0701")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:OPA1679_PW_MULTI")
+		(at 116.84 101.6 0)
+		(unit 2)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "c3583b4e-7826-469b-9049-2f8523998ee1")
+		(property "Reference" "U32"
+			(at 116.84 110.49 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "OPA1679"
+			(at 116.84 92.71 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 116.84 101.6 0.0000)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -288,25 +1620,2152 @@
 				(hide yes)
 			)
 		)
-		(pin "1"
-			(uuid "f30cff64-ff5e-42a7-8969-9aca1fbd417b")
-		)
-		(pin "2"
-			(uuid "07eb9c8f-2d08-484a-bcc5-0cabf4d3adca")
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 119.38 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
 		)
 		(pin "3"
-			(uuid "b2bd6a57-cfa1-4cca-8b76-194e7f49253c")
+			(uuid "b6cce140-53f9-44e2-8285-94acf201069a")
 		)
-		(pin "4"
-			(uuid "0b649f14-9609-48fb-a1f5-22253a901c04")
+		(pin "2"
+			(uuid "db231a61-d4cb-4331-bcdc-295d6028319a")
+		)
+		(pin "1"
+			(uuid "a1d2c620-4b7b-433c-bf75-239ae3980a13")
 		)
 		(pin "5"
-			(uuid "f96cc94d-710c-43d1-8cf6-8e90808914db")
+			(uuid "3f2a3beb-a867-4d73-a90f-f933f0701d3d")
+		)
+		(pin "6"
+			(uuid "3a2dd127-c9b7-4c31-b6fd-b53ea4a80d52")
+		)
+		(pin "7"
+			(uuid "40123b35-1a69-48fe-9579-b40470db4da1")
+		)
+		(pin "10"
+			(uuid "015c33c7-3836-42dc-b34b-7bbb2400a4e3")
+		)
+		(pin "9"
+			(uuid "57203496-dd1b-4493-9be3-e461c0b70f39")
+		)
+		(pin "8"
+			(uuid "7b838842-a261-47e0-9530-8c8683315a1e")
+		)
+		(pin "12"
+			(uuid "df49e1c6-c90d-4ce1-8d7e-e688ac142015")
+		)
+		(pin "13"
+			(uuid "7ba024e6-d157-40cf-99f3-c55fcc102025")
+		)
+		(pin "14"
+			(uuid "38274352-6d71-43ae-94e7-91d4dede0b2d")
+		)
+		(pin "11"
+			(uuid "a148ef08-2d98-4208-8fd9-67127c581c4b")
+		)
+		(pin "4"
+			(uuid "78fbf969-dfe9-4c0b-948b-f3671b6fc0b3")
 		)
 		(instances
 			(project "MerrinGriefSynthMemoryCoreA"
 				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
-					(reference "J907")
+					(reference "U32")
+					(unit 2)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:OPA1679_PW_MULTI")
+		(at 213.36 101.6 0)
+		(unit 3)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "aff8a98d-4e21-470c-8b8c-5850dd1e954d")
+		(property "Reference" "U32"
+			(at 213.36 110.49 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "OPA1679"
+			(at 213.36 92.71 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 213.36 101.6 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 215.9 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "3"
+			(uuid "133ce071-f035-4a70-9787-6ffb55e8eddb")
+		)
+		(pin "2"
+			(uuid "66eb9da9-0d25-4a0f-9d8c-41108854f1ae")
+		)
+		(pin "1"
+			(uuid "92c5563d-a0c3-42e7-8bdd-f3a00710c7ac")
+		)
+		(pin "5"
+			(uuid "defef38b-2567-4582-b350-4cc40e39a32f")
+		)
+		(pin "6"
+			(uuid "1ba2751d-51e3-4758-92d7-6a7c2d272cd0")
+		)
+		(pin "7"
+			(uuid "febad5ab-2cbe-49d3-a324-4bb680f047b0")
+		)
+		(pin "10"
+			(uuid "0e67c348-bf2c-42ff-8f25-df88103e15e9")
+		)
+		(pin "9"
+			(uuid "9ef48562-7afd-4dfc-add2-10b5e74309aa")
+		)
+		(pin "8"
+			(uuid "0d33fbe2-f939-4327-bf16-6b098e512cb8")
+		)
+		(pin "12"
+			(uuid "948548e0-f6cf-4a45-b50a-a91fe62e0008")
+		)
+		(pin "13"
+			(uuid "9a6098bf-fd39-4119-9c7e-b4ef04b9d12c")
+		)
+		(pin "14"
+			(uuid "b1a068d8-bdfc-4ed0-8e93-3078d20ceae7")
+		)
+		(pin "11"
+			(uuid "c94ab38e-cf08-4f21-9e7e-be52adc964db")
+		)
+		(pin "4"
+			(uuid "8cd47bf5-7dd3-4d93-b606-03d8f5cd0214")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "U32")
+					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:OPA1679_PW_MULTI")
+		(at 309.88 101.6 0)
+		(unit 4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "71035e98-f000-416a-963b-2e3c7e0f0da6")
+		(property "Reference" "U32"
+			(at 309.88 110.49 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "OPA1679"
+			(at 309.88 92.71 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 309.88 101.6 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 312.42 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "3"
+			(uuid "7a2a0949-b56c-49c5-b0c1-3663cb779358")
+		)
+		(pin "2"
+			(uuid "e18ba87f-44d7-4d92-a916-a89624627145")
+		)
+		(pin "1"
+			(uuid "d8998359-96f8-491f-a959-fc1b2a6ca04d")
+		)
+		(pin "5"
+			(uuid "40050976-120e-4313-a2e5-f40a24e80e33")
+		)
+		(pin "6"
+			(uuid "0644e173-e6ed-4a7a-b8c4-c5e74d9d09e1")
+		)
+		(pin "7"
+			(uuid "f0591c18-44d9-416d-9ddb-9c9015531d60")
+		)
+		(pin "10"
+			(uuid "66ed0187-7f13-4756-9143-7c748083f87a")
+		)
+		(pin "9"
+			(uuid "addfe9a0-903b-41f9-a2cd-ce1d1d4c4669")
+		)
+		(pin "8"
+			(uuid "dcb3b00a-8990-45b8-85d7-95d92c56382a")
+		)
+		(pin "12"
+			(uuid "917f0d87-e3e4-4293-9365-437cad91226d")
+		)
+		(pin "13"
+			(uuid "3f5d3e4f-6fc4-481d-a112-4a43269c6a34")
+		)
+		(pin "14"
+			(uuid "99c962e5-970d-43a9-91aa-f4fbfcffc441")
+		)
+		(pin "11"
+			(uuid "cd5f7cbe-5de4-4ffb-a4de-3a4e616f4b3e")
+		)
+		(pin "4"
+			(uuid "f7c096af-6e00-4336-b12e-718e40172bfd")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "U32")
+					(unit 4)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 58.42 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "b7e4eff8-a768-4550-b602-f95344235363")
+		(property "Reference" "R700"
+			(at 60.452 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "40.2k 1% Direct sum"
+			(at 58.42 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 56.642 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 60.96 88.8999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "ad23cbb3-3d93-4187-a931-073235beb3e6")
+		)
+		(pin "2"
+			(uuid "0dcc0840-9b1e-4d77-ab91-7e17b7b403db")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R700")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 58.42 99.06 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "3f22ecb3-2b30-4404-bfe9-10f3f5f3d332")
+		(property "Reference" "R701"
+			(at 60.452 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "40.2k 1% Wet sum"
+			(at 58.42 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 56.642 99.06 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 60.96 104.1399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "c53a0f48-cb3b-4d5c-8fdd-861715860ca8")
+		)
+		(pin "2"
+			(uuid "9ff0fe33-bb63-4bcc-9f57-59d265183e4a")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R701")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 139.7 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2e707647-ca87-4b5f-bc47-3dd8ebe825db")
+		(property "Reference" "R702"
+			(at 141.732 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "20k 1% half-sum feedback"
+			(at 139.7 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 137.922 83.82 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 142.24 88.8999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "c067718d-bc4e-4c98-9de3-c8d891933079")
+		)
+		(pin "2"
+			(uuid "99ea2a81-eeb3-4f86-a608-80d58fbf35c6")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R702")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 152.4 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "dcedc8a9-e5d8-4a27-b214-877c9f5742a6")
+		(property "Reference" "C700"
+			(at 153.035 86.36 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "220pF mix bandwidth"
+			(at 153.035 81.28 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 153.3652 80.01 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 154.94 88.8999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "70ae3277-049d-4829-b072-3057b1ecec09")
+		)
+		(pin "2"
+			(uuid "9ad4acb7-1883-4954-8b21-937773e11f6c")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C700")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:OUTPUT_LEVEL_POT_APPLICATION")
+		(at 180.34 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "04903a3a-8bb8-4a9e-be7b-d235fc38e4d7")
+		(property "Reference" "RV700"
+			(at 180.34 134.62 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k A OUTPUT LEVEL"
+			(at 180.34 114.3 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 180.34 124.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 182.88 129.5399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "afcd3883-070a-4fc3-bdf5-b7faa9b99732")
+		)
+		(pin "2"
+			(uuid "a5c3fc42-32b5-4769-af0c-71f0525edab0")
+		)
+		(pin "3"
+			(uuid "ae833c95-ba3a-415d-9720-16404ee8e90c")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "RV700")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 233.68 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "f5c63a68-06d4-41df-ac88-677efdd142c7")
+		(property "Reference" "R703"
+			(at 235.712 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k mute isolation"
+			(at 233.68 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 231.902 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 236.22 129.5399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "1d75bef5-a10e-410f-90a3-f3eeba740e5a")
+		)
+		(pin "2"
+			(uuid "84cc1ebe-0899-4324-8ec0-d83be1554921")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R703")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:J113_SHUNT_APPLICATION")
+		(at 264.16 147.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "b65774c1-4e1b-4cd7-99ca-0d728558da0c")
+		(property "Reference" "Q70"
+			(at 264.16 157.48 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "J113 OUTPUT MUTE SHUNT"
+			(at 264.16 137.16 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 147.32 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 266.7 152.3999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "96aecc05-fdbc-49a3-a896-fee2a414adbe")
+		)
+		(pin "2"
+			(uuid "090d98ef-d556-411a-9ed1-aca1c0f236d3")
+		)
+		(pin "3"
+			(uuid "a3f57f9b-dc28-4f5d-9c84-aab78b6c41fb")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "Q70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 91.44 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "6fe458c4-21d9-4a9c-9f0a-3de7714627a6")
+		(property "Reference" "R711"
+			(at 93.472 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k fault inverter base"
+			(at 91.44 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 89.662 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 93.98 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "83b81b42-18c5-4dd1-a36b-7e4cc775514a")
+		)
+		(pin "2"
+			(uuid "710056c8-b355-40e6-bdbc-3eeaa05cf357")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R711")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 106.68 213.36 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "3210127e-4e4e-4634-9aaa-3ba8b3328dd4")
+		(property "Reference" "R712"
+			(at 108.712 213.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k fault base pull-down"
+			(at 106.68 213.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 104.902 213.36 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 109.22 218.4399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "d3e9a39d-e884-492d-9644-86c26e2f3292")
+		)
+		(pin "2"
+			(uuid "58f848ed-eed6-47b5-b06e-7d2889183583")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R712")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:NPN_FAULT_INVERTER_APPLICATION")
+		(at 132.08 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "5c0f2f60-30d2-4eb5-93ef-6a9688cb0d86")
+		(property "Reference" "Q71"
+			(at 132.08 208.28 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MMBT3904 fault inverter provisional"
+			(at 132.08 187.96 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 132.08 198.12 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 134.62 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "4d92a2f8-e476-4af8-b1f6-5c567aed8a67")
+		)
+		(pin "2"
+			(uuid "6379d365-a96b-4963-8f34-d46402428969")
+		)
+		(pin "3"
+			(uuid "30ae3d6e-83a6-46f9-94ee-1f89c3c3361d")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "Q71")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 154.94 182.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "67b39967-62c5-44cd-8a9c-320106781704")
+		(property "Reference" "R713"
+			(at 156.972 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "2.2k +12V fault pull-up"
+			(at 154.94 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 153.162 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 157.48 187.9599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "72cd784c-92b6-4611-8ec9-e5b60215b153")
+		)
+		(pin "2"
+			(uuid "0d0c3c50-1b31-4a6d-a199-4357f9860fd5")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R713")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 170.18 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "c69026aa-900f-4c37-b646-c7852f7cf915")
+		(property "Reference" "R714"
+			(at 172.212 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "3.3k optocoupler LED"
+			(at 170.18 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 168.402 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 172.72 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "98559504-4063-49d0-9733-5fe0e3dfda98")
+		)
+		(pin "2"
+			(uuid "9250c4b9-4e03-4e21-89a3-6718bf9304a1")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R714")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:LTV817S_MUTE_APPLICATION")
+		(at 203.2 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "7d79e8a0-0d3c-4709-bced-684e6143de15")
+		(property "Reference" "U70"
+			(at 203.2 208.28 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "LTV-817S-CLASS FAIL-MUTE"
+			(at 203.2 187.96 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 203.2 198.12 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 205.74 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "e2093376-e11d-4e55-8c89-c0fd8485b2df")
+		)
+		(pin "2"
+			(uuid "819aa16e-2e01-4bc3-a5bc-04a758ee6fce")
+		)
+		(pin "3"
+			(uuid "3c7564e7-81ec-4c00-ad8d-900769ae89e2")
+		)
+		(pin "4"
+			(uuid "75faa872-c613-44f7-8621-670934bada02")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "U70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 238.76 182.88 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2c0664c5-9072-4dcd-a393-99f017c1ef3a")
+		(property "Reference" "R715"
+			(at 240.792 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k controlled release"
+			(at 238.76 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 236.982 182.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 241.3 187.9599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "19783652-90aa-48da-b199-678203aad31a")
+		)
+		(pin "2"
+			(uuid "1a4d3d43-68ae-4e0d-bd89-2067c8ca99c1")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R715")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 254 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "f95ecf6b-3d47-4dfd-a074-8c26646cc0dd")
+		(property "Reference" "R716"
+			(at 256.032 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1M power-off mute"
+			(at 254 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 252.222 198.12 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 256.54 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "56018383-3340-4bc4-bf79-400602d570c7")
+		)
+		(pin "2"
+			(uuid "c4e0f32f-182e-4392-9f0a-8fa99c0f525b")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R716")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 269.24 198.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "0c0d2c75-0100-47b0-8921-85ddabb942e6")
+		(property "Reference" "C710"
+			(at 269.875 200.66 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1uF mute ramp"
+			(at 269.875 195.58 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 270.2052 194.31 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 271.78 203.1999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "a84b1fff-9710-4073-b070-336a433b3de7")
+		)
+		(pin "2"
+			(uuid "beb9df0d-82d8-446f-8f2e-5b901c579775")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C710")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 330.2 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "bb349618-9d5d-4119-bb09-eea9bbee3a77")
+		(property "Reference" "C720"
+			(at 330.835 127 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10uF bipolar output AC"
+			(at 330.835 121.92 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 331.1652 120.65 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 332.74 129.5399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "fc08d138-5a40-455d-be65-3b95f982a17f")
+		)
+		(pin "2"
+			(uuid "b5b61b77-33e5-441d-81f0-e2bac3fb30d9")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C720")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 350.52 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2842b32f-1d27-45ef-b144-e3cb5f43a04d")
+		(property "Reference" "R720"
+			(at 352.552 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k output protection"
+			(at 350.52 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 348.742 124.46 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 353.06 129.5399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "e7c63524-4c58-414d-88b4-9e14b047d595")
+		)
+		(pin "2"
+			(uuid "d13dd250-b457-4613-a302-4bd8b877a272")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R720")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 350.52 144.78 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "2f9a00b8-94a9-4c2c-8f1c-febb84bad6d2")
+		(property "Reference" "R721"
+			(at 352.552 144.78 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100k output reference"
+			(at 350.52 144.78 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 348.742 144.78 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 353.06 149.8599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "3a9a7c31-3667-4e10-8e6e-66a212d0b6f0")
+		)
+		(pin "2"
+			(uuid "24f85eab-7fcf-4d09-9fd2-a3187826fd9d")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "R721")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 365.76 144.78 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "ac982212-812a-4edb-9a6b-cc6ab293135b")
+		(property "Reference" "C721"
+			(at 366.395 147.32 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "220pF output RF"
+			(at 366.395 142.24 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 366.7252 140.97 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 368.3 149.8599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "f5af9181-149b-48eb-904d-6814262cffea")
+		)
+		(pin "2"
+			(uuid "e1557c04-bc94-4684-9b7c-b86eec7e92e7")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C721")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 350.52 162.56 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "fcde244e-79a7-4601-b4c9-21e141bb88e2")
+		(property "Reference" "D701"
+			(at 350.52 165.1 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BAT54-class +rail clamp"
+			(at 350.52 160.02 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 350.52 162.56 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 353.06 167.6399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "cf08d452-45ac-4ef2-98ec-0e04509dac41")
+		)
+		(pin "2"
+			(uuid "7435cb2f-3157-4073-9d90-b5f094344df8")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "D701")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_Schottky")
+		(at 365.76 162.56 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "daeb266d-a23d-4271-9ada-81a732fc7761")
+		(property "Reference" "D702"
+			(at 365.76 165.1 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "BAT54-class -rail clamp"
+			(at 365.76 160.02 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 365.76 162.56 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 368.3 167.6399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "c19aecd1-81d8-44bd-b399-7a9622965c84")
+		)
+		(pin "2"
+			(uuid "10d3b403-ff53-49d7-ad5e-ba515f69333e")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "D702")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MerrinLab_PrototypeA:WQP518MA_APPLICATION")
+		(at 386.08 124.46 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "918306ae-5356-4b31-aff7-971d23d2df3b")
+		(property "Reference" "J70"
+			(at 386.08 134.62 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "WQP518MA / THONKICONN OUTPUT"
+			(at 386.08 114.3 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 386.08 124.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 388.62 129.5399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "cd4cb551-b8d3-48fd-87a3-fa521b4bcd2c")
+		)
+		(pin "2"
+			(uuid "4e26995a-73cb-4dc5-93d6-7b8934c3d784")
+		)
+		(pin "3"
+			(uuid "9a6ba8f8-dc61-43cc-b5ae-ab4e090dec2c")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "J70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 58.42 248.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "0c4a5a94-e6db-4149-bb0b-e1f44aa5ee8d")
+		(property "Reference" "C730"
+			(at 59.055 251.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nF + rail"
+			(at 59.055 246.38 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 59.3852 245.11 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 60.96 253.9999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "fd1ce7dd-dcff-4252-8726-575444d9d4a7")
+		)
+		(pin "2"
+			(uuid "6ea4afc8-c3f2-447c-b6df-c9e5d5eb1236")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C730")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 73.66 248.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "c911a4bc-e769-49d7-9260-c9bd6e5cc5b7")
+		(property "Reference" "C731"
+			(at 74.295 251.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nF - rail"
+			(at 74.295 246.38 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 74.6252 245.11 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 76.2 253.9999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "e7ee8441-e742-4915-bc4a-991d4da8976a")
+		)
+		(pin "2"
+			(uuid "597c3ace-f1a4-4888-ae92-a42cb538876f")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C731")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 88.9 248.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "4a2f2e02-7a59-4f4c-9080-82eb1a63ddb6")
+		(property "Reference" "C732"
+			(at 89.535 251.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7uF + rail"
+			(at 89.535 246.38 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 89.8652 245.11 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 91.44 253.9999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "1f0a5727-95f4-41c3-85f4-6275f2aad6dd")
+		)
+		(pin "2"
+			(uuid "1ff92899-fbf8-46e7-9ce3-84abc5a00b01")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C732")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 104.14 248.92 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "242c9bb9-4c8d-49f8-9ad6-e519b7790bb5")
+		(property "Reference" "C733"
+			(at 104.775 251.46 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7uF - rail"
+			(at 104.775 246.38 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 105.1052 245.11 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 106.68 253.9999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "21301332-74bb-45c9-8fdf-3f8cd4556632")
+		)
+		(pin "2"
+			(uuid "4f9942a9-52d0-426a-903e-a2d8df0ead2d")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "C733")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 142.24 68.58 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "b6ec0f4e-c18f-48d4-a42d-bd98a54aeba8")
+		(property "Reference" "TP700"
+			(at 142.24 75.438 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "FINAL_MIX"
+			(at 142.24 73.66 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 147.32 68.58 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 144.78 73.6599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "2e8c5789-45c5-4463-8709-9ac262e17fcc")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "TP700")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 223.52 68.58 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "34814c5a-09f4-4e52-a209-9bf0829f625b")
+		(property "Reference" "TP701"
+			(at 223.52 75.438 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "OUT_PREMUTE"
+			(at 223.52 73.66 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 228.6 68.58 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 226.06 73.6599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "6f5fb1a4-45dc-4298-b51b-112101bde0d9")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "TP701")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 365.76 68.58 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "c100adb3-4763-4173-9469-ab2c2f81fcef")
+		(property "Reference" "TP702"
+			(at 365.76 75.438 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "OUTPUT_TIP"
+			(at 365.76 73.66 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 370.84 68.58 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 368.3 73.6599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "a137f018-7e55-4233-a6c1-6ad87d127da1")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "TP702")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 274.32 175.26 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced no)
+		(uuid "37be058f-65a6-45a4-b461-ba85a31ece8d")
+		(property "Reference" "TP703"
+			(at 274.32 182.118 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "MUTE_GATE"
+			(at 274.32 180.34 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 279.4 175.26 0.0000)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "hierarchy_path" "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+			(at 276.86 180.3399 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "81aa3160-56b1-43a1-a436-d5dc539ee2b3")
+		)
+		(instances
+			(project "MerrinGriefSynthMemoryCoreA"
+				(path "/ea499acf-881c-477d-99db-4f6dec6846fd/bdb15624-ed9e-431c-905f-ce5366b91c62"
+					(reference "TP703")
 					(unit 1)
 				)
 			)
@@ -314,140 +3773,982 @@
 	)
 	(wire
 		(pts
-			(xy 165.1 96.52) (xy 144.78 96.52)
+			(xy 20.32 30.48) (xy 35.56 30.48)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "f4b1f586-12f2-44af-b648-850138161409")
+		(uuid "e8cf3302-f9e2-46b1-81b2-441cc79cea7c")
 	)
 	(wire
 		(pts
-			(xy 165.1 99.06) (xy 144.78 99.06)
+			(xy 20.32 40.64) (xy 35.56 40.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "8f8986ea-bf9f-43d2-85c3-30e1e518f689")
+		(uuid "06246203-8e29-4241-8570-22986c53f0f8")
 	)
 	(wire
 		(pts
-			(xy 165.1 101.6) (xy 144.78 101.6)
+			(xy 20.32 50.8) (xy 35.56 50.8)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5a2e4f08-9c1d-4030-9ec8-a7aeaa0c5b51")
+		(uuid "8281e0e6-6a7c-4040-b2ea-88d45df6f972")
 	)
 	(wire
 		(pts
-			(xy 165.1 104.14) (xy 144.78 104.14)
+			(xy 20.32 60.96) (xy 35.56 60.96)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "641558a4-bf53-47a4-80a3-788e2053eb0e")
+		(uuid "cb530ad7-f233-4129-987c-e7860612a4a4")
 	)
 	(wire
 		(pts
-			(xy 165.1 106.68) (xy 144.78 106.68)
+			(xy 20.32 71.12) (xy 35.56 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "59647c60-b528-4437-aa03-224f93bf2249")
+		(uuid "62b5c290-6b89-4d5e-a672-e267b6f0b447")
+	)
+	(label "RAIL_P12"
+		(at 35.56 30.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5349ea10-9392-4ff0-ac51-88041e9de045")
+	)
+	(label "RAIL_N12"
+		(at 35.56 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2594e2dc-6174-4b37-b6fa-6810665b3b40")
+	)
+	(label "DIRECT_PRESENT"
+		(at 35.56 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "fb6bd2fe-851d-423f-9265-9550e9f12a52")
+	)
+	(label "WET_MIX"
+		(at 35.56 60.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9f755058-f263-4aa2-abbf-e3694d5fc070")
+	)
+	(label "HARDWARE_FAULT_N"
+		(at 35.56 71.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bc0939fd-c830-4c1e-ac31-e761b9432dbd")
+	)
+	(label "GND"
+		(at 203.2 284.48 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "eb1363d4-7991-4cda-95a4-e2d4c5788258")
+	)
+	(label "DIRECT_PRESENT"
+		(at 58.42 80.01 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "abc239c5-ae90-418c-8ed0-4227c5190240")
+	)
+	(label "FINAL_SUM_NODE"
+		(at 58.42 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d2895faa-8ba2-4756-a1eb-360ee13606b8")
+	)
+	(label "WET_MIX"
+		(at 58.42 95.25 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5311cb55-54ba-4c40-ba7a-c91d186a0729")
+	)
+	(label "FINAL_SUM_NODE"
+		(at 58.42 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "01c490e4-456c-47ef-afdd-65024ead80b2")
+	)
+	(label "GND"
+		(at 106.68 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "103452b4-267a-438e-852a-cd439fd69ba9")
+	)
+	(label "FINAL_SUM_NODE"
+		(at 106.68 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "11f1b387-94e6-4438-b483-2a830bfbd386")
+	)
+	(label "FINAL_MIX"
+		(at 127.0 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "eb449f44-cecc-4a57-bbee-0f1cf9205d8b")
+	)
+	(label "FINAL_MIX"
+		(at 139.7 80.01 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "47a88614-d625-4a93-a9a0-644e8053a28a")
+	)
+	(label "FINAL_SUM_NODE"
+		(at 139.7 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0edc7998-102e-42a4-b97d-d0b2f3ba60fe")
+	)
+	(label "FINAL_MIX"
+		(at 152.4 80.01 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "32e6904b-b539-412f-ac6d-65b5d5e059c9")
+	)
+	(label "FINAL_SUM_NODE"
+		(at 152.4 87.63 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bbf99cec-b142-4900-9d44-9ada30099855")
+	)
+	(label "GND"
+		(at 170.18 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d3943b1e-21f3-49fc-b2aa-e5d002ae1ece")
+	)
+	(label "OUTPUT_LEVEL"
+		(at 190.5 121.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7a720770-f05b-4c95-ab34-07134b7e0d01")
+	)
+	(label "FINAL_MIX"
+		(at 170.18 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7a20e40-be28-4a0e-8730-fcbe2c886345")
+	)
+	(label "OUTPUT_LEVEL"
+		(at 203.2 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2d578e9a-30be-46a7-941e-e9b33a4b83a2")
+	)
+	(label "OUT_PREMUTE"
+		(at 203.2 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "390adc0f-9789-4eac-9746-227288164808")
+	)
+	(label "OUT_PREMUTE"
+		(at 223.52 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "626eb9a6-b1e9-42b2-ba9d-8230e23279f9")
+	)
+	(label "OUT_PREMUTE"
+		(at 233.68 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "11b77416-f25f-4f00-9907-615c8b7b22bf")
+	)
+	(label "MUTE_NODE"
+		(at 233.68 128.27 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6b6bcbea-7563-4c93-989e-b1dee1a92fb6")
+	)
+	(label "MUTE_NODE"
+		(at 254 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1bb11347-5cbe-4055-b24e-b2a7641db087")
+	)
+	(label "MUTE_GATE"
+		(at 254 144.78 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b57593da-2047-47e5-baa1-8d1b4c807d3e")
+	)
+	(label "GND"
+		(at 274.32 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "42e96901-3249-4cce-9788-254415197292")
+	)
+	(label "HARDWARE_FAULT_N"
+		(at 91.44 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4a089754-b9cf-4071-b907-092963f05808")
+	)
+	(label "FAULT_INV_BASE"
+		(at 91.44 201.93 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2b6d68fb-c85f-4314-998b-04a9cc3a893b")
+	)
+	(label "FAULT_INV_BASE"
+		(at 106.68 209.55 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ae50fd66-9d0a-4f49-9104-9cdb43857417")
+	)
+	(label "GND"
+		(at 106.68 217.17 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3f3b208f-d977-4bd6-b35d-618da1064119")
+	)
+	(label "FAULT_INV_BASE"
+		(at 121.92 195.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7ce5233-40fb-4c31-a6a4-84be7b2b0e3b")
+	)
+	(label "MUTE_FAULT_HIGH"
+		(at 142.24 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c7942524-a484-4546-8f92-806ebe73f669")
+	)
+	(label "GND"
+		(at 142.24 198.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7ddab47d-aa03-49c8-8ef9-6033a47a4857")
+	)
+	(label "RAIL_P12"
+		(at 154.94 179.07 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2bae70f7-ca31-4be7-984c-8b980aa7c1c1")
+	)
+	(label "MUTE_FAULT_HIGH"
+		(at 154.94 186.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "18b0330a-2ef5-4e19-b42b-ee01eb68003d")
+	)
+	(label "MUTE_FAULT_HIGH"
+		(at 170.18 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3d591ae9-b7c3-4f9a-8b0a-084b77eecd65")
+	)
+	(label "MUTE_LED_A"
+		(at 170.18 201.93 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "597eecc3-3c12-4768-86d6-1daedb127719")
+	)
+	(label "MUTE_LED_A"
+		(at 193.04 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "459f9dfd-8e5f-429d-8915-4ca2fe97b1de")
+	)
+	(label "GND"
+		(at 193.04 198.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e0631b61-91e7-44e7-adac-2721ab80610a")
+	)
+	(label "MUTE_GATE"
+		(at 213.36 198.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2a34ae07-1364-4075-bd94-a9a8e5a6034f")
+	)
+	(label "GND"
+		(at 213.36 193.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5c042791-950b-4871-8915-e81eafe80abc")
+	)
+	(label "RAIL_N12"
+		(at 238.76 179.07 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "da7820e1-10d4-4afe-922b-d81972d368b2")
+	)
+	(label "MUTE_GATE"
+		(at 238.76 186.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a30a8994-d06e-4c1c-a392-716950c29069")
+	)
+	(label "MUTE_GATE"
+		(at 254 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a8e44d96-fc63-4bb0-be69-49e059dcc7c4")
+	)
+	(label "GND"
+		(at 254 201.93 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "78f82b22-7ce9-4687-a44e-5fe7d71dedd5")
+	)
+	(label "MUTE_GATE"
+		(at 269.24 194.31 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "961e2a52-095d-486d-95c9-b23458489b50")
+	)
+	(label "GND"
+		(at 269.24 201.93 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b1f2c6a6-5d10-44f0-ab50-1f1d616715a7")
+	)
+	(label "MUTE_NODE"
+		(at 299.72 97.79 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "68f7eaed-e724-4ec6-b3d2-13931297c186")
+	)
+	(label "POST_MUTE"
+		(at 299.72 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "43603b6a-6291-4fe9-9340-a11f451e0d7e")
+	)
+	(label "POST_MUTE"
+		(at 320.04 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e233a6fc-a126-4684-a923-b423c30e4dba")
+	)
+	(label "POST_MUTE"
+		(at 330.2 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f6499b0a-90fe-44e5-aca7-16b0ff8e6197")
+	)
+	(label "OUTPUT_AC"
+		(at 330.2 128.27 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "992ba130-07dc-4c1c-9c08-b1a2ef18b28c")
+	)
+	(label "OUTPUT_AC"
+		(at 350.52 120.65 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b0a2f154-452a-4053-989e-c564aa713254")
+	)
+	(label "OUTPUT_TIP"
+		(at 350.52 128.27 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "038c946d-b370-44a5-9416-4440aa2f4380")
+	)
+	(label "OUTPUT_TIP"
+		(at 350.52 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4d569051-9eac-4c72-902e-e7c95ba01ebf")
+	)
+	(label "GND"
+		(at 350.52 148.59 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "56517f45-5fc8-46e1-925f-8a8148651198")
+	)
+	(label "OUTPUT_TIP"
+		(at 365.76 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "adeebd4e-726a-4246-9193-d8fe7525e003")
+	)
+	(label "GND"
+		(at 365.76 148.59 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "13752787-a043-45d2-836c-4917526482b7")
+	)
+	(label "OUTPUT_TIP"
+		(at 346.71 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "366c699e-400f-4942-9b99-f3af13186587")
+	)
+	(label "RAIL_P12"
+		(at 354.33 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4c827c9a-208e-4044-a1a4-5d66d4f108d1")
+	)
+	(label "RAIL_N12"
+		(at 361.95 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "0faea514-982d-451b-8140-124d969922d6")
+	)
+	(label "OUTPUT_TIP"
+		(at 369.57 162.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "070b013c-93c1-4a5d-9cfb-39aeb16cebd8")
+	)
+	(label "OUTPUT_TIP"
+		(at 375.92 119.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d93f40bd-1865-4f68-b727-173204e6ab20")
+	)
+	(label "GND"
+		(at 375.92 124.46 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "513678a0-4162-41ce-be98-1b5c03246ec2")
+	)
+	(label "RAIL_P12"
+		(at 58.42 245.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e6891793-31a7-433d-ad2c-27b2d9b2f687")
+	)
+	(label "GND"
+		(at 58.42 252.73 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "433dc5d5-153b-4987-a26b-bba396efe83d")
+	)
+	(label "RAIL_N12"
+		(at 73.66 245.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7cc41c02-3c36-45b7-a203-43ebcadbee96")
+	)
+	(label "GND"
+		(at 73.66 252.73 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "016a09b6-3295-4526-80e2-dafbc6845549")
+	)
+	(label "RAIL_P12"
+		(at 88.9 245.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "207f5802-4ccf-4e05-9647-a6c15f089ea6")
+	)
+	(label "GND"
+		(at 88.9 252.73 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "30f996b2-22d3-4dc5-a529-d4e7b4116265")
+	)
+	(label "RAIL_N12"
+		(at 104.14 245.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bbaaa975-b069-44d8-860e-90d43f462109")
+	)
+	(label "GND"
+		(at 104.14 252.73 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "501f0f7a-6077-466b-a14e-0df654b72784")
+	)
+	(label "FINAL_MIX"
+		(at 142.24 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e3439bff-c2b9-41fa-a017-6859386635d7")
+	)
+	(label "OUT_PREMUTE"
+		(at 223.52 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b7b5eba9-0e2c-4216-b303-35e083f2db68")
+	)
+	(label "OUTPUT_TIP"
+		(at 365.76 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "679e8121-36cb-42aa-be54-89d494bc4793")
+	)
+	(label "MUTE_GATE"
+		(at 274.32 175.26 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "57c8c5df-ffef-4182-9fba-811bf241c267")
 	)
 	(hierarchical_label "RAIL_P12"
 		(shape input)
-		(at 144.78 96.52 0)
+		(at 20.32 30.48 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "b27a569b-ba83-4e96-ae32-a2a8dee45a1a")
+		(uuid "4c7a58c0-d0f4-474c-9132-3cd716322e5b")
 	)
 	(hierarchical_label "RAIL_N12"
 		(shape input)
-		(at 144.78 99.06 0)
+		(at 20.32 40.64 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "b2ae1af7-eff0-4b51-8950-eba25672c3cd")
+		(uuid "f4b19594-71e9-4e8e-b926-96e78ddd7124")
 	)
 	(hierarchical_label "DIRECT_PRESENT"
 		(shape input)
-		(at 144.78 101.6 0)
+		(at 20.32 50.8 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "d1144e3c-3e0b-45d5-a328-b1d7102cc613")
+		(uuid "034657f5-fc3a-4470-aee0-c5ab17e8bee7")
 	)
 	(hierarchical_label "WET_MIX"
 		(shape input)
-		(at 144.78 104.14 0)
+		(at 20.32 60.96 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "a7d21227-ca1d-4462-952b-0f19b983fd1c")
+		(uuid "3c8333d5-b37a-496a-96cd-4ebb7e8ff32d")
 	)
 	(hierarchical_label "HARDWARE_FAULT_N"
 		(shape input)
-		(at 144.78 106.68 0)
+		(at 20.32 71.12 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "0d569497-959a-4ca5-b521-c62284c02936")
+		(uuid "42511803-4514-47f6-af5b-bb5532965d2c")
 	)
-	(rectangle
-		(start 33.02 20.32)
-		(end 271.78 187.96)
-		(stroke
-			(width 0.127)
-			(type solid)
-		)
-		(fill
-			(type none)
-		)
-		(uuid "c4815066-2787-4ff6-981c-aa4833876fec")
+	(no_connect
+		(at 375.92 121.92)
+		(uuid "2a3a1913-2443-43b0-b41e-95c5d1382c32")
 	)
 	(text "07 — OUTPUT / MUTE / PROTECTION"
 		(exclude_from_sim no)
-		(at 38.1 25.4 0.0000)
+		(at 20.32 12.7 0.0000)
 		(effects
 			(font
 				(size 2.54 2.54)
 			)
 		)
-		(uuid "dba43b79-b38f-4ac0-a37a-badcf4f32627")
+		(uuid "af304411-42c2-4d4d-ad86-c136e6efcf75")
 	)
-	(text "HIERARCHY / INTERFACE CAPTURE ONLY — CIRCUIT CONTENT NOT YET ACCEPTED"
+	(text "DIRECT + WET HALF-SUM • OUTPUT LEVEL • FAIL-MUTED JFET • PROTECTED MONO OUT"
 		(exclude_from_sim no)
-		(at 38.1 33.02 0.0000)
+		(at 20.32 17.78 0.0000)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 		)
-		(uuid "8321316e-f796-4124-ac36-e3107daebcbd")
+		(uuid "f003328f-d3a4-475d-9458-9afbb3aa6608")
+	)
+	(text "U32B FINAL HALF-SUM: pins 5 +, 6 -, 7 OUT"
+		(exclude_from_sim no)
+		(at 101.6 116.84 0.0000)
+		(effects
+			(font
+				(size 0.9 0.9)
+			)
+		)
+		(uuid "4600dab5-d89e-4242-941a-a322cf104732")
+	)
+	(text "U32C OUTPUT LEVEL BUFFER: pins 10 +, 9 -, 8 OUT"
+		(exclude_from_sim no)
+		(at 198.12 116.84 0.0000)
+		(effects
+			(font
+				(size 0.9 0.9)
+			)
+		)
+		(uuid "96f21036-1a8b-47be-8b63-bdae8616320b")
+	)
+	(text "U32D POST-MUTE DRIVER: pins 12 +, 13 -, 14 OUT"
+		(exclude_from_sim no)
+		(at 294.64 116.84 0.0000)
+		(effects
+			(font
+				(size 0.9 0.9)
+			)
+		)
+		(uuid "e873c762-6c70-4ae6-b408-379e8fafc909")
+	)
+	(text "SHARED OPA1679 CONTRACT\nU32 unit 1 + power unit 5 remain on sheet 03.\nU32 units 2/3/4 implement final half-sum, level buffer and post-mute driver here.\nExactly seven physical OPA1679 packages remain in Prototype A."
+		(exclude_from_sim no)
+		(at 40.64 223.52 0.0000)
+		(effects
+			(font
+				(size 1.05 1.05)
+			)
+		)
+		(uuid "3258aed0-2ba6-415e-bb4a-72be1062018e")
+	)
+	(text "OUTPUT GAIN CONTRACT\nR700 = R701 = 40.2k; R702 = 20.0k.\nEach branch = 0.4975; two 6.0 Vpp inputs calculate to 5.97 Vpp.\nThe 10k output control only attenuates; normal output remains below 10 Vpp."
+		(exclude_from_sim no)
+		(at 177.8 223.52 0.0000)
+		(effects
+			(font
+				(size 1.05 1.05)
+			)
+		)
+		(uuid "ce6f03e7-c859-4d56-9beb-4d3c81f50595")
+	)
+	(text "FAIL-MUTE CONTRACT\nFault/undefined HARDWARE_FAULT_N lights U70 and clamps MUTE_GATE toward 0 V.\nHealthy release approaches -10.91 V from RAIL_N12 with about 90.9 ms RC time constant.\nAt 50% assumed CTR, the first-pass fault-clamp estimate is 12.7 ms; exact optocoupler/JFET parts remain a later measured gate."
+		(exclude_from_sim no)
+		(at 294.64 223.52 0.0000)
+		(effects
+			(font
+				(size 1.05 1.05)
+			)
+		)
+		(uuid "063b7672-aa85-47d4-9007-50af621616f2")
+	)
+	(text "BOUNDARY\nAll mix, level, mute, output-protection and jack nodes remain local to sheet 07.\nNo audio or control net is exported from this sheet; physical jack/footprint acceptance remains blocked."
+		(exclude_from_sim no)
+		(at 218.44 269.24 0.0000)
+		(effects
+			(font
+				(size 1.05 1.05)
+			)
+		)
+		(uuid "43c62c3b-434a-4b29-979c-42809a8c422d")
 	)
 	(sheet_instances
 		(path "/"
