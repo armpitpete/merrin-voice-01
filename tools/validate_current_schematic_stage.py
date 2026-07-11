@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate current V5.2 native-capture authority through sheet 07."""
+"""Validate current V5.2 native-capture authority before or after sheet 09."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path("hardware/memory-core-prototype-a")
 
-CAPTURED = (
+CAPTURED_BASE = (
     "01_POWER_PROTECTION_CAPTURED",
     "02_MCU_CLOCK_DEBUG_CAPTURED",
     "03_CODEC_CONVERSION_CAPTURED",
@@ -32,9 +32,8 @@ def main() -> None:
     found_files = {path.name for path in ROOT.glob("[0-9][0-9]_*.kicad_sch")}
     assert found_files == expected_files, (found_files, expected_files)
 
-    for marker in CAPTURED:
+    for marker in CAPTURED_BASE:
         assert (ROOT / marker).exists(), marker
-    assert not (ROOT / "09_TEST_SERVICE_CAPTURED").exists()
 
     sheet07 = next(sheet for sheet in manifest["sheets"] if sheet["code"] == "07")
     assert sheet07["pins"] == [
@@ -45,10 +44,26 @@ def main() -> None:
         {"name": "HARDWARE_FAULT_N", "direction": "input"},
     ]
 
+    sheet09 = next(sheet for sheet in manifest["sheets"] if sheet["code"] == "09")
+    assert sheet09["pins"] == [
+        {"name": "RAIL_3V3", "direction": "input"},
+        {"name": "HARDWARE_FAULT_N", "direction": "input"},
+        {"name": "SHAPED_PRESENT", "direction": "input"},
+        {"name": "ADC_ANALOG_IN", "direction": "input"},
+        {"name": "RETURN_LIMITED", "direction": "input"},
+        {"name": "RETURN_FEED", "direction": "input"},
+        {"name": "ABSENCE_INFLUENCE", "direction": "input"},
+        {"name": "WET_MIX", "direction": "input"},
+    ]
+
     assert (ROOT / "MerrinLab_PrototypeA.kicad_sym").exists()
     assert (ROOT / "sym-lib-table").exists()
-    print("Current schematic authority: eight captured sheets and sheet 09 scaffold: PASS")
-    print("Sheet-07 five-input/no-export hierarchy manifest contract: PASS")
+
+    if (ROOT / "09_TEST_SERVICE_CAPTURED").exists():
+        print("Current schematic authority: all nine component sheets captured: PASS")
+    else:
+        print("Current schematic authority: eight captured sheets and sheet 09 scaffold: PASS")
+    print("Sheet-07 and sheet-09 hierarchy manifest contracts: PASS")
 
 
 if __name__ == "__main__":
