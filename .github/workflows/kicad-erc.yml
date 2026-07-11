@@ -228,6 +228,7 @@ jobs:
           if [ "${{ steps.stage.outputs.controls_interfaces }}" = "false" ]; then
             git add \
               "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" \
+              "$root/01_POWER_PROTECTION.kicad_sch" \
               "$root/02_MCU_CLOCK_DEBUG.kicad_sch" \
               "$root/hierarchy-manifest.json" \
               "$root/CONTROLS_INTERFACES_AMENDED"
