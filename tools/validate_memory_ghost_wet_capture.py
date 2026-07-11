@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the sheet-05 capture and integrated SSI2164 ownership contract."""
+"""Validate native sheet-05 capture and integrated SSI2164 ownership.
+
+This validator reads the emitted KiCad S-expressions directly. KiCad 10 remains
+the authoritative parser in the following ERC step; these checks enforce the
+bounded symbol, physical-pin, shared-device, gain and hierarchy contracts before
+that parser is invoked.
+"""
 
 from __future__ import annotations
 
@@ -9,8 +15,6 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
-
-import kicad_sch_api as ksa
 
 ROOT = Path("hardware/memory-core-prototype-a")
 SHEET05 = ROOT / "05_MEMORY_GHOST_WET.kicad_sch"
@@ -28,6 +32,72 @@ def load_module(name: str, path: str):
     return module
 
 
+def balanced_block(text: str, start: int) -> str:
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        char = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
+    raise AssertionError(f"Unterminated S-expression at offset {start}")
+
+
+def instance_blocks(text: str) -> list[str]:
+    """Return native symbol-instance blocks, excluding embedded library symbols."""
+    marker = "\n\t(symbol\n\t\t(lib_id "
+    blocks: list[str] = []
+    offset = 0
+    while True:
+        found = text.find(marker, offset)
+        if found == -1:
+            return blocks
+        start = found + 2
+        block = balanced_block(text, start)
+        blocks.append(block)
+        offset = start + len(block)
+
+
+def field(block: str, pattern: str, description: str) -> str:
+    match = re.search(pattern, block)
+    if not match:
+        raise AssertionError(f"Missing {description} in symbol instance")
+    return match.group(1)
+
+
+def instances(path: Path) -> list[dict[str, object]]:
+    rows = []
+    for block in instance_blocks(path.read_text(encoding="utf-8")):
+        rows.append(
+            {
+                "lib_id": field(block, r'\(lib_id "([^"]+)"', "lib_id"),
+                "reference": field(block, r'\(property "Reference" "([^"]+)"', "reference"),
+                "unit": int(field(block, r'\(unit (\d+)\)', "unit")),
+                "pins": set(re.findall(r'^\s*\(pin "([^"]+)"', block, re.MULTILINE)),
+                "footprint": field(
+                    block,
+                    r'\(property "Footprint" "([^"]*)"',
+                    "footprint",
+                ),
+            }
+        )
+    return rows
+
+
 def hierarchical_labels(text: str) -> dict[str, str]:
     rows = re.findall(
         r'\(hierarchical_label "([^"]+)"\s+\(shape ([^)]+)\)',
@@ -35,35 +105,34 @@ def hierarchical_labels(text: str) -> dict[str, str]:
         re.MULTILINE,
     )
     labels = dict(rows)
-    if len(labels) != len(rows):
-        raise AssertionError(f"Duplicate hierarchical label names: {rows}")
+    assert len(labels) == len(rows), f"Duplicate hierarchical labels: {rows}"
     return labels
-
-
-def check_unique_references(schematic, expected_multi_ref: str | None = None) -> None:
-    refs = [
-        component.reference
-        for component in schematic.components
-        if not component.reference.startswith("#")
-    ]
-    duplicates = sorted(
-        reference
-        for reference, count in Counter(refs).items()
-        if count > 1 and reference != expected_multi_ref
-    )
-    assert not duplicates, duplicates
 
 
 def unit_text(rendered: str, unit: int) -> str:
     marker = f'(symbol "SSI2164S_MULTI_{unit}_1"'
     start = rendered.index(marker)
-    next_markers = [
-        rendered.find(f'(symbol "SSI2164S_MULTI_{later}_1"', start + 1)
-        for later in range(unit + 1, 6)
+    later = [
+        rendered.find(f'(symbol "SSI2164S_MULTI_{candidate}_1"', start + 1)
+        for candidate in range(unit + 1, 6)
     ]
-    ends = [index for index in next_markers if index != -1]
+    ends = [index for index in later if index != -1]
     end = min(ends) if ends else len(rendered)
     return rendered[start:end]
+
+
+def assert_unique_references(rows: list[dict[str, object]], multi_ref: str) -> None:
+    counts = Counter(
+        str(row["reference"])
+        for row in rows
+        if not str(row["reference"]).startswith("#")
+    )
+    duplicates = sorted(
+        reference
+        for reference, count in counts.items()
+        if count > 1 and reference != multi_ref
+    )
+    assert not duplicates, f"Duplicate references: {duplicates}"
 
 
 def main() -> None:
@@ -74,7 +143,7 @@ def main() -> None:
     wet = load_module("memory_ghost_wet_capture", "tools/capture_memory_ghost_wet_sheet.py")
     ret = load_module("return_break_limiter_capture", "tools/capture_return_break_limiter_sheet.py")
 
-    expected_wet_inputs = {
+    wet_inputs = {
         "RAIL_P12",
         "RAIL_N12",
         "MEMORY_DAC",
@@ -83,87 +152,62 @@ def main() -> None:
         "VCA_GHOST_CTRL",
         "VCA_WET_CTRL",
     }
-    assert set(wet.HIER_INPUTS) == expected_wet_inputs
+    assert set(wet.HIER_INPUTS) == wet_inputs
     assert wet.HIER_OUTPUTS == ("WET_MIX",)
     assert wet.ALLOWED_EXPORTS == frozenset({"WET_MIX"})
     assert wet.SSI_REFERENCE == "U60"
-    assert wet.SSI_CHANNEL_PINS == {
-        1: {"iin": "2", "vc": "3", "iout": "4", "role": "MEMORY"},
-        2: {"iin": "7", "vc": "6", "iout": "5", "role": "GHOST"},
-        4: {"iin": "10", "vc": "11", "iout": "12", "role": "WET MASTER"},
-    }
     assert math.isclose(wet.VCA_INPUT_KOHM, wet.VCA_IV_KOHM)
     assert math.isclose(wet.SUM_BRANCH_GAIN, 20.0 / 40.2, abs_tol=1e-12)
     assert 0.497 < wet.SUM_BRANCH_GAIN < 0.498
     assert 2 * wet.SUM_BRANCH_GAIN < 1.0
 
-    rendered = ret.render_ssi2164_multi_symbol()
-    expected_units = {
-        1: (("2", "IIN1"), ("3", "VC1"), ("4", "IOUT1")),
-        2: (("7", "IIN2"), ("6", "VC2"), ("5", "IOUT2")),
-        3: (("15", "IIN3"), ("14", "VC3"), ("13", "IOUT3")),
-        4: (("10", "IIN4"), ("11", "VC4"), ("12", "IOUT4")),
-        5: (("1", "MODE"), ("8", "GND"), ("9", "V-"), ("16", "V+")),
+    expected_pins = {
+        1: {"2": "IIN1", "3": "VC1", "4": "IOUT1"},
+        2: {"7": "IIN2", "6": "VC2", "5": "IOUT2"},
+        3: {"15": "IIN3", "14": "VC3", "13": "IOUT3"},
+        4: {"10": "IIN4", "11": "VC4", "12": "IOUT4"},
+        5: {"1": "MODE", "8": "GND", "9": "V-", "16": "V+"},
     }
-    for unit, pins in expected_units.items():
+    rendered = ret.render_ssi2164_multi_symbol()
+    for unit, pins in expected_pins.items():
         body = unit_text(rendered, unit)
-        for number, name in pins:
+        for number, name in pins.items():
             assert f'(name "{name}"' in body, (unit, name)
             assert f'(number "{number}"' in body, (unit, number)
 
-    cache = ksa.get_symbol_cache()
-    cache.add_library_path(str(LIBRARY.resolve()))
-    sheet05 = ksa.load_schematic(str(SHEET05))
-    sheet06 = ksa.load_schematic(str(SHEET06))
+    rows05 = instances(SHEET05)
+    rows06 = instances(SHEET06)
+    ssi05 = [row for row in rows05 if str(row["lib_id"]).endswith("SSI2164S_MULTI")]
+    ssi06 = [row for row in rows06 if str(row["lib_id"]).endswith("SSI2164S_MULTI")]
+    assert sorted(int(row["unit"]) for row in ssi05) == [1, 2, 4]
+    assert sorted(int(row["unit"]) for row in ssi06) == [3, 5]
 
-    units05 = sorted(
-        component._data.unit
-        for component in sheet05.components
-        if component.reference == "U60" and component.lib_id.endswith("SSI2164S_MULTI")
-    )
-    units06 = sorted(
-        component._data.unit
-        for component in sheet06.components
-        if component.reference == "U60" and component.lib_id.endswith("SSI2164S_MULTI")
-    )
-    assert units05 == [1, 2, 4], units05
-    assert units06 == [3, 5], units06
-    assert sorted(units05 + units06) == [1, 2, 3, 4, 5]
-
-    all_ssi = []
+    all_ssi: list[tuple[str, dict[str, object]]] = []
     for path in sorted(ROOT.glob("[0-9][0-9]_*.kicad_sch")):
-        schematic = ksa.load_schematic(str(path))
-        for component in schematic.components:
-            if component.lib_id.endswith("SSI2164S_MULTI"):
-                all_ssi.append((path.name, component.reference, component._data.unit))
+        for row in instances(path):
+            if str(row["lib_id"]).endswith("SSI2164S_MULTI"):
+                all_ssi.append((path.name, row))
     assert len(all_ssi) == 5, all_ssi
-    assert {reference for _path, reference, _unit in all_ssi} == {"U60"}
-    assert sorted(unit for _path, _reference, unit in all_ssi) == [1, 2, 3, 4, 5]
+    assert {str(row["reference"]) for _path, row in all_ssi} == {"U60"}
+    assert sorted(int(row["unit"]) for _path, row in all_ssi) == [1, 2, 3, 4, 5]
+    for _path, row in all_ssi:
+        unit = int(row["unit"])
+        assert set(row["pins"]) == set(expected_pins[unit]), (unit, row["pins"])
+        assert row["footprint"] == "", (unit, row["footprint"])
 
-    for component in sheet05.components:
-        if component.reference == "U60":
-            pins = wet.SSI_CHANNEL_PINS[component._data.unit]
-            for pin in (pins["iin"], pins["vc"], pins["iout"]):
-                assert component.get_pin_position(pin) is not None, (
-                    component._data.unit,
-                    pin,
-                )
-
-    check_unique_references(sheet05, "U60")
-    check_unique_references(sheet06, "U60")
+    assert_unique_references(rows05, "U60")
+    assert_unique_references(rows06, "U60")
 
     text05 = SHEET05.read_text(encoding="utf-8")
     text06 = SHEET06.read_text(encoding="utf-8")
-    labels05 = hierarchical_labels(text05)
-    labels06 = hierarchical_labels(text06)
-    assert labels05 == {
-        **{name: "input" for name in expected_wet_inputs},
+    assert hierarchical_labels(text05) == {
+        **{name: "input" for name in wet_inputs},
         "WET_MIX": "output",
-    }, labels05
-    assert labels06 == {
+    }
+    assert hierarchical_labels(text06) == {
         **{name: "input" for name in ret.HIER_INPUTS},
         **{name: "output" for name in ret.HIER_OUTPUTS},
-    }, labels06
+    }
 
     for token in (
         "SSI2164 — MEMORY CH1",
@@ -181,9 +225,9 @@ def main() -> None:
     assert "same physical SSI2164" not in text06
     assert "pins 10 IIN3" not in text06
 
-    print("Memory/Ghost/wet hierarchy direction contract: PASS")
-    print("SSI2164 physical-pin and five-unit ownership contract: PASS")
-    print("No duplicate SSI2164 physical device: PASS")
+    print("Memory/Ghost/wet hierarchy and output-direction contract: PASS")
+    print("SSI2164 symbol and physical-pin contract: PASS")
+    print("SSI2164 five-unit shared ownership and unique-device contract: PASS")
     print("Memory/Ghost half-sum and WET_MIX export contract: PASS")
 
 
