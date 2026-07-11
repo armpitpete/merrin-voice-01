@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Run sheet 05 and repair exact output directions in the native file.
-
-The pinned kicad-sch-api public ``add_hierarchical_label`` method accepts a
-``shape`` argument but does not forward it to the created label. Every new
-label therefore serialises as ``input``. This wrapper preserves the reviewed
-electrical capture, then changes only the named sheet-05 output to ``output``.
-"""
+"""Run sheet 05, repair SSI pins, and set the exact native output direction."""
 
 from __future__ import annotations
 
@@ -14,14 +8,25 @@ import re
 import sys
 from pathlib import Path
 
-BASE_PATH = Path(__file__).with_name("capture_memory_ghost_wet_sheet.py")
-SPEC = importlib.util.spec_from_file_location("memory_ghost_wet_capture_base", BASE_PATH)
-if SPEC is None or SPEC.loader is None:
-    raise RuntimeError(f"Could not load Memory/Ghost/wet capture: {BASE_PATH}")
 
-base = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = base
-SPEC.loader.exec_module(base)
+def load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+base = load(
+    "memory_ghost_wet_capture_base",
+    Path(__file__).with_name("capture_memory_ghost_wet_sheet.py"),
+)
+physical = load(
+    "memory_ghost_wet_ssi_repair",
+    Path(__file__).with_name("repair_memory_ghost_wet_ssi_units.py"),
+)
 
 
 def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
@@ -43,6 +48,7 @@ def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
 
 def main() -> None:
     base.build()
+    physical.main()
     repair_output_directions(base.SHEET_FILE, base.HIER_OUTPUTS)
     print("Sheet-05 native output direction repaired: WET_MIX=output")
 
