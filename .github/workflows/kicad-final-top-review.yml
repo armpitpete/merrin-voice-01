@@ -1,0 +1,151 @@
+name: KiCad final top integrated review
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/amend_final_top_authority.py"
+      - "tools/validate_final_top_integration.py"
+      - "tools/validate_current_schematic_stage.py"
+      - ".github/workflows/kicad-final-top-review.yml"
+      - "hardware/memory-core-prototype-a/*.kicad_sch"
+      - "hardware/memory-core-prototype-a/*_CAPTURED"
+      - "hardware/memory-core-prototype-a/*_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/00_TOP_FINAL_REVIEW_COMPLETE"
+  pull_request:
+    paths:
+      - "tools/amend_final_top_authority.py"
+      - "tools/validate_final_top_integration.py"
+      - "tools/validate_current_schematic_stage.py"
+      - ".github/workflows/kicad-final-top-review.yml"
+      - "hardware/memory-core-prototype-a/*.kicad_sch"
+      - "hardware/memory-core-prototype-a/*_CAPTURED"
+      - "hardware/memory-core-prototype-a/*_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/00_TOP_FINAL_REVIEW_COMPLETE"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  final-top-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed final-review stage
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/00_TOP_FINAL_REVIEW_COMPLETE"
+          if [ -f "$marker" ]; then
+            echo "final=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed final-review artifact; amendment will be skipped."
+          else
+            echo "final=false" >> "$GITHUB_OUTPUT"
+            echo "Final parent/child reconciliation is active."
+          fi
+
+      - name: Install symbol libraries and pinned schematic parser
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+
+      - name: Reconcile final top and child authority
+        if: steps.stage.outputs.final == 'false'
+        run: python tools/amend_final_top_authority.py
+
+      - name: Validate all component and final integration contracts
+        run: |
+          python tools/validate_current_schematic_stage.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_output_mute_protection_capture.py
+          python tools/validate_output_control_symbols.py
+          python tools/validate_test_service_capture.py
+          python tools/validate_final_top_integration.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          docker pull "$KICAD_IMAGE"
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt \
+              hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch
+          cat build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt
+
+      - name: Enforce final zero-error zero-warning policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          if errors or warnings or codes:
+              raise SystemExit(
+                  f'Final integrated review requires 0 errors / 0 warnings; '
+                  f'found {errors} errors, {warnings} warnings, classes {sorted(set(codes))}'
+              )
+          print('Final integrated KiCad ERC: PASS — 0 errors, 0 warnings')
+          PY
+
+      - name: Promote only the first passing final-review artifact
+        if: github.event_name == 'push' && steps.stage.outputs.final == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" \
+            "$root/01_POWER_PROTECTION.kicad_sch" \
+            "$root/02_MCU_CLOCK_DEBUG.kicad_sch" \
+            "$root/04_INPUT_PRESSURE_ABSENCE.kicad_sch" \
+            "$root/08_CONTROLS_STATE.kicad_sch" \
+            "$root/hierarchy-manifest.json" \
+            "$root/00_TOP_FINAL_REVIEW_COMPLETE"
+          if git diff --cached --quiet; then
+            echo "No validated final-review artifact to promote."
+            exit 0
+          fi
+          git commit -m "Complete final integrated schematic review"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload final-review hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-integrated-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload final ERC evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-integrated-erc-report
+          path: build/erc
+          if-no-files-found: ignore
