@@ -4736,7 +4736,7 @@
 		)
 		(uuid "ce6f03e7-c859-4d56-9beb-4d3c81f50595")
 	)
-	(text "EXACT FAIL-MUTE CONTRACT\nHealthy HARDWARE_FAULT_N drives PMV20XNE and VO617A-3X007T, connecting the negative release path.\nFault or +12 V loss removes release drive; 100k/100nF returns MUTE_GATE toward 0 V and crosses -3 V in about 12.6 ms.\n120k isolation with 100 ohm worst JFET on-resistance calculates better than 60 dB static attenuation; bench proof remains Gate C."
+	(text "EXACT FAIL-MUTE CONTRACT\nHealthy HARDWARE_FAULT_N drives PMV20XNE and VO617A-3X007T, connecting the negative release path.\nFault or +12 V loss removes release drive; 100k/100nF returns MUTE_GATE toward 0 V and crosses -3 V in about 12.6 ms.\n120k isolation with the 100 ohm MMBFJ113 maximum at TJ = 25 C calculates 61.5 dB static attenuation; temperature, spread and measured mute depth remain Gate C."
 		(exclude_from_sim no)
 		(at 294.64 223.52 0.0000)
 		(effects
