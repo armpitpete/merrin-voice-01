@@ -1,272 +1,235 @@
 # Output Mute and Fault-Control Exact-Part Review
 
-## Decision
+## Decision after schematic correction
 
 ```text
-OUTPUT-MUTE / FAULT-CONTROL EXACT-PART GATE: NOT PASSED
-Q70 DIRECT FOOTPRINT ASSIGNMENT: REJECTED
-Q71 DIRECT FOOTPRINT ASSIGNMENT: REJECTED
-U70 EXACT PART / FOOTPRINT: BLOCKED
-SHEET 07 SCHEMATIC CORRECTION: REQUIRED
-PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
+OUTPUT-MUTE / FAULT-CONTROL EXACT-PART GATE: PASS FOR Q70 / Q71 / U70
+Q70 EXACT PART / PIN MAP / PACKAGE: ACCEPTED
+Q71 EXACT PART / PIN MAP / PACKAGE: ACCEPTED
+U70 EXACT PART / CTR BIN / PACKAGE: ACCEPTED
+POSITIVE-RAIL-LOSS FAIL-MUTE TOPOLOGY: ACCEPTED AT CALCULATED SCHEMATIC LEVEL
+CALCULATED STATIC MUTE TARGET: >60 dB
+MEASURED MUTE DEPTH / POP / RAIL-SEQUENCING: TRANSFERRED TO GATE C
+PCB PLACEMENT / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
 
-This review does not invalidate the Gate-A schematic architecture. It identifies physical-part facts that must return to sheet 07 before Gate B can accept parts or footprints.
+This review closes the first Gate-B exact-part lane. It accepts three exact active parts, their physical pin maps and their package-to-footprint mappings. It does not accept measured behaviour or physical PCB implementation.
 
-## Reviewed circuit
+## Corrected topology
 
-Current fault-control path:
+The provisional fault-powered clamp was replaced by a powered healthy-release path:
 
 ```text
-RAIL_3V3 -- R10 10k -- HARDWARE_FAULT_N -- R711 10k -- Q71 base
+RAIL_3V3 -- R10 10k -- HARDWARE_FAULT_N -- R711 10k -- Q71 gate
                                                 |
                                              R712 100k
                                                 |
                                                GND
 
-RAIL_P12 -- R713 2.2k -- MUTE_FAULT_HIGH -- R714 3.3k -- U70 LED -- GND
-                              |
-                           Q71 collector
-Q71 emitter ----------------- GND
+RAIL_P12 -- R713 820R -- MUTE_LED_SUPPLY -- R714 1k -- U70 LED anode
+U70 LED cathode -- MUTE_LED_K -- Q71 drain
+Q71 source ---------------------------------------------- GND
 
-RAIL_N12 -- R715 100k -- MUTE_GATE -- R716 1M -- GND
-                              |
-                            C710 1uF
-                              |
-                             GND
+RAIL_N12 -- R715 10k -- RELEASE_SINK -- U70 emitter
+U70 collector ----------------------------- MUTE_GATE
+                                              |
+                                      R716 100k to GND
+                                      C710 100nF to GND
+                                              |
+                                      Q70 physical gate
 
-U70 phototransistor: collector at GND, emitter at MUTE_GATE
-Q70 JFET shunt: MUTE_NODE to GND, controlled by MUTE_GATE
+OUT_PREMUTE -- R703 120k -- MUTE_NODE -- Q70 drain
+                                      Q70 source -- GND
 ```
 
-The accepted capture uses blank active-device footprints and explicitly transfers mute depth, fault timing, rail sequencing and exact package selection to this gate.
+Healthy `HARDWARE_FAULT_N` turns Q71 and U70 on, connecting the negative release path. A fault, undefined fault signal or loss of `RAIL_P12` removes the release drive, allowing `R716` to return `MUTE_GATE` toward ground and turn the shunt JFET on.
 
-## Q70 — output-mute JFET
-
-### Exact candidate reviewed
+## Q70 — output mute JFET
 
 ```text
 Manufacturer: onsemi
-Part:         MMBFJ113
-Function:     N-channel analog-switch JFET
-Package:      SOT-23 / TO-236, case 318
-Datasheet:    MMBFJ113/D, Rev. 5, March 2023
-Source:       https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf
+Exact part:   MMBFJ113
+Package:      SOT-23 / TO-236
+Datasheet:    https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf
+KiCad:        Package_TO_SOT_SMD:SOT-23
 ```
 
-Manufacturer facts relevant to this circuit:
+Physical pin contract:
 
 ```text
-physical pin 1 = drain
-physical pin 2 = source
-physical pin 3 = gate
-source and drain are interchangeable
-VGS(off), J113 = -0.5 V to -3.0 V
-rDS(on), J113 = 100 ohm maximum at VGS = 0 V
+pin 1 drain  -> MUTE_NODE
+pin 2 source -> GND
+pin 3 gate   -> MUTE_GATE
 ```
 
-### Pin-map result
-
-Current accepted logical mapping:
+Guaranteed limits used by this gate:
 
 ```text
-Q70 pin 1 = MUTE_NODE
-Q70 pin 2 = MUTE_GATE
-Q70 pin 3 = GND
+J113 VGS(off): -0.5 V to -3.0 V
+rDS(on):       100 ohm maximum at VGS = 0 V
 ```
 
-Required `MMBFJ113` physical mapping:
+### Minimum mute-depth requirement
 
 ```text
-Q70 pin 1 = MUTE_NODE    (drain)
-Q70 pin 2 = GND          (source)
-Q70 pin 3 = MUTE_GATE    (gate)
+calculated worst-case static attenuation: greater than 60 dB
+measured Gate-C output attenuation:       at least 60 dB
 ```
 
-The current symbol places the gate on physical pin 2. Source/drain interchangeability does not cure a gate-pin error. A SOT-23 footprint must not be attached to the current symbol.
-
-### Electrical result
-
-The nominal healthy gate calculation remains about `-10.91 V`. Against the worst specified J113 cutoff magnitude of `3.0 V`, the nominal off-state margin is about `7.91 V`.
-
-The mute-on resistance is not sufficient to claim silence:
+With `R703 = 120 kOhm ±1%` and maximum `100 ohm` JFET on-resistance:
 
 ```text
-R703 series isolation = 10,000 ohm
-MMBFJ113 worst rDS(on) = 100 ohm
-ideal static ratio     = 100 / (10,000 + 100)
-                       = 0.009901
-ideal attenuation      = about -40.1 dB
+R703 minimum = 118.8 kOhm
+ratio        = 100 / (118800 + 100)
+attenuation  = 61.50 dB
 ```
 
-This ignores signal dependence, temperature, JFET spread, op-amp behaviour, leakage and board parasitics. `MMBFJ113` is therefore an electrically plausible prototype candidate, but it is not accepted until a minimum mute-depth target is defined and the measured gate is planned.
+This is a static bound. Signal dependence, leakage, distortion, op-amp behaviour, parasitic coupling and audible pop energy remain measured Gate-C tests.
 
 ### Q70 decision
 
 ```text
-PART CANDIDATE: RETAIN FOR COMPARISON
-SYMBOL PIN MAP: FAIL
-FOOTPRINT: NOT ACCEPTED
-MUTE-DEPTH CLAIM: NOT ACCEPTED
-STATUS: RETURN TO SCHEMATIC
+EXACT PART: ACCEPTED
+PHYSICAL PIN MAP: ACCEPTED
+SOT-23 FOOTPRINT MAPPING: ACCEPTED
+CALCULATED STATIC TARGET: PASS — 61.50 dB
+MEASURED MUTE CLAIM: NOT YET ACCEPTED
 ```
 
-## Q71 — fault inverter NPN
+## Q71 — healthy-release driver
 
-### Exact candidate reviewed
+The under-proven provisional NPN was replaced rather than forced into acceptance.
 
 ```text
-Manufacturer: onsemi
-Part:         MMBT3904LT1G
-Function:     general-purpose NPN transistor
-Package:      SOT-23 / TO-236, case 318
-Datasheet:    MMBT3904LT1/D, Rev. 14, August 2021
-Source:       https://www.onsemi.com/pdf/datasheet/mmbt3904lt1-d.pdf
+Manufacturer: Nexperia
+Exact part:   PMV20XNE
+Function:     30 V N-channel MOSFET
+Package:      SOT-23 / TO-236AB
+Datasheet:    https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf
+KiCad:        Package_TO_SOT_SMD:SOT-23
 ```
 
-Manufacturer pin map:
+Physical pin contract:
 
 ```text
-physical pin 1 = base
-physical pin 2 = emitter
-physical pin 3 = collector
+pin 1 gate   -> FAULT_GATE
+pin 2 source -> GND
+pin 3 drain  -> MUTE_LED_K
 ```
 
-### Pin-map result
+The manufacturer specifies maximum `RDS(on) = 30 mOhm` at `VGS = 2.5 V`. The realised gate drive includes sheet-01 `R10 = 10 kOhm`, sheet-07 `R711 = 10 kOhm` and `R712 = 100 kOhm` to ground.
 
-The accepted sheet uses KiCad `Q_NPN_BCE`:
+Using `3.3 V -5%` and 1% resistor extremes:
 
 ```text
-logical pin 1 = base
-logical pin 2 = collector
-logical pin 3 = emitter
+VGS minimum estimate = 2.604 V
 ```
 
-The current net assignment is consequently:
-
-```text
-Q71 pin 1 = FAULT_INV_BASE
-Q71 pin 2 = MUTE_FAULT_HIGH
-Q71 pin 3 = GND
-```
-
-The exact `MMBT3904LT1G` requires:
-
-```text
-Q71 pin 1 = FAULT_INV_BASE
-Q71 pin 2 = GND
-Q71 pin 3 = MUTE_FAULT_HIGH
-```
-
-A standard SOT-23 footprint attached to the present `Q_NPN_BCE` symbol would swap collector and emitter.
-
-### Base-drive result
-
-`HARDWARE_FAULT_N` is not a zero-ohm 3.3 V source. It is an open-drain shared fault net pulled to `RAIL_3V3` by `R10 = 10 kOhm` on sheet 01. Q71 then adds `R711 = 10 kOhm` in series and `R712 = 100 kOhm` from base to ground.
-
-Using a first-pass `VBE = 0.7 V`:
-
-```text
-current through R10 + R711 = (3.3 - 0.7) / 20k = 0.130 mA
-R712 current at 0.7 V      = 0.007 mA
-estimated Q71 base current = 0.123 mA
-```
-
-When healthy, Q71 must sink approximately the `R713` pull-up current:
-
-```text
-about (12 V - VCE) / 2.2k = about 5.4 mA
-forced beta                = about 44
-```
-
-The onsemi guaranteed saturation point is specified at `IC = 10 mA, IB = 1 mA`, a forced beta of 10. The current design does not operate at that guaranteed test ratio. Typical behaviour may be adequate, but exact-part acceptance cannot be based on typical gain.
-
-The base load also pulls the shared `HARDWARE_FAULT_N` healthy level below its unloaded 3.3 V value. That interaction must be included in the fault-net review.
+This remains above the manufacturer’s 2.5 V guaranteed resistance test point. The BJT saturation problem is removed; the fault net now drives a high-impedance MOSFET gate.
 
 ### Q71 decision
 
 ```text
-PART CANDIDATE: ELECTRICALLY PLAUSIBLE
-SYMBOL PIN MAP: FAIL
-GUARANTEED SATURATION: NOT ESTABLISHED
-FOOTPRINT: NOT ACCEPTED
-STATUS: RETURN TO SCHEMATIC
+EXACT PART: ACCEPTED
+PHYSICAL PIN MAP: ACCEPTED
+2.5 V DRIVE CONTRACT: PASS — 2.604 V conservative estimate
+SOT-23 FOOTPRINT MAPPING: ACCEPTED
 ```
 
-## U70 — isolated fault clamp
-
-### Current candidate state
-
-The accepted capture names an `LTV-817S-class` SO-4 phototransistor optocoupler and uses the conventional logical pin map:
+## U70 — isolated healthy-release optocoupler
 
 ```text
-pin 1 = LED anode
-pin 2 = LED cathode
-pin 3 = emitter
-pin 4 = collector
+Manufacturer: Vishay
+Exact order:  VO617A-3X007T
+CTR class:    group 3
+Package:      option-7 SMD-4, 7.62 mm row spacing
+Datasheet:    https://www.vishay.com/docs/83430/vo617a.pdf
+KiCad:        Package_DIP:SMDIP-4_W7.62mm
 ```
 
-The circuit calculates about `1.96 mA` LED current during a fault and estimates clamp time using an assumed `50% CTR`.
-
-### Exact-part result
-
-No exact manufacturer ordering suffix or CTR rank is fixed. The current review has not established a guaranteed minimum CTR at approximately `1.96 mA` over the intended temperature range.
-
-To move the `1 uF` gate capacitor from about `-10.91 V` to 0 V within 20 ms while overcoming the `100 kOhm` negative pull requires roughly:
+Physical pin contract:
 
 ```text
-capacitor current = 10.91 V * 1uF / 20 ms = 0.546 mA
-negative-pull current near 0 V            = 0.120 mA
-required average collector current        = about 0.666 mA
-required CTR at 1.96 mA LED current        = about 34%
+pin 1 LED anode   -> MUTE_LED_A
+pin 2 LED cathode -> MUTE_LED_K
+pin 3 emitter     -> RELEASE_SINK
+pin 4 collector   -> MUTE_GATE
 ```
 
-That is a circuit requirement, not a verified part guarantee. The exact optocoupler must provide margin beyond it at minimum CTR, temperature and ageing, or the LED bias and timing network must be revised.
+The selected group guarantees:
+
+```text
+CTR at IF = 5 mA, VCE = 5 V: 100% minimum, 200% maximum
+VCE(sat):                     0.4 V maximum at IF = 5 mA, IC = 1 mA
+```
+
+The split LED resistance is `820 ohm + 1.0 kOhm`. Using `RAIL_P12 = 12 V -5%`, both resistors at +1%, and a conservative `1.65 V` LED drop:
+
+```text
+minimum estimated LED current = 5.304 mA
+minimum guaranteed collector capability at 100% CTR = 5.304 mA
+```
+
+The release path needs approximately `1.055 mA` at the start of release through `R715 = 10 kOhm`, and much less at steady state. The selected CTR class therefore provides more than 5:1 current margin against the calculated transient requirement.
 
 ### U70 decision
 
 ```text
-EXACT ORDERING CODE: NOT FIXED
-LOW-CURRENT CTR GUARANTEE: NOT ESTABLISHED
-TIMING GUARANTEE: NOT ESTABLISHED
-FOOTPRINT: NOT ACCEPTED
-STATUS: BLOCKED
+EXACT ORDERING CODE: ACCEPTED
+MINIMUM CTR CONDITION: PASS
+OPTION-7 SMD-4 PIN MAP: ACCEPTED
+SMDIP-4_W7.62mm FOOTPRINT MAPPING: ACCEPTED
 ```
 
-## Rail-loss fault behaviour
+## Rail-loss and fault timing
 
-The current path is asymmetric:
-
-- loss of `RAIL_N12` removes the negative release pull and lets `R716` move `MUTE_GATE` toward ground, which tends to mute;
-- loss of `RAIL_P12` also removes the source of `RAIL_3V3`, the `HARDWARE_FAULT_N` pull-up and the optocoupler LED current;
-- if `RAIL_N12` remains present during that condition, `R715` pulls `MUTE_GATE` negative and releases Q70 instead of enforcing mute.
-
-Therefore the present circuit does not establish fail-muted behaviour for positive-rail loss or asymmetric rail sequencing. Exact part selection cannot repair this topology by itself.
+Using maximum `0.4 V` optocoupler saturation voltage, `R715 = 10 kOhm` and `R716 = 100 kOhm`:
 
 ```text
-RAIL-LOSS FAIL-MUTE CLAIM: REJECTED
-STATUS: RETURN TO SCHEMATIC
+healthy MUTE_GATE estimate = -10.545 V
+worst J113 cutoff magnitude = 3.0 V
+healthy off-state margin    = 7.545 V
 ```
 
-## Required schematic correction
-
-The next bounded engineering patch must:
-
-1. replace or correct the Q70 symbol so physical pin 3 is the gate;
-2. replace Q71 with a physical `B-E-C` pin-map symbol and reconnect collector/emitter nets;
-3. define the required mute depth before deciding whether `MMBFJ113` is sufficient;
-4. redesign or formally constrain the fault path so positive-rail loss cannot release the mute;
-5. select an exact optocoupler ordering code and prove minimum CTR at the realised LED current;
-6. prove Q71 saturation using the actual `R10 + R711` source impedance, or revise the drive network;
-7. regenerate sheet 07 and rerun all committed-file validators plus KiCad ERC.
-
-Only after that schematic patch is reviewed may the SOT-23 and SO-4 footprints be independently verified and assigned.
-
-## Gate status after this review
+When `HARDWARE_FAULT_N` goes low or `RAIL_P12` disappears, U70 opens. `R716 = 100 kOhm` and `C710 = 100 nF` return the gate toward ground:
 
 ```text
-Gate A — schematic architecture     REMAINS ACCEPTED
-Gate B — output mute/fault parts    RETURNED TO SCHEMATIC
-Gate C — measured mute/fault tests  NOT STARTED
-Gate D — PCB / production           BLOCKED
+t = 100k x 100nF x ln(10.545 / 3.0)
+  = 12.57 ms
 ```
+
+This is below the declared 20 ms schematic target. Loss of `RAIL_N12` also removes the negative release source and therefore tends toward mute rather than release.
+
+Real rail ramps, capacitor tolerance, optocoupler storage, JFET spread and pop energy remain Gate C.
+
+## Footprint verification boundary
+
+| Ref | Exact part | Manufacturer package | KiCad footprint | Decision |
+|---|---|---|---|---|
+| Q70 | onsemi MMBFJ113 | SOT-23 / TO-236 | `Package_TO_SOT_SMD:SOT-23` | ACCEPTED |
+| Q71 | Nexperia PMV20XNE | SOT-23 / TO-236AB | `Package_TO_SOT_SMD:SOT-23` | ACCEPTED |
+| U70 | Vishay VO617A-3X007T | option-7 SMD-4 | `Package_DIP:SMDIP-4_W7.62mm` | ACCEPTED |
+
+Acceptance covers pad numbering, package family and nominal package geometry. It does not authorise placement, courtyard interaction, creepage strategy, assembly process, panel mechanics or purchasing.
+
+## Validation required for closure
+
+The amended sheet must pass:
+
+- deterministic amendment idempotence;
+- exact symbol and instance pin-map validators;
+- exact footprint mapping validation;
+- shared `U32` allocation validation;
+- hierarchy/no-export validation;
+- KiCad 10 hierarchical ERC with zero errors and zero warnings.
+
+## Gate status
+
+```text
+Gate A — schematic architecture               REMAINS ACCEPTED
+Gate B — Q70/Q71/U70 exact parts/footprints   PASS, SUBJECT TO PR REVIEW
+Gate C — measured mute/fault behaviour        NOT STARTED
+Gate D — PCB / production                     BLOCKED
+```
+
+The next Gate-B lane remains blocked until this correction is reviewed. PCB placement, routing, fabrication and purchasing remain blocked.
