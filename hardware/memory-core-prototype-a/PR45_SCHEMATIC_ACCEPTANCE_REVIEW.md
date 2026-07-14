@@ -222,6 +222,23 @@ Removed after reference and workflow inspection:
 
 The bootstrap generators could overwrite accepted component sheets with temporary interface harnesses. Their implementation and every generated stage remain recoverable from PR history, so removal preserves evidence while eliminating the destructive entry point.
 
+## Post-cleanup verification
+
+The cleaned branch was rechecked after the one-use and bootstrap paths were removed and the authority records were updated.
+
+Independent committed-file results:
+
+```text
+final 00_TOP integrated workflow          PASS
+consolidated generic schematic ERC        PASS
+integrated Return workflow                PASS
+output / mute / protection workflow       PASS
+reconciliation / generation / promotion   SKIPPED
+KiCad ERC                                 0 errors / 0 warnings
+```
+
+The cleanup did not alter the accepted native schematic.
+
 ## Merge strategy
 
 ### Recommendation: squash merge
@@ -230,7 +247,7 @@ Do not use a normal merge commit for this branch.
 
 Reasons:
 
-- the branch contains 141 incremental generation, promotion, repair and bot commits before review cleanup;
+- the branch contains a long sequence of incremental generation, promotion, repair and bot commits;
 - many intermediate commits intentionally represent rejected or superseded generated states;
 - the final native files and validation records are the authority, not the transient commit sequence;
 - a squash commit gives `main` one bounded, reviewable schematic-capture change;
