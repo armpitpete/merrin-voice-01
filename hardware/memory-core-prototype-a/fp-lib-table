@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "MerrinLab_PrototypeA")(type "KiCad")(uri "${KIPRJMOD}/MerrinLab_PrototypeA.pretty")(options "")(descr "MerrinLab Prototype A project-local reviewed footprints"))
+)
