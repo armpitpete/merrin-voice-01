@@ -8,8 +8,8 @@ J70 OUTPUT CONTACT CONTRACT                PASS
 WQP518MA EXACT ORDERABLE JACK               PASS FOR CONTACT / PCB GEOMETRY
 WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE     PASS FOR CONTACT / PCB GEOMETRY
 OFFICIAL KICAD SOURCE FOOTPRINT             PINNED AND VERIFIED
-NUMERIC PROJECT-LOCAL FOOTPRINT             CREATED — 1 / 2 / 3
-3 MM BARREL RELIEF NPTH                     INCLUDED
+NUMERIC PROJECT-LOCAL FOOTPRINT             PASS — 1 / 2 / 3
+3 MM BARREL RELIEF NPTH                     PASS
 PANEL HOLE TARGET                           6.50 +0.10 / -0.00 MM — DERIVED
 HEX NUT PRODUCT VARIANT                     SELECTED
 WASHER PRODUCT VARIANT                      SELECTED
@@ -17,6 +17,7 @@ THREAD / NUT / WASHER DIMENSIONS            NOT PUBLISHED
 2 MM PANEL STACK                            NOT YET FIT-PROVEN
 PHYSICAL SAMPLE                             REQUIRED
 FOOTPRINTS ASSIGNED                         NONE
+KICAD 10 HIERARCHICAL ERC                   PASS — 0 ERRORS / 0 WARNINGS
 PCB / PANEL FAB / PURCHASING                BLOCKED
 OVERALL                                     HUMAN MEASUREMENT REQUIRED
 ```
@@ -66,7 +67,7 @@ The output normal contact is deliberately unused.
 
 ## Official source geometry
 
-The new footprint authority is the official KiCad WQP/PJ398SM footprint at immutable revision:
+The footprint authority is the official KiCad WQP/PJ398SM footprint at immutable revision:
 
 ```text
 repository  KiCad/kicad-footprints
@@ -80,7 +81,7 @@ The earlier untested `clacktronics/AudioJacks` snapshot remains historical compa
 
 ## Numeric project-local footprint
 
-Created footprint:
+Validated footprint:
 
 ```text
 MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
@@ -161,9 +162,27 @@ The required checks include:
 6. confirmation that panel tightening does not lift the jack or load its solder joints;
 7. confirmation that the 3 mm barrel relief clears the physical part.
 
+## Validation evidence
+
+Engineering head:
+
+```text
+d1510cfcb4b85a3e6d17283d795b2a545ed4860a
+```
+
+```text
+KiCad jack exact-part verification  run 29368887533  PASS
+KiCad schematic ERC                 run 29368887574  PASS
+Current schematic stage authority   run 29368887521  PASS
+Hierarchical ERC                     0 errors / 0 warnings
+Footprint assignment                 remained blank
+```
+
+The validator independently compared the numeric `1/2/3` pad geometry with the pinned official `T/TN/S` source geometry and verified the 3 mm NPTH barrel relief.
+
 ## Assignment decision
 
-The project-local footprint is ready for independent geometry validation, but **no footprint assignment before the panel stack passes**.
+The project-local footprint has passed geometry validation, but **no footprint assignment before the panel stack passes**.
 
 J40 and J70 therefore retain blank footprint fields. The project symbol also retains a blank default footprint.
 
@@ -173,7 +192,7 @@ J40 and J70 therefore retain blank footprint fields. The project symbol also ret
 contact and switching contract        PASS
 supplier-controlled equivalence       PASS FOR CONTACT / PCB GEOMETRY
 official source footprint provenance  PASS
-numeric footprint geometry            PENDING CURRENT-HEAD CI
+numeric footprint geometry            PASS
 panel-hole target                      RECORDED, NOT FABRICATION AUTHORITY
 nut and washer products               SELECTED
 dimensional panel stack               BLOCKED
