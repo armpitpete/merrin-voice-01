@@ -1,170 +1,108 @@
 # 07_OUTPUT_MUTE_PROTECTION — Validation Record
 
-## Status
+## Current status
 
 ```text
-GENERATED ARTIFACT: PASS
-HIERARCHY / NO-EXPORT CONTRACT: PASS
-OUTPUT GAIN / HEADROOM CONTRACT: PASS
-FAIL-MUTE CONTROL CONTRACT: PASS
-OPA1679 SYMBOL / PHYSICAL-PIN CONTRACT: PASS
-SHARED MULTI-UNIT DEVICE CONTRACT: PASS
-PROVISIONAL CONTROL-SYMBOL CONTRACT: PASS
-KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
-COMMITTED-FILE RERUN: PASS — GENERATION SKIPPED
-PCB / FOOTPRINT / MECHANICAL AUTHORITY: NOT GRANTED
+SCHEMATIC-CAPTURE CONTRACT: PASS
+EXACT Q70 / Q71 / U70 PIN-MAP CONTRACT: PASS
+EXACT Q70 / Q71 / U70 FOOTPRINT MAPPING: PASS
+HEALTHY-RELEASE FAIL-MUTE TOPOLOGY: PASS AT CALCULATED SCHEMATIC LEVEL
+CALCULATED STATIC MUTE ATTENUATION: 61.50 dB
+CALCULATED FAULT / +12 V LOSS CROSSING: 12.57 ms
+SHARED U32 CONTRACT: PASS
+KICAD 10 HIERARCHICAL ERC: PENDING CURRENT PR RERUN
+MEASURED MUTE / POP / RAIL SEQUENCING: NOT ACCEPTED
+PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
 
-## Locked sheet boundary
+## Corrected exact parts
 
-Inputs:
+| Ref | Exact part | Pin map | Footprint |
+|---|---|---|---|
+| Q70 | onsemi MMBFJ113 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
+| Q71 | Nexperia PMV20XNE | 1 G, 2 S, 3 D | `Package_TO_SOT_SMD:SOT-23` |
+| U70 | Vishay VO617A-3X007T | 1 A, 2 K, 3 E, 4 C | `Package_DIP:SMDIP-4_W7.62mm` |
+
+The exact symbols are embedded in sheet 07 and stored in the project symbol library with manufacturer datasheets and reviewed package mappings.
+
+## Corrected fail-mute path
+
+Healthy operation powers the isolated negative release path. Fault or positive-rail loss removes that release path. This reverses the former unsafe dependency in which loss of the positive rail could leave the negative rail releasing the mute.
 
 ```text
-RAIL_P12
-RAIL_N12
-DIRECT_PRESENT
-WET_MIX
-HARDWARE_FAULT_N
+healthy fault signal
+  -> PMV20XNE on
+  -> VO617A-3 LED on
+  -> phototransistor connects RAIL_N12 release path
+  -> MUTE_GATE approximately -10.545 V
+  -> MMBFJ113 off
+
+fault / undefined signal / RAIL_P12 loss
+  -> PMV20XNE or VO617A off
+  -> negative release path opens
+  -> 100 kOhm / 100 nF returns MUTE_GATE toward 0 V
+  -> MMBFJ113 turns on
+  -> output shunted through Q70 after 120 kOhm isolation
 ```
 
-No audio or control net leaves sheet 07 through the hierarchy. The protected output jack, output-level node, mute nodes and protection nodes are local to this sheet.
+## Calculated contracts
 
-## Shared OPA1679 ownership
-
-`U32` remains one physical OPA1679 shared by sheets 03 and 07:
+### Static mute target
 
 ```text
-unit 1 — channel A, Return DAC conversion — sheet 03
-unit 2 — channel B, Direct/Wet final half-sum — sheet 07
-unit 3 — channel C, output-level buffer — sheet 07
-unit 4 — channel D, post-mute output driver — sheet 07
-unit 5 — common V+/V− power unit — sheet 03
+R703 minimum at -1% = 118.8 kOhm
+MMBFJ113 maximum rDS(on) = 100 ohm
+calculated attenuation = 61.50 dB
+required schematic minimum = greater than 60 dB
+required later measured minimum = at least 60 dB
 ```
 
-Official TSSOP-14 channel pins:
+### Fault timing
 
 ```text
-A: pin 3 IN+, pin 2 IN−, pin 1 OUT
-B: pin 5 IN+, pin 6 IN−, pin 7 OUT
-C: pin 10 IN+, pin 9 IN−, pin 8 OUT
-D: pin 12 IN+, pin 13 IN−, pin 14 OUT
-power: pin 4 V+, pin 11 V−
+healthy gate estimate using VO617A VCE(sat) max = -10.545 V
+worst J113 cutoff boundary = -3.0 V
+R716 x C710 time constant = 10 ms
+calculated crossing time = 12.57 ms
+schematic target = less than 20 ms
 ```
 
-The validator requires exactly five `U32 / OPA1679` unit instances across sheets 03 and 07, units exactly `1..5`, no duplicate U32 package and no accepted footprint. The complete Prototype A allocation remains seven physical OPA1679 packages.
-
-## Final output path
+### Release-driver gate
 
 ```text
-DIRECT_PRESENT ─40.2 kΩ─┐
-                         ├─ U32B equal inverting half-sum
-WET_MIX       ─40.2 kΩ─┘        │
-                                ├─ 20.0 kΩ feedback
-                                ↓
-                         passive 10 kΩ output level
-                                ↓
-                         U32C unity buffer
-                                ↓
-                         10 kΩ mute isolation
-                                ↓
-                         J113-class shunt mute
-                                ↓
-                         U32D post-mute driver
-                                ↓
-                         10 µF bipolar AC coupling
-                                ↓
-                         1 kΩ output protection
-                                ↓
-                         rail clamps + RF/reference network
-                                ↓
-                         logical WQP518MA output jack
+R10 + R711 source path = 20 kOhm nominal
+R712 gate pull-down = 100 kOhm
+conservative PMV20XNE gate estimate = 2.604 V
+PMV20XNE guaranteed RDS(on) test point = 2.5 V
 ```
 
-## Output gain and headroom
+### Optocoupler CTR
 
 ```text
-R_DIRECT = 40.2 kΩ
-R_WET    = 40.2 kΩ
-R_FB     = 20.0 kΩ
-
-per-branch magnitude = 20.0 / 40.2 ≈ 0.4975
-6 Vpp Direct + 6 Vpp Wet calculated maximum ≈ 5.97 Vpp
+R713 + R714 = 1.82 kOhm nominal
+conservative LED-current estimate = 5.304 mA
+VO617A-3 minimum CTR = 100% at 5 mA
+minimum guaranteed collector capability = 5.304 mA
+maximum calculated initial release-path current = 1.055 mA
 ```
 
-The output-level control is passive and can only attenuate. The calculated normal output therefore remains below the locked `10 Vpp` ceiling before bench tolerances and clipping tests.
+## Unchanged boundaries
 
-## Fail-muted control
+- sheet 07 still exports no hierarchy net;
+- `U32` remains one physical OPA1679 split across sheets 03 and 07;
+- the output jack remains a separate exact-part/mechanical gate;
+- no PCB placement or routing is authorised;
+- measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C.
 
-A low or undefined `HARDWARE_FAULT_N` lights the isolated fault optocoupler and clamps the JFET mute gate toward `0 V`, turning the shunt mute on. A healthy high fault line switches the inverter on, extinguishes the optocoupler and allows the gate to move toward the negative rail through the controlled release network.
+## Required current-PR verification
 
-First-pass calculated values:
+The dedicated output workflow must:
 
-```text
-negative pull = 100 kΩ to −12 V
-power-off pull = 1 MΩ to GND
-mute capacitor = 1 µF
-healthy steady gate ≈ −10.91 V
-healthy release time constant ≈ 90.9 ms
+1. run the amendment script idempotently;
+2. validate exact symbols, pins, values and footprints;
+3. validate the corrected net topology and calculations;
+4. validate unchanged shared-U32 and hierarchy boundaries;
+5. run KiCad 10 hierarchical ERC;
+6. enforce zero errors and zero warnings.
 
-+12 V fault pull-up = 2.2 kΩ
-opto LED resistor = 3.3 kΩ
-estimated LED current ≈ 1.96 mA
-assumed 50% CTR first-pass fault clamp ≈ 12.7 ms
-```
-
-These calculations are schematic constraints, not acceptance of exact optocoupler, JFET, NPN or capacitor parts. Fault response, release timing, pop suppression and mute depth remain later measured gates.
-
-## Provisional symbols
-
-The logical NPN fault inverter and output-level potentiometer use project-local application symbols with explicit logical pins and blank footprints:
-
-```text
-Q71: BASE / COLLECTOR / EMITTER
-RV700: LOW / WIPER / HIGH
-```
-
-The optocoupler and output jack also use project-local logical symbols. Exact devices, package pin maps, footprints, panel mechanics and jack alignment are not accepted by this capture gate.
-
-## Generator-boundary repairs
-
-The pinned schematic API mirrors Y coordinates for the project-local multi-unit U32 symbol after component positions are snapped to the native KiCad grid. The repair reads each serialized U32 unit position and moves only its named labels to the corresponding official physical pin coordinates. The repair fails closed if the expected unit or label is missing or duplicated.
-
-## Verification evidence
-
-The dedicated sheet-07 workflow passed:
-
-- native regeneration of sheet 03 with U32 units 1/5;
-- native generation of sheet 07 with U32 units 2/3/4;
-- official OPA1679 pin-map validation;
-- one-device, five-unit U32 ownership validation;
-- seven-package OPA1679 allocation validation;
-- Direct/Wet gain and calculated headroom validation;
-- fail-muted control and first-pass timing validation;
-- provisional control-symbol and blank-footprint validation;
-- logical output-jack and no-export boundary validation;
-- KiCad CLI `10.0.4` hierarchical ERC;
-- strict captured-sheet warning policy.
-
-ERC report:
-
-```text
-0 errors
-0 warnings
-```
-
-The first passing artifact was promoted in commit `265f4ad`.
-
-## Committed-file rerun
-
-The follow-up workflow detected `07_OUTPUT_MUTE_PROTECTION_CAPTURED` and skipped:
-
-```text
-sheet-03 regeneration
-sheet-07 generation
-U32 coordinate repair
-promotion
-```
-
-It then passed both sheet-07 validators, KiCad 10 hierarchical ERC and the strict captured-sheet warning policy directly against committed files.
-
-`07_OUTPUT_MUTE_PROTECTION` is closed at schematic-capture level. Exact components, packages, footprints, PCB placement, output-jack mechanics, measured output level, load drive, mute depth, fault timing, pop behaviour, protection current and endurance remain later independent gates.
+This record becomes closed only when those checks pass on the committed PR head.
