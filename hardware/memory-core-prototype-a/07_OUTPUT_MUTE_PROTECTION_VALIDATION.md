@@ -5,121 +5,107 @@
 ```text
 SCHEMATIC-CAPTURE CONTRACT: PASS
 EXACT Q70 / Q71 / U70 PIN-MAP CONTRACT: PASS
-EXACT Q70 / Q71 / U70 FOOTPRINT MAPPING: PASS
 HEALTHY-RELEASE FAIL-MUTE TOPOLOGY: PASS AT CALCULATED SCHEMATIC LEVEL
-CALCULATED STATIC MUTE ATTENUATION: 61.50 dB
-CALCULATED FAULT / +12 V LOSS CROSSING: 12.57 ms
-SHARED U32 CONTRACT: PASS
-KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
-COMMITTED-FILE BYTE-IDEMPOTENT RERUN: PASS
+U70 ACTUAL-BIAS SATURATION PROOF: PASS
+Q70 25 C DATASHEET-BOUND ATTENUATION: 61.50 dB
+DIMENSIONAL FOOTPRINT AUDIT: PENDING CURRENT PR RERUN
+KICAD 10 HIERARCHICAL ERC: PENDING CURRENT PR RERUN
 MEASURED MUTE / POP / RAIL SEQUENCING: NOT ACCEPTED
 PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
 
-## Corrected exact parts
+## Exact parts
 
-| Ref | Exact part | Pin map | Footprint |
+| Ref | Exact part | Physical pins | Assigned footprint |
 |---|---|---|---|
 | Q70 | onsemi MMBFJ113 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
 | Q71 | Nexperia PMV20XNE | 1 G, 2 S, 3 D | `Package_TO_SOT_SMD:SOT-23` |
 | U70 | Vishay VO617A-3X007T | 1 A, 2 K, 3 E, 4 C | `Package_DIP:SMDIP-4_W7.62mm` |
 
-The exact symbols are embedded in sheet 07 and stored in the project symbol library with manufacturer datasheets and reviewed package mappings.
+## U70 actual-bias saturation proof
 
-## Corrected fail-mute path
+The release path is evaluated from the guaranteed saturated operating point, not from the non-saturated CTR figure.
 
-Healthy operation powers the isolated negative release path. Fault or positive-rail loss removes that release path. This reverses the former unsafe dependency in which loss of the positive rail could leave the negative rail releasing the mute.
+Vishay guarantees:
 
 ```text
-healthy fault signal
-  -> PMV20XNE on
-  -> VO617A-3 LED on
-  -> phototransistor connects RAIL_N12 release path
-  -> MUTE_GATE approximately -10.545 V
-  -> MMBFJ113 off
-
-fault / undefined signal / RAIL_P12 loss
-  -> PMV20XNE or VO617A off
-  -> negative release path opens
-  -> 100 kOhm / 100 nF returns MUTE_GATE toward 0 V
-  -> MMBFJ113 turns on
-  -> output shunted through Q70 after 120 kOhm isolation
+IF = 5 mA
+IC = 1.0 mA
+VCE(sat) <= 0.4 V
 ```
 
-## Calculated contracts
+The realised LED path, using `RAIL_P12 = -5%`, both LED resistors at `+1%`, and `VF = 1.65 V`, gives:
 
-### Static mute target
+```text
+minimum estimated IF = 5.304 mA
+```
+
+At the most demanding release load used by the validator:
+
+```text
+RAIL_N12 magnitude = +5%
+R715 and R716 = -1%
+VCE = 0.4 V
+required collector current = 0.112 mA maximum
+guaranteed saturated test current = 1.000 mA
+current margin = 8.93:1
+```
+
+The previous `5.304 mA collector capability` and `1.055 mA initial load` statements are withdrawn. The corrected proof follows the actual resistor load line.
+
+## Q70 mute-depth qualification
 
 ```text
 R703 minimum at -1% = 118.8 kOhm
-MMBFJ113 maximum rDS(on) = 100 ohm
-calculated attenuation = 61.50 dB
-required schematic minimum = greater than 60 dB
-required later measured minimum = at least 60 dB
+MMBFJ113 rDS(on) maximum at TJ = 25 C = 100 ohm
+25 C datasheet-bound attenuation = 61.50 dB
 ```
 
-### Fault timing
+This is not a full-temperature or production guarantee. Gate C must demonstrate at least `60 dB` measured attenuation across the declared operating temperature, device spread, signal conditions and assembled circuit.
+
+## Dimensional footprint audit
+
+`OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json` records manufacturer package dimensions and pin orientation.
+
+The dedicated validator extracts the actual footprint files from the pinned KiCad `10.0.4` image and checks:
+
+- SOT-23 pad centres, pad sizes, two-lead-side orientation and courtyard envelope;
+- option-7 SMD-4 row spacing, pin pitch, pad sizes, pin-1 orientation and courtyard envelope;
+- compatibility with the manufacturer package maxima;
+- the continued prohibition on PCB placement and assembly acceptance.
+
+This is stronger than checking the footprint library names alone.
+
+## Fault timing and driver gate
 
 ```text
-healthy gate estimate using VO617A VCE(sat) max = -10.545 V
+healthy MUTE_GATE estimate = -10.545 V
 worst J113 cutoff boundary = -3.0 V
-R716 x C710 time constant = 10 ms
+R716 x C710 nominal time constant = 10 ms
 calculated crossing time = 12.57 ms
 schematic target = less than 20 ms
-```
 
-### Release-driver gate
-
-```text
-R10 + R711 source path = 20 kOhm nominal
-R712 gate pull-down = 100 kOhm
-conservative PMV20XNE gate estimate = 2.604 V
+PMV20XNE conservative gate estimate = 2.604 V
 PMV20XNE guaranteed RDS(on) test point = 2.5 V
-```
-
-### Optocoupler CTR
-
-```text
-R713 + R714 = 1.82 kOhm nominal
-conservative LED-current estimate = 5.304 mA
-VO617A-3 minimum CTR = 100% at 5 mA
-minimum guaranteed collector capability = 5.304 mA
-maximum calculated initial release-path current = 1.055 mA
 ```
 
 ## Unchanged boundaries
 
-- sheet 07 still exports no hierarchy net;
+- sheet 07 exports no hierarchy net;
 - `U32` remains one physical OPA1679 split across sheets 03 and 07;
-- the output jack remains a separate exact-part/mechanical gate;
-- no PCB placement or routing is authorised;
-- measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C.
+- the output jack remains a separate exact-part and mechanical gate;
+- measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C;
+- PCB placement, routing, fabrication and purchasing remain blocked.
 
-## Verification evidence
+## Required closure evidence
 
-The dedicated exact-output workflow passed on committed head `2d99452c89fde21d43d2f8a3e1e8a546126df5d9`:
+The current committed PR head must pass:
 
-```text
-first-generation sheet capture             SKIPPED
-committed exact amendment mutation          SKIPPED AS CURRENT
-exact symbol / physical-pin validator       PASS
-exact footprint mapping validator           PASS
-corrected topology / calculation validator  PASS
-shared U32 / hierarchy boundary validator   PASS
-KiCad 10 hierarchical ERC                   PASS
-ERC policy                                  0 errors / 0 warnings
-promotion                                   NO COMMITTED-FILE DIFF
-```
+1. the corrected actual-bias validator;
+2. the dimensional footprint validator against the pinned KiCad files;
+3. exact pin and instance validation;
+4. shared-U32 and hierarchy validation;
+5. KiCad 10 hierarchical ERC with zero errors and zero warnings;
+6. a committed-file rerun with no promotion diff.
 
-Workflow run `29334430737` completed successfully. The PR head did not move after the run, proving that the committed native sheet, symbol library and exact-part marker are byte-current rather than only valid in a generated workspace.
-
-## Gate decision
-
-```text
-Gate A — schematic architecture               REMAINS ACCEPTED
-Gate B — Q70/Q71/U70 exact parts/footprints   PASS, SUBJECT TO PR REVIEW
-Gate C — measured mute/fault behaviour        NOT STARTED
-Gate D — PCB / production                     BLOCKED
-```
-
-This sheet-07 correction lane is closed at exact-part and footprint-mapping level. The PR remains draft for deliberate review. PCB placement, routing, fabrication and purchasing remain blocked.
+The Gate-B decision remains subject to a new PR review after those checks pass.
