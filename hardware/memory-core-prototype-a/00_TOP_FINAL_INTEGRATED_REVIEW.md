@@ -11,7 +11,7 @@ SHARED U60 / U32 DEVICE OWNERSHIP: PASS
 TEMPORARY HARNESS REMOVAL: PASS
 KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
 FIRST PASSING FINAL ARTIFACT PROMOTED: PASS
-COMMITTED-FILE FINAL RERUN: PENDING
+COMMITTED-FILE FINAL RERUN: PASS — RECONCILIATION / PROMOTION SKIPPED
 PCB / FOOTPRINT / FABRICATION AUTHORITY: NOT GRANTED
 ```
 
@@ -43,10 +43,10 @@ The final review found that the pinned schematic API had serialised several earl
 The passing final artifact repairs only the named hierarchy shapes on:
 
 ```text
-01_POWER_PROTECTION       5 labels
-02_MCU_CLOCK_DEBUG       14 labels
-04_INPUT_PRESSURE_ABSENCE 3 labels
-08_CONTROLS_STATE        16 labels
+01_POWER_PROTECTION        5 labels
+02_MCU_CLOCK_DEBUG        14 labels
+04_INPUT_PRESSURE_ABSENCE  3 labels
+08_CONTROLS_STATE         16 labels
 ```
 
 After repair:
@@ -149,6 +149,14 @@ ERC result:
 
 The first passing final-review artifact was promoted in commit `5d2b325`.
 
+The required committed-file rerun subsequently detected `00_TOP_FINAL_REVIEW_COMPLETE`, skipped reconciliation and promotion, and passed all component and integration validators plus KiCad ERC directly against the committed native files.
+
+## Validation boundary
+
+The final gate proves native hierarchy, interface direction, shared-device ownership, selected design contracts and KiCad ERC. It does not prove exact analogue behaviour, component spread, rail sequencing, mute depth, loop stability, load drive, external-fault current or endurance.
+
+Those transferred exact-part, footprint and bench gates are recorded in `PR45_SCHEMATIC_ACCEPTANCE_REVIEW.md`.
+
 ## Remaining blocked work
 
 - every active-device and connector footprint review;
@@ -160,4 +168,4 @@ The first passing final-review artifact was promoted in commit `5d2b325`.
 - firmware resource, timing, register and fault-sequence proof;
 - oscillator, voice-source, MIDI/CV, sequencer and demo expansion.
 
-The committed-file final rerun remains the last condition before this review record can be marked complete.
+`00_TOP` is closed at schematic-capture level. The next decision is deliberate review and squash-merge handling of PR #45; exact-part and footprint verification remains a separate later lane.
