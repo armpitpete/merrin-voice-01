@@ -6,14 +6,14 @@
 SCHEMATIC-CAPTURE CONTRACT: PASS
 EXACT Q70 / Q71 / U70 PIN-MAP CONTRACT: PASS
 HEALTHY-RELEASE FAIL-MUTE TOPOLOGY: PASS AT CALCULATED SCHEMATIC LEVEL
-Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT: PASS, PENDING CURRENT-HEAD CI
-Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT: PASS, PENDING CURRENT-HEAD CI
-U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT: PASS, PENDING CURRENT-HEAD CI
+Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT: PASS
+Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT: PASS
+U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT: PASS
 U70 25 C DATASHEET-BOUND SATURATION PROOF: PASS — 8.93:1
 Q70 25 C DATASHEET-BOUND ATTENUATION: PASS — 61.50 dB
-IMMUTABLE KICAD FOOTPRINT PROVENANCE: PASS, PENDING CURRENT-HEAD CI
-KICAD 10 HIERARCHICAL ERC: PENDING CURRENT-HEAD CI
-COMMITTED-FILE BYTE-IDEMPOTENT RERUN: PENDING CURRENT-HEAD CI
+IMMUTABLE KICAD FOOTPRINT PROVENANCE: PASS
+KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
+COMMITTED-FILE BYTE-IDEMPOTENT RERUN: PASS
 MEASURED MUTE / POP / RAIL SEQUENCING: NOT ACCEPTED
 PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
@@ -35,17 +35,10 @@ Tamb = 25 C unless otherwise specified
 IF = 5 mA
 IC = 1.0 mA
 VCE(sat) <= 0.4 V
-```
-
-The realised LED path gives at least `5.304 mA`. At the most demanding calculated release load:
-
-```text
-RAIL_N12 magnitude = 12.6 V
-R715 + R716        = 108.9 kOhm
-VCE                = 0.4 V
-required current   = 0.112 mA
-test current       = 1.000 mA
-margin             = 8.93:1
+minimum estimated LED current = 5.304 mA
+required release current      = 0.112 mA
+saturated test current        = 1.000 mA
+calculated margin             = 8.93:1
 ```
 
 This is a 25 C datasheet-bound proof. **Full-temperature release behaviour remains Gate C.**
@@ -58,13 +51,11 @@ MMBFJ113 rDS(on) maximum at TJ = 25 C = 100 ohm
 25 C datasheet-bound attenuation       = 61.50 dB
 ```
 
-This is not a full-temperature or production guarantee. Gate C must demonstrate at least `60 dB` measured attenuation across the declared operating temperature, device spread, signal conditions and assembled circuit.
+Gate C must demonstrate at least `60 dB` measured attenuation across the declared operating temperature, device spread, signal conditions and assembled circuit.
 
 ## Independent dimensional audits
 
 ### Q70 — onsemi CASE 318-08
-
-Q70 has its own package envelope and validation path:
 
 ```text
 body length maximum       3.04 mm
@@ -75,15 +66,15 @@ lead width maximum        0.50 mm
 lead length maximum       0.69 mm
 ```
 
-The onsemi datasheet identifies the package as `SOT-23 (TO-236), CASE 318-08`. The validator compares these limits directly with the accepted SOT-23 pads, pitch, orientation and courtyard.
+The validator compares Q70's own package record directly with the accepted SOT-23 pad geometry. Q70 no longer inherits Q71's package result.
 
 ### Q71 — Nexperia TO-236AB
 
-Q71 remains independently checked against its own TO-236AB package limits rather than sharing Q70's result.
+Q71 is independently checked against its own TO-236AB body, lead and pitch limits.
 
 ### U70 — Vishay option-7 SMD-4
 
-U70 remains independently checked for row spacing, lead pitch, pad dimensions, pin-one orientation and courtyard coverage.
+U70 is independently checked for row spacing, lead pitch, pad dimensions, pin-one orientation and courtyard coverage.
 
 ## Immutable footprint provenance
 
@@ -103,7 +94,7 @@ Git blob f45a9a53110c40e6dfdcdae40d07a29856841be2
 SHA-256 23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
 ```
 
-The project-local committed files are the Gate-B footprint authority. A moving upstream branch or ambient workstation library is not accepted evidence.
+The project-local committed files are the Gate-B footprint authority. Moving upstream branches and ambient workstation libraries are not accepted evidence.
 
 ## Fault timing and driver gate
 
@@ -116,6 +107,24 @@ PMV20XNE conservative gate estimate = 2.604 V
 guaranteed RDS(on) test point       = 2.5 V
 ```
 
+## Validation evidence
+
+Committed head `8d0187bf2ed4bc3caceb9cc4844b2d50bef65b6a` passed dedicated workflow run `29347852152`:
+
+```text
+Q70 CASE 318-08 independent validator      PASS
+Q71 TO-236AB independent validator         PASS
+U70 option-7 SMD-4 validator               PASS
+immutable source revision and hashes       PASS
+U70 25 C authority validator               PASS
+exact symbol / physical-pin validator      PASS
+shared U32 / hierarchy validator           PASS
+KiCad 10 hierarchical ERC                  PASS — 0 errors / 0 warnings
+promotion                                  NO COMMITTED-FILE DIFF
+```
+
+The complete schematic workflow chain passed on the same head.
+
 ## Unchanged boundaries
 
 - sheet 07 exports no hierarchy net;
@@ -125,29 +134,13 @@ guaranteed RDS(on) test point       = 2.5 V
 - measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C;
 - PCB placement, routing, fabrication and purchasing remain blocked.
 
-## Required closure evidence
-
-The current committed PR head must pass:
-
-```text
-Q70 CASE 318-08 independent validator
-Q71 TO-236AB independent validator
-U70 option-7 SMD-4 validator
-immutable upstream commit and project-local hash validator
-U70 25 C authority validator
-exact symbol / physical-pin validator
-shared U32 / hierarchy validator
-KiCad 10 hierarchical ERC at 0 errors / 0 warnings
-committed-file rerun with no promotion diff
-```
-
 ## Gate decision
 
 ```text
 Gate A — schematic architecture               REMAINS ACCEPTED
-Gate B — Q70/Q71/U70 exact parts/footprints   PENDING CURRENT-HEAD VALIDATION AND NEW PR REVIEW
+Gate B — Q70/Q71/U70 exact parts/footprints   PASS, SUBJECT TO NEW PR REVIEW
 Gate C — measured mute/fault behaviour        NOT STARTED
 Gate D — PCB / production                     BLOCKED
 ```
 
-PR #46 remains unmerged and must return to draft for deliberate approval or rejection after the current-head checks pass.
+PR #46 remains unmerged and must return to draft for deliberate approval or rejection.
