@@ -934,6 +934,7 @@
 			)
 		)
 
+
 		(symbol "MerrinLab_PrototypeA:PMV20XNE_APPLICATION"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -1046,6 +1047,7 @@
 				)
 			)
 		)
+
 
 		(symbol "MerrinLab_PrototypeA:VO617A_3X007T_APPLICATION"
 			(exclude_from_sim no)
@@ -1177,6 +1179,7 @@
 				)
 			)
 		)
+
 
 		(symbol "Device:D_Schottky"
 			(pin_numbers hide)

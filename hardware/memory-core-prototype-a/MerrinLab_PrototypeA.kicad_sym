@@ -3940,6 +3940,7 @@
 		)
 	)
 
+
 	(symbol "PMV20XNE_APPLICATION"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4053,6 +4054,7 @@
 		)
 	)
 
+
 	(symbol "OUTPUT_LEVEL_POT_APPLICATION"
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4136,6 +4138,9 @@
 			)
 		)
 	)
+
+
+
 	(symbol "MMBFJ113_APPLICATION"
 		(exclude_from_sim no)
 		(in_bom yes)
