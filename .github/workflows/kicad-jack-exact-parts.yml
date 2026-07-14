@@ -1,0 +1,132 @@
+name: KiCad jack exact-part verification
+
+on:
+  push:
+    branches:
+      - agent/jack-exact-parts
+    paths:
+      - "tools/validate_jack_exact_part_lane.py"
+      - ".github/workflows/kicad-jack-exact-parts.yml"
+      - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
+      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
+      - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
+      - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
+      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/capture_output_mute_protection_sheet.py"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "tools/validate_jack_exact_part_lane.py"
+      - ".github/workflows/kicad-jack-exact-parts.yml"
+      - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
+      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
+      - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
+      - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
+      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/capture_output_mute_protection_sheet.py"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  jack-exact-part-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out exact repository head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Validate fail-closed jack exact-part lane
+        run: python tools/validate_jack_exact_part_lane.py
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce zero errors and zero warnings
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
+          text = report.read_text(encoding='utf-8')
+          summary = re.search(
+              r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings',
+              text,
+          )
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          if errors or warnings:
+              raise SystemExit(
+                  f'Jack exact-part lane has {errors} ERC error(s) and '
+                  f'{warnings} warning(s)'
+              )
+          print('Jack exact-part hierarchical ERC: PASS — 0 errors / 0 warnings')
+          PY
+
+      - name: Confirm no schematic footprint assignment occurred
+        run: |
+          git diff --exit-code -- \
+            hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch \
+            hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch \
+            hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym
+
+      - name: Upload jack audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jack-exact-part-audit
+          path: |
+            hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md
+            hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json
+            hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md
+            hardware/memory-core-prototype-a/jack-footprint-audits
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jack-exact-part-erc-report
+          path: build/erc
+          if-no-files-found: ignore
