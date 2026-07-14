@@ -40,21 +40,21 @@ def balanced_block(text: str, start: int) -> str:
         elif char == ")":
             depth -= 1
             if depth == 0:
-                return text[start : index + 1]
+                return text[start:index + 1]
     raise AssertionError(f"Unterminated S-expression at offset {start}")
 
 
 def instance_blocks(text: str) -> list[str]:
     marker = "\n\t(symbol\n\t\t(lib_id "
-    blocks = []
+    result: list[str] = []
     offset = 0
     while True:
         found = text.find(marker, offset)
         if found == -1:
-            return blocks
+            return result
         start = found + 2
         block = balanced_block(text, start)
-        blocks.append(block)
+        result.append(block)
         offset = start + len(block)
 
 
@@ -117,7 +117,9 @@ def main() -> None:
     rows03 = instances(SHEET03)
     rows07 = instances(SHEET07)
 
-    expected_inputs = {"RAIL_P12", "RAIL_N12", "DIRECT_PRESENT", "WET_MIX", "HARDWARE_FAULT_N"}
+    expected_inputs = {
+        "RAIL_P12", "RAIL_N12", "DIRECT_PRESENT", "WET_MIX", "HARDWARE_FAULT_N"
+    }
     assert hierarchical_labels(text07) == {name: "input" for name in expected_inputs}
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     sheet07 = next(item for item in manifest["sheets"] if item["code"] == "07")
@@ -125,12 +127,21 @@ def main() -> None:
     assert all(pin["direction"] == "input" for pin in sheet07["pins"])
 
     exact_symbols = {
-        "MMBFJ113_APPLICATION": ({"1": "DRAIN", "2": "SOURCE", "3": "GATE"}, SOT23,
-                                  "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf"),
-        "PMV20XNE_APPLICATION": ({"1": "GATE", "2": "SOURCE", "3": "DRAIN"}, SOT23,
-                                 "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf"),
-        "VO617A_3X007T_APPLICATION": ({"1": "LED_A", "2": "LED_K", "3": "EMITTER", "4": "COLLECTOR"}, SMDIP4,
-                                      "https://www.vishay.com/docs/83430/vo617a.pdf"),
+        "MMBFJ113_APPLICATION": (
+            {"1": "DRAIN", "2": "SOURCE", "3": "GATE"},
+            SOT23,
+            "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf",
+        ),
+        "PMV20XNE_APPLICATION": (
+            {"1": "GATE", "2": "SOURCE", "3": "DRAIN"},
+            SOT23,
+            "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf",
+        ),
+        "VO617A_3X007T_APPLICATION": (
+            {"1": "LED_A", "2": "LED_K", "3": "EMITTER", "4": "COLLECTOR"},
+            SMDIP4,
+            "https://www.vishay.com/docs/83430/vo617a.pdf",
+        ),
     }
     for name, (pins, footprint, datasheet) in exact_symbols.items():
         block = symbol_definition(library, name)
@@ -193,34 +204,64 @@ def main() -> None:
     assert {row["value"] for row in all_u32} == {"OPA1679"}
     assert {row["footprint"] for row in all_u32} == {""}
 
-    counts = Counter(row["reference"] for row in rows07 if not str(row["reference"]).startswith("#"))
+    counts = Counter(
+        row["reference"] for row in rows07 if not str(row["reference"]).startswith("#")
+    )
     assert all(count == 1 or reference == "U32" for reference, count in counts.items())
 
+    # Q70: deliberately a 25 C datasheet-bound calculation, not a
+    # full-temperature or measured mute guarantee.
     isolation_min = 120_000 * 0.99
-    attenuation_db = -20 * math.log10(100.0 / (isolation_min + 100.0))
-    assert attenuation_db > 60.0
+    attenuation_25c_db = -20 * math.log10(100.0 / (isolation_min + 100.0))
+    assert attenuation_25c_db > 60.0
+
+    # U70 actual-bias saturation proof. Vishay guarantees VCE(sat) <= 0.4 V
+    # at IF = 5 mA and IC = 1 mA. The release-path load line requires at
+    # most about 0.112 mA at VCE = 0.4 V, including rail and resistor extremes.
+    led_current_low_ma = (
+        (12.0 * 0.95 - 1.65) / ((820 + 1000) * 1.01) * 1000
+    )
+    assert led_current_low_ma >= 5.0
+    load_current_at_vcesat_ma = (
+        (12.0 * 1.05 - 0.4) / ((10_000 + 100_000) * 0.99) * 1000
+    )
+    saturation_margin = 1.0 / load_current_at_vcesat_ma
+    assert load_current_at_vcesat_ma < 0.12
+    assert saturation_margin > 8.0
+
     healthy_gate = (-12.0 + 0.4) * 100_000 / 110_000
-    fault_crossing_ms = 100_000 * 100e-9 * 1000 * math.log(abs(healthy_gate) / 3.0)
+    fault_crossing_ms = (
+        100_000 * 100e-9 * 1000 * math.log(abs(healthy_gate) / 3.0)
+    )
     assert healthy_gate < -10.0 and fault_crossing_ms < 20.0
+
     gate_low = 3.3 * 0.95 * (100_000 * 0.99) / (
-        10_000 * 1.01 + 10_000 * 1.01 + 100_000 * 0.99)
+        10_000 * 1.01 + 10_000 * 1.01 + 100_000 * 0.99
+    )
     assert gate_low > 2.5
-    led_current_low_ma = (12.0 * 0.95 - 1.65) / ((820 + 1000) * 1.01) * 1000
-    release_current_ma = abs(healthy_gate) / 10_000 * 1000
-    assert led_current_low_ma >= 5.0 and led_current_low_ma > 4 * release_current_ma
 
     for token in (
-        "120k isolation with 100 ohm worst JFET on-resistance calculates better than 60 dB",
-        "Fault or +12 V loss removes release drive", "bench proof remains Gate C",
+        "120k isolation with the 100 ohm MMBFJ113 maximum at TJ = 25 C "
+        "calculates 61.5 dB static attenuation",
+        "temperature, spread and measured mute depth remain Gate C",
+        "Fault or +12 V loss removes release drive",
         "No audio or control net is exported",
     ):
         assert token in text07, token
 
     print("Output hierarchy and no-export boundary contract: PASS")
-    print("Q70 MMBFJ113, Q71 PMV20XNE and U70 VO617A-3X007T physical-pin contracts: PASS")
-    print("SOT-23 / SOT-23 / option-7 SMD-4 footprint mappings: PASS")
-    print(f"Worst-case calculated static mute attenuation: PASS — {attenuation_db:.2f} dB")
-    print(f"Fault/+12-loss worst-cutoff crossing: PASS — {fault_crossing_ms:.2f} ms")
+    print("Q70/Q71/U70 exact physical-pin contracts: PASS")
+    print("SOT-23 / SOT-23 / option-7 SMD-4 footprint assignments: PASS")
+    print(
+        "Q70 25 C datasheet-bound static attenuation: "
+        f"PASS — {attenuation_25c_db:.2f} dB"
+    )
+    print(
+        "U70 actual-bias saturation load: PASS — "
+        f"{load_current_at_vcesat_ma:.3f} mA required at 0.4 V, "
+        f"{saturation_margin:.2f}:1 margin to the 1 mA guaranteed test"
+    )
+    print(f"Fault/+12-loss cutoff crossing: PASS — {fault_crossing_ms:.2f} ms")
     print(f"Minimum healthy MOSFET gate estimate: PASS — {gate_low:.3f} V")
     print(f"Minimum optocoupler LED current estimate: PASS — {led_current_low_ma:.3f} mA")
     print("Shared U32 OPA1679 ownership remains unchanged and footprint-blocked: PASS")
