@@ -21,6 +21,7 @@ on:
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "tools/opa1679_multi_support.py"
       - "tools/capture_codec_conversion_sheet.py"
@@ -51,8 +52,10 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Check out repository
+      - name: Check out repository head
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Detect committed output stage
         id: stage
@@ -164,7 +167,6 @@ jobs:
           PY
 
       - name: Promote validated exact output-mute artifact
-        if: github.event_name == 'push'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -181,8 +183,9 @@ jobs:
             echo "Committed exact output/mute/protection artifact is already current."
             exit 0
           fi
+          target="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
           git commit -m "Apply validated exact output mute parts"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:$target"
 
       - name: Upload generator log
         if: always()
