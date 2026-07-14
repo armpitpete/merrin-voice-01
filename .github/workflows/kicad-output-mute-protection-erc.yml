@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - v5.2-native-schematic-capture-erc
+      - agent/output-mute-exact-parts
     paths:
       - "tools/opa1679_multi_support.py"
       - "tools/capture_codec_conversion_sheet.py"
       - "tools/capture_codec_conversion_sheet_v2.py"
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
+      - "tools/amend_output_mute_exact_parts.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
@@ -25,6 +27,7 @@ on:
       - "tools/capture_codec_conversion_sheet_v2.py"
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
+      - "tools/amend_output_mute_exact_parts.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
@@ -58,7 +61,7 @@ jobs:
           marker="hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION_CAPTURED"
           if [ -f "$marker" ]; then
             echo "output=true" >> "$GITHUB_OUTPUT"
-            echo "Using committed output/mute/protection capture; generation will be skipped."
+            echo "Using committed output/mute/protection capture; first generation will be skipped."
           else
             echo "output=false" >> "$GITHUB_OUTPUT"
             echo "Output/mute/protection remains a scaffold; first capture is active."
@@ -87,6 +90,13 @@ jobs:
           set -o pipefail
           python tools/capture_codec_conversion_sheet_v2.py 2>&1 | tee build/generator/output-sheet.log
           python tools/capture_output_mute_protection_sheet_v2.py 2>&1 | tee -a build/generator/output-sheet.log
+
+      - name: Apply reviewed output-mute exact-part amendment
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/amend_output_mute_exact_parts.py 2>&1 | tee -a build/generator/output-sheet.log
 
       - name: Validate output, mute, protection and shared U32 contracts
         run: |
@@ -153,8 +163,8 @@ jobs:
           print(f'Output/mute/protection ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
           PY
 
-      - name: Promote only the first passing native artifact
-        if: github.event_name == 'push' && steps.stage.outputs.output == 'false'
+      - name: Promote validated exact output-mute artifact
+        if: github.event_name == 'push'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -165,12 +175,13 @@ jobs:
             "$root/03_CODEC_CONVERSION_CAPTURED" \
             "$root/07_OUTPUT_MUTE_PROTECTION.kicad_sch" \
             "$root/07_OUTPUT_MUTE_PROTECTION_CAPTURED" \
+            "$root/07_OUTPUT_MUTE_EXACT_PARTS_AMENDED" \
             "$root/MerrinLab_PrototypeA.kicad_sym"
           if git diff --cached --quiet; then
-            echo "No validated output/mute/protection artifact to promote."
+            echo "Committed exact output/mute/protection artifact is already current."
             exit 0
           fi
-          git commit -m "Capture ERC-validated output mute protection sheet"
+          git commit -m "Apply validated exact output mute parts"
           git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Upload generator log
