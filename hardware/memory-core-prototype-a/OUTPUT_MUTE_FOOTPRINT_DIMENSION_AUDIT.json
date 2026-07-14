@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "authority": {
+    "purpose": "Dimensional compatibility audit for the three sheet-07 exact-part footprints",
+    "kicad_image": "ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86",
+    "pcb_authorised": false
+  },
+  "parts": {
+    "Q70": {
+      "part": "onsemi MMBFJ113",
+      "manufacturer_package": "SOT-23 / TO-236, CASE 318-08",
+      "datasheet": "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package_family": "SOT-23",
+      "pin_orientation": "pins 1 and 2 on the two-lead side; pin 3 opposite"
+    },
+    "Q71": {
+      "part": "Nexperia PMV20XNE",
+      "manufacturer_package": "TO-236AB (SOT23)",
+      "datasheet": "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package_family": "SOT-23",
+      "dimensions_mm": {
+        "body_length_max": 3.0,
+        "body_width_max": 1.4,
+        "overall_width_max": 2.5,
+        "lead_pitch": 0.95,
+        "outer_lead_pitch": 1.9,
+        "lead_width_max": 0.48,
+        "lead_length_max": 0.55
+      },
+      "pin_orientation": "pins 1 and 2 on the two-lead side; pin 3 opposite"
+    },
+    "U70": {
+      "part": "Vishay VO617A-3X007T",
+      "manufacturer_package": "SMD-4, option 7",
+      "datasheet": "https://www.vishay.com/docs/83430/vo617a.pdf",
+      "footprint": "Package_DIP:SMDIP-4_W7.62mm",
+      "dimensions_mm": {
+        "body_length_max": 7.0,
+        "body_width_max": 4.88,
+        "lead_row_spacing_nominal": 7.62,
+        "lead_pitch_nominal": 2.54,
+        "lead_width_max": 0.6,
+        "terminal_length_max": 0.95,
+        "overall_span_max": 9.98
+      },
+      "pin_orientation": "pin 1 at the notched end, with pins 1/2 on the left row and 4/3 on the right row"
+    }
+  },
+  "acceptance_rules": {
+    "sot23": {
+      "pad_1_2_pitch": 1.9,
+      "minimum_pad_x": 0.8,
+      "minimum_pad_y": 0.8,
+      "minimum_courtyard_x": 3.0,
+      "minimum_courtyard_y": 2.5
+    },
+    "smdip4_option7": {
+      "row_spacing": 7.62,
+      "pin_pitch": 2.54,
+      "minimum_pad_x": 1.78,
+      "minimum_pad_y": 1.78,
+      "minimum_courtyard_x": 9.98,
+      "minimum_courtyard_y": 4.88
+    }
+  }
+}
