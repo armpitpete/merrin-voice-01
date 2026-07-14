@@ -12,6 +12,7 @@ TEMPORARY HARNESS REMOVAL: PASS
 KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
 FIRST PASSING FINAL ARTIFACT PROMOTED: PASS
 COMMITTED-FILE FINAL RERUN: PASS — RECONCILIATION / PROMOTION SKIPPED
+PR #45 SCHEMATIC ACCEPTANCE REVIEW: COMPLETE
 PCB / FOOTPRINT / FABRICATION AUTHORITY: NOT GRANTED
 ```
 
@@ -168,4 +169,4 @@ Those transferred exact-part, footprint and bench gates are recorded in `PR45_SC
 - firmware resource, timing, register and fault-sequence proof;
 - oscillator, voice-source, MIDI/CV, sequencer and demo expansion.
 
-`00_TOP` is closed at schematic-capture level. The next decision is deliberate review and squash-merge handling of PR #45; exact-part and footprint verification remains a separate later lane.
+`00_TOP` is closed at schematic-capture level. PR #45 is accepted as a reviewed prototype schematic candidate with a deliberate squash merge recommended after human review. Exact-part and footprint verification remains a separate later lane.
