@@ -10,7 +10,8 @@ HEALTHY-RELEASE FAIL-MUTE TOPOLOGY: PASS AT CALCULATED SCHEMATIC LEVEL
 CALCULATED STATIC MUTE ATTENUATION: 61.50 dB
 CALCULATED FAULT / +12 V LOSS CROSSING: 12.57 ms
 SHARED U32 CONTRACT: PASS
-KICAD 10 HIERARCHICAL ERC: PENDING CURRENT PR RERUN
+KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
+COMMITTED-FILE BYTE-IDEMPOTENT RERUN: PASS
 MEASURED MUTE / POP / RAIL SEQUENCING: NOT ACCEPTED
 PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
@@ -94,15 +95,31 @@ maximum calculated initial release-path current = 1.055 mA
 - no PCB placement or routing is authorised;
 - measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C.
 
-## Required current-PR verification
+## Verification evidence
 
-The dedicated output workflow must:
+The dedicated exact-output workflow passed on committed head `2d99452c89fde21d43d2f8a3e1e8a546126df5d9`:
 
-1. run the amendment script idempotently;
-2. validate exact symbols, pins, values and footprints;
-3. validate the corrected net topology and calculations;
-4. validate unchanged shared-U32 and hierarchy boundaries;
-5. run KiCad 10 hierarchical ERC;
-6. enforce zero errors and zero warnings.
+```text
+first-generation sheet capture             SKIPPED
+committed exact amendment mutation          SKIPPED AS CURRENT
+exact symbol / physical-pin validator       PASS
+exact footprint mapping validator           PASS
+corrected topology / calculation validator  PASS
+shared U32 / hierarchy boundary validator   PASS
+KiCad 10 hierarchical ERC                   PASS
+ERC policy                                  0 errors / 0 warnings
+promotion                                   NO COMMITTED-FILE DIFF
+```
 
-This record becomes closed only when those checks pass on the committed PR head.
+Workflow run `29334430737` completed successfully. The PR head did not move after the run, proving that the committed native sheet, symbol library and exact-part marker are byte-current rather than only valid in a generated workspace.
+
+## Gate decision
+
+```text
+Gate A — schematic architecture               REMAINS ACCEPTED
+Gate B — Q70/Q71/U70 exact parts/footprints   PASS, SUBJECT TO PR REVIEW
+Gate C — measured mute/fault behaviour        NOT STARTED
+Gate D — PCB / production                     BLOCKED
+```
+
+This sheet-07 correction lane is closed at exact-part and footprint-mapping level. The PR remains draft for deliberate review. PCB placement, routing, fabrication and purchasing remain blocked.
