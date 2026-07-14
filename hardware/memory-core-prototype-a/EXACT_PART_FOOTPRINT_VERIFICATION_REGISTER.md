@@ -58,22 +58,26 @@ Detailed records:
 - `JACK_EXACT_PART_EDIT_CONTRACT.md`
 - `INPUT_OUTPUT_JACK_AUDIT.json`
 - `INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md`
-- `jack-footprint-audits/Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical.kicad_mod`
+- `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`
+- `jack-footprint-audits/KiCad_Official_Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles.kicad_mod`
+- `MerrinLab_PrototypeA.pretty/Jack_3.5mm_Thonkiconn_WQP518MA_Numeric.kicad_mod`
 
 Current result:
 
 ```text
-STATUS                                      ACTIVE — INITIAL EVIDENCE GATE
+STATUS                                      ACTIVE — HUMAN MEASUREMENT GATE
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
-WQP518MA ORDERABLE CANDIDATE                 RETAIN
-WQP518MA ↔ PJ398SM DRAWING EQUIVALENCE       NOT YET ACCEPTED
-CURRENT NUMERIC SYMBOL PINS 1 / 2 / 3        PASS FOR SCHEMATIC USE
-PINNED SOURCE FOOTPRINT T / TN / S           GEOMETRY RECORDED
-DIRECT FOOTPRINT ASSIGNMENT                  FAIL — IDENTIFIERS DO NOT MATCH
-PANEL HOLE                                   CANDIDATE ONLY
-PANEL-TO-PCB SEATING                         BLOCKED
-EXACT NUT / WASHER / PANEL STACK             BLOCKED
+WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
+WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE      PASS FOR CONTACT / PCB GEOMETRY
+OFFICIAL KICAD SOURCE FOOTPRINT              PINNED
+NUMERIC PROJECT-LOCAL FOOTPRINT              CREATED — 1 / 2 / 3
+3 MM BARREL RELIEF NPTH                      INCLUDED
+PANEL HOLE TARGET                            6.50 +0.10 / -0.00 MM — DERIVED
+HEX NUT PRODUCT VARIANT                      SELECTED
+WASHER PRODUCT VARIANT                       SELECTED
+THREAD / NUT / WASHER DIMENSIONS             BLOCKED — SAMPLE REQUIRED
+2 MM PANEL STACK                             BLOCKED — SAMPLE REQUIRED
 J40 / J70 FOOTPRINT FIELDS                   BLANK
 PCB / PANEL FAB / PURCHASING                 BLOCKED
 ```
@@ -85,52 +89,63 @@ PCB / PANEL FAB / PURCHASING                 BLOCKED
 | J40 | input | `TIP → INPUT_TIP` | `TIP_NORMAL → GND` | `SLEEVE → GND` | contacts 1–2 closed with no plug; open on insertion |
 | J70 | output | `TIP → OUTPUT_TIP` | no-connect | `SLEEVE → GND` | normal contact deliberately unused |
 
-### Retained candidate
+### Accepted supplier-equivalence scope
 
 ```text
-orderable candidate   Thonkiconn Mono 3.5 mm Audio Jack — WQP518MA
-drawing model label   PJ398SM
-connector             switched 3.5 mm mono TS, vertical PCB mount
-physical contacts     1 TIP / 2 TIP_NORMAL / 3 SLEEVE
+orderable jack        Thonkiconn WQP518MA
+controlled drawing    PJ398SM
+accepted scope         contacts, switching and PCB footprint geometry
+excluded scope         thread, nut, washer and complete panel stack
 ```
 
-Thonk's interchangeability statement is recorded as supplier evidence. The lane does not yet treat a PJ398SM-labelled drawing as a manufacturer-controlled WQP518MA drawing.
+Thonk explicitly states that WQP518MA, PJ398SM and PJ301M-12 are functionally identical and interchangeable and that the WQP518MA footprint is unchanged. That controlled supplier statement is accepted for the limited scope above.
 
-### Pinned candidate footprint
+### Official footprint authority
 
 ```text
-repository  clacktronics/AudioJacks
-commit      14a88866e93b8ce4a31ad376b0c6eb85cd4d2cf3
-path        AudioJacks.pretty/Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical.kicad_mod
-Git blob    1ebfa641294a0fd38f9c0e2c5c8b85dbc71ccaf6
-SHA-256     9f54f81d8f0152e77082746b47158c297c84154dd6fbe0b459ef147a86b10678
-upstream testing status  UNTESTED
+repository  KiCad/kicad-footprints
+commit      7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd
+path        Connector_Audio.pretty/Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles.kicad_mod
+Git blob    6c9440c957bf566ae79058cdab7afabfb86955d8
+SHA-256     8ae08dd1e353c7fdbea2827c890ecd150e6f5f528598770bec85a8f2422b98cc
 ```
 
-The terminal centres match the supplier drawing, but the footprint uses semantic pads `T`, `TN`, `S`. The current project symbol uses numeric identifiers `1`, `2`, `3`. Direct assignment is prohibited.
-
-### Current panel and mounting status
+### Numeric project footprint
 
 ```text
-bushing diameter shown       6.0 mm
-candidate panel clearance    6.5 mm — not accepted
-exact thread                  unknown
-exact nut                     not selected
-exact washer                  not selected
-maximum panel thickness       unknown
-panel-to-PCB seating          not accepted
-barrel relief / keepout       required
+library id  MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
+1           TIP
+2           TIP_NORMAL
+3           SLEEVE
+barrel       3.00 mm NPTH at published centre
+SHA-256      e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 ```
 
-### Required bounded repair
+The numeric footprint copies the official electrical pad geometry exactly and resolves the earlier `1/2/3` versus `T/TN/S` mismatch. It remains unassigned.
 
-1. Establish controlled WQP518MA-to-PJ398SM dimensional equivalence.
-2. Select exact nut and washer hardware.
-3. Establish panel-hole, panel-thickness and panel-to-PCB tolerances.
-4. Create an independently reviewed numeric project-local footprint with `1=T`, `2=TN`, `3=S` and barrel keepout.
-5. Only after those checks pass, amend J40 and J70 and assign the footprint.
-6. Rerun jack validators and KiCad hierarchical ERC.
-7. Return the lane for deliberate approval or rejection.
+### Mechanical targets and blocker
+
+```text
+panel material                 aluminium
+panel thickness target         2.00 mm
+panel hole target              6.50 +0.10 / -0.00 mm
+maximum assembled axis offset  0.15 mm
+panel-to-PCB nominal target    8.30 mm — sample confirmation required
+nut                            Thonkiconn Hex Nuts variant
+washer                         Thonkiconn Washers variant
+```
+
+The supplier does not publish thread pitch, nut thickness, washer thickness or minimum secure engagement. The physical sample record must be completed before the 2 mm panel stack or footprint assignment can pass.
+
+### Required human closure
+
+1. Measure one WQP518MA, selected hex nut and selected washer.
+2. Complete `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`.
+3. Prove secure engagement through a 2 mm panel coupon.
+4. Confirm the panel-to-PCB seating distance and that tightening does not load the solder joints.
+5. Confirm the 3 mm NPTH barrel relief clears the actual jack.
+6. Return the mechanical record for independent review.
+7. Only after approval, assign the project-local footprint to J40 and J70 and rerun KiCad ERC.
 
 ## Remaining Gate-B lanes
 
