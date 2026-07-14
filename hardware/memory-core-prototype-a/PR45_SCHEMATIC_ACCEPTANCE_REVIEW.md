@@ -11,11 +11,14 @@ OUTPUT FAIL-MUTE CLAIMS: TRANSFERRED TO EXACT-PART AND BENCH GATES
 FOOTPRINTS: NOT ACCEPTED
 PCB PLACEMENT / ROUTING: NOT AUTHORISED
 FABRICATION / PURCHASING: NOT AUTHORISED
-RECOMMENDED MERGE METHOD: SQUASH
-PR STATE: KEEP DRAFT UNTIL HUMAN REVIEW OF THIS DECISION
+SQUASH-MERGE METHOD: APPROVED
+MERGE EXECUTION: NOT AUTHORISED BY THIS REVIEW RECORD
+PR STATE: KEEP DRAFT UNTIL THE DELIBERATE MERGE ACTION
 ```
 
 This review accepts the V5.2 schematic as the bounded output of the native capture lane. It does not certify production safety, measured performance, exact packages, footprints, mechanics or manufacturability.
+
+The squash-merge method is explicitly approved. This approval selects the merge method only; it does not itself merge PR #45, mark it ready, begin footprint work or grant PCB authority.
 
 ## Review basis
 
@@ -239,11 +242,11 @@ KiCad ERC                                 0 errors / 0 warnings
 
 The cleanup did not alter the accepted native schematic.
 
-## Merge strategy
+## Merge-method decision
 
-### Recommendation: squash merge
+### Approved: squash merge
 
-Do not use a normal merge commit for this branch.
+The squash-merge decision is approved.
 
 Reasons:
 
@@ -251,15 +254,18 @@ Reasons:
 - many intermediate commits intentionally represent rejected or superseded generated states;
 - the final native files and validation records are the authority, not the transient commit sequence;
 - a squash commit gives `main` one bounded, reviewable schematic-capture change;
-- the PR, Actions history and validation records retain the full evidence trail.
+- the PR, Actions history and validation records retain the full evidence trail;
+- all current-head workflows are green and the committed native files pass without regeneration or promotion.
 
-Suggested squash title:
+A normal merge commit and a rebase merge are rejected for this PR because both would unnecessarily carry the transient capture history into `main`.
+
+Approved squash title:
 
 ```text
 V5.2: capture and validate Memory Core Prototype A schematic
 ```
 
-Suggested squash body:
+Approved squash body:
 
 ```text
 Capture the nine-sheet native KiCad hierarchy for Memory Core Prototype A,
@@ -267,11 +273,13 @@ validate shared devices and restricted boundaries, complete the integrated
 00_TOP review, and retain explicit footprint, bench, PCB and production gates.
 ```
 
-Do not mark the PR ready or merge it solely because the automated gates pass. A human must review this acceptance record, the final schematic diff and the transferred safety gates first.
+This record does not execute the merge. PR #45 remains draft until the deliberate merge action is separately authorised.
 
 ## Next authorised lane
 
-After the merge strategy is accepted and PR #45 is deliberately merged, begin exact-part and footprint verification as a separate PR. Start with the highest-risk physical assumptions:
+The next repository action is the deliberate squash merge of PR #45 using the approved title and body.
+
+Only after that merge completes may exact-part and footprint verification begin in a separate PR. Start with the highest-risk physical assumptions:
 
 1. J113-class output mute device and its required mute-depth performance;
 2. output optocoupler, NPN inverter and power-sequencing assumptions;
