@@ -1,32 +1,39 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "authority": {
     "purpose": "Dimensional compatibility audit for the three sheet-07 exact-part footprints",
-    "source": "SHA-256-locked snapshots from KiCad's official footprint library",
+    "source_repository": "KiCad/kicad-footprints",
+    "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+    "source_commit_url": "https://github.com/KiCad/kicad-footprints/commit/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+    "accepted_geometry_is_project_local": true,
     "pcb_authorised": false
   },
   "footprint_snapshots": {
     "sot23": {
       "path": "hardware/memory-core-prototype-a/footprint-audits/SOT-23.kicad_mod",
-      "source_url": "https://gitlab.com/kicad/libraries/kicad-footprints/-/raw/master/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod",
-      "sha256": "f8fd6dd6411c47f6547df13b1efe33867682117b7fb6f2ea829d1d726d565887",
+      "source_url": "https://github.com/KiCad/kicad-footprints/blob/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod",
+      "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+      "github_blob_sha": "50a8c41bf25dc5843c0ceb95820dc83b930321f9",
+      "sha256": "db5b998f0d36708205a4b8edc0db1501deb0246a81b52e9cb036cfd58b7570d3",
       "geometry_mm": {
-        "pad_1": [-0.9375, -0.95, 1.475, 0.6],
-        "pad_2": [-0.9375, 0.95, 1.475, 0.6],
-        "pad_3": [0.9375, 0.0, 1.475, 0.6],
-        "courtyard": [3.86, 3.4]
+        "pad_1": [-1.0, -0.95, 0.9, 0.8],
+        "pad_2": [-1.0, 0.95, 0.9, 0.8],
+        "pad_3": [1.0, 0.0, 0.9, 0.8],
+        "courtyard": [3.4, 3.5]
       }
     },
     "smdip4": {
       "path": "hardware/memory-core-prototype-a/footprint-audits/SMDIP-4_W7.62mm.kicad_mod",
-      "source_url": "https://gitlab.com/kicad/libraries/kicad-footprints/-/raw/master/Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod",
-      "sha256": "5d9faa2287c41ae0b7930be347813bde5098acb8688513fff275fde904b532a0",
+      "source_url": "https://github.com/KiCad/kicad-footprints/blob/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd/Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod",
+      "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+      "github_blob_sha": "f45a9a53110c40e6dfdcdae40d07a29856841be2",
+      "sha256": "23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d",
       "geometry_mm": {
         "pad_1": [-3.81, -1.27, 2.0, 1.78],
         "pad_2": [-3.81, 1.27, 2.0, 1.78],
         "pad_3": [3.81, 1.27, 2.0, 1.78],
         "pad_4": [3.81, -1.27, 2.0, 1.78],
-        "courtyard": [10.14, 5.58]
+        "courtyard": [10.2, 5.6]
       }
     }
   },
@@ -37,6 +44,17 @@
       "datasheet": "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf",
       "footprint": "Package_TO_SOT_SMD:SOT-23",
       "snapshot": "sot23",
+      "equivalence_basis": "The onsemi datasheet identifies CASE 318-08 as SOT-23 (TO-236); the accepted footprint is the standard three-lead TO-236AB land pattern.",
+      "dimensions_mm": {
+        "body_length_max": 3.04,
+        "body_width_max": 1.4,
+        "overall_width_max": 2.64,
+        "lead_pitch_nominal": 0.95,
+        "outer_lead_pitch_min": 1.78,
+        "outer_lead_pitch_max": 2.04,
+        "lead_width_max": 0.5,
+        "lead_length_max": 0.69
+      },
       "pin_orientation": "pins 1 and 2 on the two-lead side; pin 3 opposite"
     },
     "Q71": {
