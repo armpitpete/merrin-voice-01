@@ -12,6 +12,7 @@ on:
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/amend_output_mute_exact_parts.py"
+      - "tools/preserve_shared_j113_symbol.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
@@ -29,6 +30,7 @@ on:
       - "tools/capture_output_mute_protection_sheet.py"
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/amend_output_mute_exact_parts.py"
+      - "tools/preserve_shared_j113_symbol.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
@@ -100,6 +102,7 @@ jobs:
           mkdir -p build/generator
           set -o pipefail
           python tools/amend_output_mute_exact_parts.py 2>&1 | tee -a build/generator/output-sheet.log
+          python tools/preserve_shared_j113_symbol.py 2>&1 | tee -a build/generator/output-sheet.log
 
       - name: Validate output, mute, protection and shared U32 contracts
         run: |
