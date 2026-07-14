@@ -70,15 +70,16 @@ J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
 WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE      PASS FOR CONTACT / PCB GEOMETRY
-OFFICIAL KICAD SOURCE FOOTPRINT              PINNED
-NUMERIC PROJECT-LOCAL FOOTPRINT              CREATED — 1 / 2 / 3
-3 MM BARREL RELIEF NPTH                      INCLUDED
+OFFICIAL KICAD SOURCE FOOTPRINT              PINNED AND VERIFIED
+NUMERIC PROJECT-LOCAL FOOTPRINT              PASS — 1 / 2 / 3
+3 MM BARREL RELIEF NPTH                      PASS
 PANEL HOLE TARGET                            6.50 +0.10 / -0.00 MM — DERIVED
 HEX NUT PRODUCT VARIANT                      SELECTED
 WASHER PRODUCT VARIANT                       SELECTED
 THREAD / NUT / WASHER DIMENSIONS             BLOCKED — SAMPLE REQUIRED
 2 MM PANEL STACK                             BLOCKED — SAMPLE REQUIRED
 J40 / J70 FOOTPRINT FIELDS                   BLANK
+KICAD 10 HIERARCHICAL ERC                    PASS — 0 / 0
 PCB / PANEL FAB / PURCHASING                 BLOCKED
 ```
 
@@ -122,6 +123,22 @@ SHA-256      e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 ```
 
 The numeric footprint copies the official electrical pad geometry exactly and resolves the earlier `1/2/3` versus `T/TN/S` mismatch. It remains unassigned.
+
+### Validation evidence
+
+Engineering head:
+
+```text
+d1510cfcb4b85a3e6d17283d795b2a545ed4860a
+```
+
+```text
+KiCad jack exact-part verification  run 29368887533  PASS
+KiCad schematic ERC                 run 29368887574  PASS
+Current schematic stage authority   run 29368887521  PASS
+Hierarchical ERC                     0 errors / 0 warnings
+Footprint assignment                 remained blank
+```
 
 ### Mechanical targets and blocker
 
