@@ -20,11 +20,12 @@ An active device or connector is accepted only when all of these are traceable:
 3. package designation and dimensional envelope;
 4. physical pin numbering and symbol mapping;
 5. electrical limits at the actual circuit bias and fault states;
-6. SHA-256-locked KiCad footprint geometry from an authoritative source;
-7. dimensional comparison of pads, pitch, orientation and courtyard;
-8. explicit transfer of remaining physical and measured gates.
+6. immutable upstream revision and SHA-256-locked project-local footprint bytes;
+7. independent dimensional comparison for every exact package;
+8. explicit temperature scope for datasheet-bound electrical claims;
+9. transfer of remaining physical and measured gates.
 
-A generic class name, typical graph, assumed CTR or footprint-name match is not acceptance evidence.
+A generic class name, typical graph, assumed CTR, moving library branch or footprint-name match is not acceptance evidence.
 
 ## Lane 01 — output mute and fault-control path
 
@@ -37,34 +38,36 @@ Detailed records:
 Current result:
 
 ```text
-Q70 MMBFJ113 exact part / pin map / package      PASS, SUBJECT TO PR REVIEW
-Q71 PMV20XNE exact part / pin map / package       PASS, SUBJECT TO PR REVIEW
-U70 VO617A-3X007T exact part / pin map / package  PASS, SUBJECT TO PR REVIEW
+Q70 MMBFJ113 exact part / pin map                RETAINED
+Q71 PMV20XNE exact part / pin map                 RETAINED
+U70 VO617A-3X007T exact part / pin map            RETAINED
 POWERED HEALTHY-RELEASE TOPOLOGY                  PASS AT CALCULATED LEVEL
-U70 ACTUAL-BIAS SATURATION PROOF                   PASS — 8.93:1 MARGIN
-Q70 25 C DATASHEET-BOUND ATTENUATION               PASS — 61.50 dB
-HASH-LOCKED DIMENSIONAL FOOTPRINT AUDIT             PASS
-KICAD 10 HIERARCHICAL ERC                           PASS — 0 / 0
-COMMITTED-FILE NO-DIFF RERUN                        PASS
-MEASURED MUTE / POP / RAIL SEQUENCING               GATE C
-PCB / ROUTING / FABRICATION / PURCHASING            BLOCKED
+Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT     PASS, PENDING CURRENT-HEAD CI
+Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT        PASS, PENDING CURRENT-HEAD CI
+U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT              PASS, PENDING CURRENT-HEAD CI
+U70 25 C DATASHEET-BOUND SATURATION PROOF         PASS — 8.93:1
+Q70 25 C DATASHEET-BOUND ATTENUATION              PASS — 61.50 dB
+IMMUTABLE KICAD FOOTPRINT PROVENANCE              PASS, PENDING CURRENT-HEAD CI
+MEASURED MUTE / POP / RAIL SEQUENCING             GATE C
+PCB / ROUTING / FABRICATION / PURCHASING          BLOCKED
 ```
 
 ### Candidate register
 
-| Ref | Exact part | Manufacturer package | Physical pins | KiCad footprint |
+| Ref | Exact part | Manufacturer package | Physical pins | Assigned KiCad footprint |
 |---|---|---|---|---|
-| Q70 | onsemi `MMBFJ113` | SOT-23 / TO-236, case 318-08 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
+| Q70 | onsemi `MMBFJ113` | SOT-23 / TO-236, CASE 318-08 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
 | Q71 | Nexperia `PMV20XNE` | TO-236AB / SOT23 | 1 G, 2 S, 3 D | `Package_TO_SOT_SMD:SOT-23` |
 | U70 | Vishay `VO617A-3X007T` | option-7 SMD-4 | 1 A, 2 K, 3 E, 4 C | `Package_DIP:SMDIP-4_W7.62mm` |
 
-### Corrected electrical evidence
+### Electrical evidence
 
 ```text
 minimum estimated VO617A LED current = 5.304 mA
-guaranteed saturated condition = IF 5 mA, IC 1 mA, VCE(sat) <= 0.4 V
+25 C saturated condition = IF 5 mA, IC 1 mA, VCE(sat) <= 0.4 V
 actual worst load at VCE = 0.4 V = 0.112 mA
-saturation-current margin = 8.93:1
+25 C saturation-current margin = 8.93:1
+full-temperature release behaviour = Gate C
 
 Q70 25 C datasheet-bound attenuation = 61.50 dB
 full-temperature and measured >=60 dB acceptance = Gate C
@@ -73,25 +76,46 @@ healthy MUTE_GATE estimate = -10.545 V
 fault / +12 V loss crossing of -3 V = 12.57 ms
 ```
 
-### Dimensional evidence
+### Q70 independent dimensional evidence
 
-The validator parses committed, SHA-256-locked snapshots from KiCad's official footprint library:
+Q70's CASE 318-08 package is independently recorded and checked:
 
 ```text
-SOT-23 snapshot hash:
-f8fd6dd6411c47f6547df13b1efe33867682117b7fb6f2ea829d1d726d565887
-
-SMDIP-4_W7.62mm snapshot hash:
-5d9faa2287c41ae0b7930be347813bde5098acb8688513fff275fde904b532a0
+body length maximum       3.04 mm
+body width maximum        1.40 mm
+overall lead span maximum 2.64 mm
+outer lead pitch range    1.78 to 2.04 mm
+lead width maximum        0.50 mm
+lead length maximum       0.69 mm
 ```
 
-It verifies pad centres, pad dimensions, package pitch, pin orientation and courtyard coverage. Placement, neighbour interaction and assembly acceptance remain blocked.
+It no longer inherits the Q71 package decision.
 
-### Closure evidence
+### Immutable footprint authority
 
-Committed head `59b96b78891bc95c6c025fad70b9137c6c4241f4` passed dedicated run `29339271573`, including exact electrical validation, snapshot hashes, dimensional footprint validation, KiCad ERC and a no-diff promotion step.
+The accepted project-local footprint bytes originate from the official `KiCad/kicad-footprints` repository at:
 
-Lane 01 remains subject to a new PR #46 approval review. It is not merged.
+```text
+commit 7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd
+```
+
+```text
+SOT-23
+Git blob 50a8c41bf25dc5843c0ceb95820dc83b930321f9
+SHA-256 db5b998f0d36708205a4b8edc0db1501deb0246a81b52e9cb036cfd58b7570d3
+
+SMDIP-4_W7.62mm
+Git blob f45a9a53110c40e6dfdcdae40d07a29856841be2
+SHA-256 23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
+```
+
+The validator checks each package independently against these immutable files. Placement, neighbouring clearances, creepage strategy and assembly acceptance remain blocked.
+
+### Required closure
+
+The current PR head must pass the independent package validators, immutable provenance checks, temperature-scope checks, exact electrical validators, KiCad ERC and a committed-file no-diff rerun.
+
+Lane 01 remains subject to another PR #46 approval review. It is not merged.
 
 ## Remaining Gate-B lanes
 
