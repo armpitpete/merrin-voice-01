@@ -100,9 +100,25 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/generator
-          set -o pipefail
-          python tools/amend_output_mute_exact_parts.py 2>&1 | tee -a build/generator/output-sheet.log
-          python tools/preserve_shared_j113_symbol.py 2>&1 | tee -a build/generator/output-sheet.log
+          root="hardware/memory-core-prototype-a"
+          sheet="$root/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
+          library="$root/MerrinLab_PrototypeA.kicad_sym"
+          marker="$root/07_OUTPUT_MUTE_EXACT_PARTS_AMENDED"
+          if [ -f "$marker" ] \
+            && grep -q 'MerrinLab_PrototypeA:MMBFJ113_APPLICATION' "$sheet" \
+            && grep -q 'MerrinLab_PrototypeA:PMV20XNE_APPLICATION' "$sheet" \
+            && grep -q 'MerrinLab_PrototypeA:VO617A_3X007T_APPLICATION' "$sheet" \
+            && grep -q '(symbol "MMBFJ113_APPLICATION"' "$library" \
+            && grep -q '(symbol "J113_SHUNT_APPLICATION"' "$library"; then
+            echo "Committed exact output-mute amendment is current; mutation skipped." \
+              | tee -a build/generator/output-sheet.log
+          else
+            set -o pipefail
+            python tools/amend_output_mute_exact_parts.py 2>&1 \
+              | tee -a build/generator/output-sheet.log
+            python tools/preserve_shared_j113_symbol.py 2>&1 \
+              | tee -a build/generator/output-sheet.log
+          fi
 
       - name: Validate output, mute, protection and shared U32 contracts
         run: |
@@ -166,7 +182,9 @@ jobs:
               if match and '[isolated_pin_label]:' in match.group('body'):
                   raise SystemExit(f'{sheet_name} still contains temporary isolated labels')
 
-          print(f'Output/mute/protection ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          if warnings:
+              raise SystemExit(f'Output/mute/protection stage has {warnings} ERC warning(s)')
+          print('Output/mute/protection ERC: PASS — 0 errors / 0 warnings')
           PY
 
       - name: Promote validated exact output-mute artifact
