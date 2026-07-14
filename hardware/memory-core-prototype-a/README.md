@@ -13,15 +13,16 @@ NATIVE HIERARCHY CAPTURED
 05_MEMORY_GHOST_WET COMPLETE / ERC VALIDATED
 07_OUTPUT_MUTE_PROTECTION COMPLETE / ERC VALIDATED
 09_TEST_SERVICE COMPLETE / ERC VALIDATED
-00_TOP FINAL INTEGRATED REVIEW NEXT
-PCB WORK BLOCKED
+00_TOP FINAL INTEGRATED REVIEW COMPLETE / ERC VALIDATED
+PR #45 SCHEMATIC ACCEPTANCE REVIEW COMPLETE
+FOOTPRINT / PCB / FABRICATION / PURCHASING BLOCKED
 ```
 
 This folder contains the native KiCad hierarchy for **Merrin Grief Synth — Constrained Grief**.
 
-Component-level circuitry is being added one sheet at a time. Full hierarchical ERC is run after each bounded capture.
+The V5.2 component-level schematic-capture lane is complete. All nine sheets and the final integrated hierarchy pass committed-file validation and KiCad ERC.
 
-The project is not yet a completed hardware schematic or production-ready design.
+The design remains a reviewed prototype schematic candidate, not production-ready hardware. Exact parts, footprints, measured behaviour, placement, routing, mechanics, fabrication and purchasing remain separate gates.
 
 ## Native hierarchy
 
@@ -63,6 +64,8 @@ MerrinGriefSynthMemoryCoreA.kicad_sch
 - Captured analogue sheets receive the accepted ±12 V rails.
 
 The machine-readable interface list is stored in `hierarchy-manifest.json`.
+
+The final hierarchy review is recorded in `00_TOP_FINAL_INTEGRATED_REVIEW.md`. The PR-level schematic, footprint, bench and merge decision is recorded in `PR45_SCHEMATIC_ACCEPTANCE_REVIEW.md`.
 
 ## Captured sheet 01 — Power / Protection
 
@@ -246,8 +249,8 @@ Still open:
 - measured SSI2164 control law and unity-gain point;
 - measured Break and normaliser gain;
 - measured limiter thresholds and recovery;
-- measured complete loop gain;
-- independent Return safety review after integrated analogue capture;
+- measured complete loop gain and polarity;
+- fault-neutralisation and rail-sequencing proof;
 - 30-minute worst-setting endurance test.
 
 ## Captured sheet 05 — Memory / Ghost / Wet
@@ -308,7 +311,7 @@ Still open:
 - measured Memory and Ghost VCA control laws;
 - measured Memory/Ghost branch gain and wet-sum headroom;
 - measured wet-master attenuation range, noise, distortion and recovery;
-- integrated analogue loop gain and safety review;
+- integrated analogue loop gain and safety bench gates;
 - PCB placement, routing and all physical implementation gates.
 
 ## Captured sheet 07 — Output / Mute / Protection
@@ -383,13 +386,14 @@ committed-file rerun passed with generation and promotion skipped
 Still open:
 
 - exact OPA1679 TSSOP-14 footprint review;
-- exact J113-class mute device, pin map, footprint and `VGS(off)` spread;
+- exact J113-class mute device, pin map, footprint, `VGS(off)` and on-resistance spread;
 - exact optocoupler and NPN fault-inverter parts and packages;
+- asymmetric rail-arrival and rail-loss behaviour;
 - exact output-level potentiometer and WQP518MA physical pin/footprint review;
 - panel alignment and jack clearance;
 - measured output level, load drive, noise and distortion;
 - measured mute depth, fault timing, release timing and pop behaviour;
-- measured output-protection current and 30-minute endurance;
+- measured output-clamp current, back-power behaviour and endurance;
 - all PCB placement, routing and physical implementation gates.
 
 ## Captured sheet 09 — Test / Service
@@ -542,17 +546,19 @@ official KiCad CI container
 pinned container digest
 ```
 
-Current staged-capture policy:
+Final component-capture policy:
 
 ```text
 0 ERC errors required
-isolated_pin_label warnings allowed only on sheets that remain temporary scaffolds
-captured sheets may not retain temporary interface-harness warnings
+0 ERC warnings required
+all nine component sheets required
+parent and child hierarchy directions must match
+former temporary harnesses forbidden
 ```
 
-All nine component sheets now report `0 errors, 0 warnings` from committed files. No temporary scaffold warning remains accepted.
+All nine component sheets and `00_TOP` report `0 errors, 0 warnings` from committed files.
 
-## Active capture order
+## Completed capture order
 
 ```text
 [x] 01_POWER_PROTECTION
@@ -564,32 +570,36 @@ All nine component sheets now report `0 errors, 0 warnings` from committed files
 [x] 05_MEMORY_GHOST_WET
 [x] 07_OUTPUT_MUTE_PROTECTION
 [x] 09_TEST_SERVICE
-[ ] 00_TOP final interface and ERC review  NEXT
+[x] 00_TOP final interface and ERC review
+[x] PR #45 schematic acceptance and transferred-gate review
 ```
 
-All nine component sheets are captured. The next bounded lane is the final `00_TOP` integrated review: reconcile parent and child interfaces, confirm no temporary harness remains, revalidate shared-device ownership and restricted boundaries, run KiCad 10 ERC from committed files, and document remaining risks without entering PCB or footprint work.
+The recommended merge strategy for PR #45 is a deliberate squash merge after human review. The PR remains draft. Exact-part and footprint verification must begin in a separate later lane and may return assumptions to schematic review.
 
 ## Still blocked
 
-- PCB placement
-- PCB routing
-- fabrication outputs
-- parts purchasing
-- production pricing
-- final mechanical layout
-- oscillator or internal voice-source work
-- MIDI/CV expansion
-- sequencer work
-- demo media
+- exact footprint acceptance;
+- PCB placement;
+- PCB routing;
+- fabrication outputs;
+- parts purchasing;
+- production pricing;
+- final mechanical layout;
+- oscillator or internal voice-source work;
+- MIDI/CV expansion;
+- sequencer work;
+- demo media.
 
 ## Gate before PCB work
 
 PCB work may begin only after:
 
-- all nine sheets contain accepted component-level circuitry;
-- hierarchical ERC passes;
-- every symbol pin and package is verified;
+- PR #45 is deliberately reviewed and merged;
+- exact manufacturer parts and package pin maps are verified;
 - exact footprints receive independent review;
-- WQP518MA mechanical alignment is proven;
-- Return safety receives schematic-stage independent review;
-- remaining hardware risks are closed or transferred to explicit bounded bench tests.
+- WQP518MA / Thonkiconn mechanical alignment is proven;
+- Return loop, limiter and fault behaviour pass the transferred bench gates;
+- output mute, sequencing, load, clamp and endurance behaviour pass the transferred bench gates;
+- remaining hardware risks are closed or transferred to explicit bounded tests with acceptance criteria.
+
+Passing the schematic gate does not authorise PCB work.
