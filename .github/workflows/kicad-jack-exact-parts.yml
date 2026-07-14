@@ -10,8 +10,11 @@ on:
       - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
       - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
       - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
+      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md"
       - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
       - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty/**"
+      - "hardware/memory-core-prototype-a/fp-lib-table"
       - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -26,8 +29,11 @@ on:
       - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
       - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
       - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
+      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md"
       - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
       - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty/**"
+      - "hardware/memory-core-prototype-a/fp-lib-table"
       - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -104,7 +110,7 @@ jobs:
           print('Jack exact-part hierarchical ERC: PASS — 0 errors / 0 warnings')
           PY
 
-      - name: Confirm no schematic footprint assignment occurred
+      - name: Confirm footprint assignment remains blocked
         run: |
           git diff --exit-code -- \
             hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch \
@@ -120,7 +126,10 @@ jobs:
             hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md
             hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json
             hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md
+            hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md
             hardware/memory-core-prototype-a/jack-footprint-audits
+            hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty
+            hardware/memory-core-prototype-a/fp-lib-table
           if-no-files-found: error
 
       - name: Upload ERC diagnostics
