@@ -12,6 +12,8 @@ Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT: PASS
 U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT: PASS
 U70 25 C DATASHEET-BOUND SATURATION PROOF: PASS — 8.93:1
 IMMUTABLE KICAD FOOTPRINT PROVENANCE: PASS
+KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
+COMMITTED-FILE NO-DIFF RERUN: PASS
 MEASURED BEHAVIOUR: GATE C
 PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 PR ACCEPTANCE: SUBJECT TO NEW HUMAN REVIEW
@@ -141,18 +143,22 @@ SHA-256:  23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
 
 Moving library branches and ambient workstation footprint versions are not Gate-B authority.
 
-## Current validation requirement
+## Validation evidence
 
-The exact current PR head must pass:
+Committed head `8d0187bf2ed4bc3caceb9cc4844b2d50bef65b6a` passed dedicated workflow run `29347852152`:
 
-1. Q70 CASE 318-08 independent dimensional validation;
-2. Q71 TO-236AB independent dimensional validation;
-3. U70 option-7 SMD-4 dimensional validation;
-4. immutable source-commit, Git-blob and SHA-256 checks;
-5. U70 25 C authority checks;
-6. exact symbol, pin and hierarchy checks;
-7. KiCad 10 hierarchical ERC with zero errors and zero warnings;
-8. a committed-file rerun with no promotion diff.
+```text
+Q70 CASE 318-08 independent validator      PASS
+Q71 TO-236AB independent validator         PASS
+U70 option-7 SMD-4 validator               PASS
+immutable source revision and hashes       PASS
+U70 25 C authority validation              PASS
+exact electrical / pin / hierarchy checks  PASS
+KiCad 10 hierarchical ERC                   PASS — 0 errors / 0 warnings
+promotion                                   NO COMMITTED-FILE DIFF
+```
+
+The consolidated schematic ERC, final integrated review, current-stage authority, Return, codec, input, MCU and Memory/Ghost workflows also passed on the same head.
 
 ## Remaining gates
 
