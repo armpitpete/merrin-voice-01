@@ -1,170 +1,146 @@
 # 07_OUTPUT_MUTE_PROTECTION — Validation Record
 
-## Status
+## Current status
 
 ```text
-GENERATED ARTIFACT: PASS
-HIERARCHY / NO-EXPORT CONTRACT: PASS
-OUTPUT GAIN / HEADROOM CONTRACT: PASS
-FAIL-MUTE CONTROL CONTRACT: PASS
-OPA1679 SYMBOL / PHYSICAL-PIN CONTRACT: PASS
-SHARED MULTI-UNIT DEVICE CONTRACT: PASS
-PROVISIONAL CONTROL-SYMBOL CONTRACT: PASS
+SCHEMATIC-CAPTURE CONTRACT: PASS
+EXACT Q70 / Q71 / U70 PIN-MAP CONTRACT: PASS
+HEALTHY-RELEASE FAIL-MUTE TOPOLOGY: PASS AT CALCULATED SCHEMATIC LEVEL
+Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT: PASS
+Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT: PASS
+U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT: PASS
+U70 25 C DATASHEET-BOUND SATURATION PROOF: PASS — 8.93:1
+Q70 25 C DATASHEET-BOUND ATTENUATION: PASS — 61.50 dB
+IMMUTABLE KICAD FOOTPRINT PROVENANCE: PASS
 KICAD 10 HIERARCHICAL ERC: PASS — 0 ERRORS / 0 WARNINGS
-COMMITTED-FILE RERUN: PASS — GENERATION SKIPPED
-PCB / FOOTPRINT / MECHANICAL AUTHORITY: NOT GRANTED
+COMMITTED-FILE BYTE-IDEMPOTENT RERUN: PASS
+MEASURED MUTE / POP / RAIL SEQUENCING: NOT ACCEPTED
+PCB / ROUTING / FABRICATION / PURCHASING: BLOCKED
 ```
 
-## Locked sheet boundary
+## Exact parts
 
-Inputs:
+| Ref | Exact part | Physical pins | Assigned footprint |
+|---|---|---|---|
+| Q70 | onsemi MMBFJ113 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
+| Q71 | Nexperia PMV20XNE | 1 G, 2 S, 3 D | `Package_TO_SOT_SMD:SOT-23` |
+| U70 | Vishay VO617A-3X007T | 1 A, 2 K, 3 E, 4 C | `Package_DIP:SMDIP-4_W7.62mm` |
+
+## U70 25 C datasheet-bound saturation proof
+
+The load line is evaluated from Vishay's saturated electrical-characteristics condition, not from the non-saturated CTR figure:
 
 ```text
-RAIL_P12
-RAIL_N12
-DIRECT_PRESENT
-WET_MIX
-HARDWARE_FAULT_N
+Tamb = 25 C unless otherwise specified
+IF = 5 mA
+IC = 1.0 mA
+VCE(sat) <= 0.4 V
+minimum estimated LED current = 5.304 mA
+required release current      = 0.112 mA
+saturated test current        = 1.000 mA
+calculated margin             = 8.93:1
 ```
 
-No audio or control net leaves sheet 07 through the hierarchy. The protected output jack, output-level node, mute nodes and protection nodes are local to this sheet.
+This is a 25 C datasheet-bound proof. **Full-temperature release behaviour remains Gate C.**
 
-## Shared OPA1679 ownership
-
-`U32` remains one physical OPA1679 shared by sheets 03 and 07:
+## Q70 mute-depth qualification
 
 ```text
-unit 1 — channel A, Return DAC conversion — sheet 03
-unit 2 — channel B, Direct/Wet final half-sum — sheet 07
-unit 3 — channel C, output-level buffer — sheet 07
-unit 4 — channel D, post-mute output driver — sheet 07
-unit 5 — common V+/V− power unit — sheet 03
+R703 minimum at -1%                    = 118.8 kOhm
+MMBFJ113 rDS(on) maximum at TJ = 25 C = 100 ohm
+25 C datasheet-bound attenuation       = 61.50 dB
 ```
 
-Official TSSOP-14 channel pins:
+Gate C must demonstrate at least `60 dB` measured attenuation across the declared operating temperature, device spread, signal conditions and assembled circuit.
+
+## Independent dimensional audits
+
+### Q70 — onsemi CASE 318-08
 
 ```text
-A: pin 3 IN+, pin 2 IN−, pin 1 OUT
-B: pin 5 IN+, pin 6 IN−, pin 7 OUT
-C: pin 10 IN+, pin 9 IN−, pin 8 OUT
-D: pin 12 IN+, pin 13 IN−, pin 14 OUT
-power: pin 4 V+, pin 11 V−
+body length maximum       3.04 mm
+body width maximum        1.40 mm
+overall lead span maximum 2.64 mm
+outer lead pitch range    1.78 to 2.04 mm
+lead width maximum        0.50 mm
+lead length maximum       0.69 mm
 ```
 
-The validator requires exactly five `U32 / OPA1679` unit instances across sheets 03 and 07, units exactly `1..5`, no duplicate U32 package and no accepted footprint. The complete Prototype A allocation remains seven physical OPA1679 packages.
+The validator compares Q70's own package record directly with the accepted SOT-23 pad geometry. Q70 no longer inherits Q71's package result.
 
-## Final output path
+### Q71 — Nexperia TO-236AB
+
+Q71 is independently checked against its own TO-236AB body, lead and pitch limits.
+
+### U70 — Vishay option-7 SMD-4
+
+U70 is independently checked for row spacing, lead pitch, pad dimensions, pin-one orientation and courtyard coverage.
+
+## Immutable footprint provenance
+
+The project-local footprints are byte-for-byte copies from the official `KiCad/kicad-footprints` repository at immutable commit:
 
 ```text
-DIRECT_PRESENT ─40.2 kΩ─┐
-                         ├─ U32B equal inverting half-sum
-WET_MIX       ─40.2 kΩ─┘        │
-                                ├─ 20.0 kΩ feedback
-                                ↓
-                         passive 10 kΩ output level
-                                ↓
-                         U32C unity buffer
-                                ↓
-                         10 kΩ mute isolation
-                                ↓
-                         J113-class shunt mute
-                                ↓
-                         U32D post-mute driver
-                                ↓
-                         10 µF bipolar AC coupling
-                                ↓
-                         1 kΩ output protection
-                                ↓
-                         rail clamps + RF/reference network
-                                ↓
-                         logical WQP518MA output jack
+7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd
 ```
-
-## Output gain and headroom
 
 ```text
-R_DIRECT = 40.2 kΩ
-R_WET    = 40.2 kΩ
-R_FB     = 20.0 kΩ
+SOT-23.kicad_mod
+Git blob 50a8c41bf25dc5843c0ceb95820dc83b930321f9
+SHA-256 db5b998f0d36708205a4b8edc0db1501deb0246a81b52e9cb036cfd58b7570d3
 
-per-branch magnitude = 20.0 / 40.2 ≈ 0.4975
-6 Vpp Direct + 6 Vpp Wet calculated maximum ≈ 5.97 Vpp
+SMDIP-4_W7.62mm.kicad_mod
+Git blob f45a9a53110c40e6dfdcdae40d07a29856841be2
+SHA-256 23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
 ```
 
-The output-level control is passive and can only attenuate. The calculated normal output therefore remains below the locked `10 Vpp` ceiling before bench tolerances and clipping tests.
+The project-local committed files are the Gate-B footprint authority. Moving upstream branches and ambient workstation libraries are not accepted evidence.
 
-## Fail-muted control
-
-A low or undefined `HARDWARE_FAULT_N` lights the isolated fault optocoupler and clamps the JFET mute gate toward `0 V`, turning the shunt mute on. A healthy high fault line switches the inverter on, extinguishes the optocoupler and allows the gate to move toward the negative rail through the controlled release network.
-
-First-pass calculated values:
+## Fault timing and driver gate
 
 ```text
-negative pull = 100 kΩ to −12 V
-power-off pull = 1 MΩ to GND
-mute capacitor = 1 µF
-healthy steady gate ≈ −10.91 V
-healthy release time constant ≈ 90.9 ms
-
-+12 V fault pull-up = 2.2 kΩ
-opto LED resistor = 3.3 kΩ
-estimated LED current ≈ 1.96 mA
-assumed 50% CTR first-pass fault clamp ≈ 12.7 ms
+healthy MUTE_GATE estimate          = -10.545 V
+worst J113 cutoff boundary          = -3.0 V
+calculated crossing time            = 12.57 ms
+schematic target                    = less than 20 ms
+PMV20XNE conservative gate estimate = 2.604 V
+guaranteed RDS(on) test point       = 2.5 V
 ```
 
-These calculations are schematic constraints, not acceptance of exact optocoupler, JFET, NPN or capacitor parts. Fault response, release timing, pop suppression and mute depth remain later measured gates.
+## Validation evidence
 
-## Provisional symbols
-
-The logical NPN fault inverter and output-level potentiometer use project-local application symbols with explicit logical pins and blank footprints:
+Committed head `8d0187bf2ed4bc3caceb9cc4844b2d50bef65b6a` passed dedicated workflow run `29347852152`:
 
 ```text
-Q71: BASE / COLLECTOR / EMITTER
-RV700: LOW / WIPER / HIGH
+Q70 CASE 318-08 independent validator      PASS
+Q71 TO-236AB independent validator         PASS
+U70 option-7 SMD-4 validator               PASS
+immutable source revision and hashes       PASS
+U70 25 C authority validator               PASS
+exact symbol / physical-pin validator      PASS
+shared U32 / hierarchy validator           PASS
+KiCad 10 hierarchical ERC                  PASS — 0 errors / 0 warnings
+promotion                                  NO COMMITTED-FILE DIFF
 ```
 
-The optocoupler and output jack also use project-local logical symbols. Exact devices, package pin maps, footprints, panel mechanics and jack alignment are not accepted by this capture gate.
+The complete schematic workflow chain passed on the same head.
 
-## Generator-boundary repairs
+## Unchanged boundaries
 
-The pinned schematic API mirrors Y coordinates for the project-local multi-unit U32 symbol after component positions are snapped to the native KiCad grid. The repair reads each serialized U32 unit position and moves only its named labels to the corresponding official physical pin coordinates. The repair fails closed if the expected unit or label is missing or duplicated.
+- sheet 07 exports no hierarchy net;
+- `U32` remains one physical OPA1679 split across sheets 03 and 07;
+- the output jack remains a separate exact-part and mechanical gate;
+- full-temperature U70 release behaviour remains Gate C;
+- measured mute depth, pop energy, rail sequencing, load drive and endurance remain Gate C;
+- PCB placement, routing, fabrication and purchasing remain blocked.
 
-## Verification evidence
-
-The dedicated sheet-07 workflow passed:
-
-- native regeneration of sheet 03 with U32 units 1/5;
-- native generation of sheet 07 with U32 units 2/3/4;
-- official OPA1679 pin-map validation;
-- one-device, five-unit U32 ownership validation;
-- seven-package OPA1679 allocation validation;
-- Direct/Wet gain and calculated headroom validation;
-- fail-muted control and first-pass timing validation;
-- provisional control-symbol and blank-footprint validation;
-- logical output-jack and no-export boundary validation;
-- KiCad CLI `10.0.4` hierarchical ERC;
-- strict captured-sheet warning policy.
-
-ERC report:
+## Gate decision
 
 ```text
-0 errors
-0 warnings
+Gate A — schematic architecture               REMAINS ACCEPTED
+Gate B — Q70/Q71/U70 exact parts/footprints   PASS, SUBJECT TO NEW PR REVIEW
+Gate C — measured mute/fault behaviour        NOT STARTED
+Gate D — PCB / production                     BLOCKED
 ```
 
-The first passing artifact was promoted in commit `265f4ad`.
-
-## Committed-file rerun
-
-The follow-up workflow detected `07_OUTPUT_MUTE_PROTECTION_CAPTURED` and skipped:
-
-```text
-sheet-03 regeneration
-sheet-07 generation
-U32 coordinate repair
-promotion
-```
-
-It then passed both sheet-07 validators, KiCad 10 hierarchical ERC and the strict captured-sheet warning policy directly against committed files.
-
-`07_OUTPUT_MUTE_PROTECTION` is closed at schematic-capture level. Exact components, packages, footprints, PCB placement, output-jack mechanics, measured output level, load drive, mute depth, fault timing, pop behaviour, protection current and endurance remain later independent gates.
+PR #46 remains unmerged and must return to draft for deliberate approval or rejection.

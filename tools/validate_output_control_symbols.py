@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate provisional sheet-07 control symbols and blank-footprint boundary."""
+"""Validate the exact sheet-07 release driver and logical output-level control."""
 
 from __future__ import annotations
 
@@ -69,30 +69,27 @@ def main() -> None:
     sheet = SHEET.read_text(encoding="utf-8")
     library = LIBRARY.read_text(encoding="utf-8")
 
-    npn_name = "NPN_FAULT_INVERTER_APPLICATION"
+    mosfet_name = "PMV20XNE_APPLICATION"
     pot_name = "OUTPUT_LEVEL_POT_APPLICATION"
-    assert_pin_contract(
-        symbol_definition(library, npn_name),
-        {"1": "BASE", "2": "COLLECTOR", "3": "EMITTER"},
-    )
-    assert_pin_contract(
-        symbol_definition(library, pot_name),
-        {"1": "LOW", "2": "WIPER", "3": "HIGH"},
-    )
+    assert_pin_contract(symbol_definition(library, mosfet_name),
+                        {"1": "GATE", "2": "SOURCE", "3": "DRAIN"})
+    assert_pin_contract(symbol_definition(library, pot_name),
+                        {"1": "LOW", "2": "WIPER", "3": "HIGH"})
 
     q71 = instance_for_reference(sheet, "Q71")
     rv700 = instance_for_reference(sheet, "RV700")
-    assert f'(lib_id "MerrinLab_PrototypeA:{npn_name}")' in q71
+    assert f'(lib_id "MerrinLab_PrototypeA:{mosfet_name}")' in q71
+    assert f'(property "Footprint" "Package_TO_SOT_SMD:SOT-23"' in q71
     assert f'(lib_id "MerrinLab_PrototypeA:{pot_name}")' in rv700
-    assert re.search(r'\(property "Footprint" ""', q71)
     assert re.search(r'\(property "Footprint" ""', rv700)
 
+    assert "NPN_FAULT_INVERTER_APPLICATION" not in sheet
     assert "Transistor_BJT:Q_NPN_BCE" not in sheet
     assert "Device:Q_NPN_BCE" not in sheet
     assert "Device:R_Potentiometer" not in sheet
 
-    print("Sheet-07 NPN and output-pot logical pin contracts: PASS")
-    print("Sheet-07 provisional control footprints remain blank: PASS")
+    print("Sheet-07 PMV20XNE physical G/S/D and SOT-23 contract: PASS")
+    print("Output-level potentiometer remains a logical blank-footprint control: PASS")
 
 
 if __name__ == "__main__":

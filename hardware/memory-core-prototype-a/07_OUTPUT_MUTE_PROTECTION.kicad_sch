@@ -9,7 +9,7 @@
 		(rev "V5.2 component capture 07")
 		(company "MerrinLab")
 		(comment 1 "U32 units B/C/D complete the physical OPA1679 whose A/power units remain on sheet 03.")
-		(comment 2 "Output jack and active-device footprints remain blocked pending independent review.")
+		(comment 2 "Q70/Q71/U70 exact parts and package footprints verified; PCB placement remains blocked.")
 	)
 	(lib_symbols
 		(symbol "power:GND"
@@ -821,51 +821,51 @@
 				)
 			)
 		)
-		(symbol "MerrinLab_PrototypeA:J113_SHUNT_APPLICATION"
+		(symbol "MerrinLab_PrototypeA:MMBFJ113_APPLICATION"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		(property "Reference" "Q"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Value" "J113_SHUNT_APPLICATION"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		)
+		(property "Value" "MMBFJ113_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Description" "N-channel JFET used as voltage-controlled shunt; pin map and footprint pending"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Description" "Exact onsemi MMBFJ113 N-channel JFET, SOT-23 pins 1 drain, 2 source, 3 gate"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(symbol "J113_SHUNT_APPLICATION_1_1"
+		)
+			(symbol "MMBFJ113_APPLICATION_1_1"
 				(rectangle
 					(start -6.35 7.62)
 					(end 6.35 -7.62)
@@ -880,7 +880,7 @@
 				(pin passive line
 					(at -10.16 5.08 0)
 					(length 3.81)
-					(name "D"
+					(name "DRAIN"
 						(effects
 							(font
 								(size 0.762 0.762)
@@ -898,25 +898,7 @@
 				(pin input line
 					(at -10.16 2.54 0)
 					(length 3.81)
-					(name "G"
-						(effects
-							(font
-								(size 0.762 0.762)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 5.08 180)
-					(length 3.81)
-					(name "S"
+					(name "GATE"
 						(effects
 							(font
 								(size 0.762 0.762)
@@ -931,53 +913,73 @@
 						)
 					)
 				)
+				(pin passive line
+					(at 10.16 5.08 180)
+					(length 3.81)
+					(name "SOURCE"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
 			)
 		)
-		(symbol "MerrinLab_PrototypeA:NPN_FAULT_INVERTER_APPLICATION"
+
+
+		(symbol "MerrinLab_PrototypeA:PMV20XNE_APPLICATION"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		(property "Reference" "Q"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Value" "NPN_FAULT_INVERTER_APPLICATION"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		)
+		(property "Value" "PMV20XNE_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Datasheet" "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Description" "Provisional NPN fault inverter; logical B/C/E pins; exact device and footprint pending"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Description" "Exact Nexperia PMV20XNE 30 V N-channel MOSFET, SOT-23 pins 1 gate, 2 source, 3 drain"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(symbol "NPN_FAULT_INVERTER_APPLICATION_1_1"
+		)
+			(symbol "PMV20XNE_APPLICATION_1_1"
 				(rectangle
 					(start -6.35 7.62)
 					(end 6.35 -7.62)
@@ -992,7 +994,7 @@
 				(pin input line
 					(at -10.16 2.54 0)
 					(length 3.81)
-					(name "BASE"
+					(name "GATE"
 						(effects
 							(font
 								(size 0.762 0.762)
@@ -1010,25 +1012,7 @@
 				(pin passive line
 					(at 10.16 5.08 180)
 					(length 3.81)
-					(name "COLLECTOR"
-						(effects
-							(font
-								(size 0.762 0.762)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 10.16 0.0000 180)
-					(length 3.81)
-					(name "EMITTER"
+					(name "DRAIN"
 						(effects
 							(font
 								(size 0.762 0.762)
@@ -1043,53 +1027,73 @@
 						)
 					)
 				)
+				(pin passive line
+					(at 10.16 0.0 180)
+					(length 3.81)
+					(name "SOURCE"
+						(effects
+							(font
+								(size 0.762 0.762)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
 			)
 		)
-		(symbol "MerrinLab_PrototypeA:LTV817S_MUTE_APPLICATION"
+
+
+		(symbol "MerrinLab_PrototypeA:VO617A_3X007T_APPLICATION"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at 0 10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		(property "Reference" "U"
+			(at 0 10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Value" "LTV817S_MUTE_APPLICATION"
-				(at 0 -10.16 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
+		)
+		(property "Value" "VO617A_3X007T_APPLICATION"
+			(at 0 -10.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Footprint" "Package_DIP:SMDIP-4_W7.62mm"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Datasheet" "https://optoelectronics.liteon.com/upload/download/DS70-2009-0014/LTV-8X7%20series%20201606.pdf"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Datasheet" "https://www.vishay.com/docs/83430/vo617a.pdf"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(property "Description" "LTV-817S-class optocoupler used for fail-muted JFET gate control; SO-4 pin map; footprint pending"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					) hide
-				)
+		)
+		(property "Description" "Exact Vishay VO617A-3X007T optocoupler, option-7 SMD-4 pins 1 A, 2 K, 3 E, 4 C"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				) hide
 			)
-			(symbol "LTV817S_MUTE_APPLICATION_1_1"
+		)
+			(symbol "VO617A_3X007T_APPLICATION_1_1"
 				(rectangle
 					(start -6.35 7.62)
 					(end 6.35 -7.62)
@@ -1120,7 +1124,7 @@
 					)
 				)
 				(pin passive line
-					(at -10.16 0.0000 0)
+					(at -10.16 0.0 0)
 					(length 3.81)
 					(name "LED_K"
 						(effects
@@ -1138,7 +1142,7 @@
 					)
 				)
 				(pin passive line
-					(at 10.16 0.0000 180)
+					(at 10.16 0.0 180)
 					(length 3.81)
 					(name "EMITTER"
 						(effects
@@ -1175,6 +1179,8 @@
 				)
 			)
 		)
+
+
 		(symbol "Device:D_Schottky"
 			(pin_numbers hide)
 			(pin_names
@@ -2201,7 +2207,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k mute isolation"
+		(property "Value" "120k 1% mute isolation"
 			(at 233.68 124.46 90)
 			(effects
 				(font
@@ -2244,7 +2250,7 @@
 		)
 	)
 	(symbol
-		(lib_id "MerrinLab_PrototypeA:J113_SHUNT_APPLICATION")
+		(lib_id "MerrinLab_PrototypeA:MMBFJ113_APPLICATION")
 		(at 264.16 147.32 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2262,7 +2268,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "J113 OUTPUT MUTE SHUNT"
+		(property "Value" "MMBFJ113 OUTPUT MUTE SHUNT"
 			(at 264.16 137.16 0.0000)
 			(effects
 				(font
@@ -2271,7 +2277,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
 			(at 264.16 147.32 0.0000)
 			(effects
 				(font
@@ -2326,7 +2332,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k fault inverter base"
+		(property "Value" "10k fault gate series"
 			(at 91.44 198.12 90)
 			(effects
 				(font
@@ -2387,7 +2393,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100k fault base pull-down"
+		(property "Value" "100k fault gate pull-down"
 			(at 106.68 213.36 90)
 			(effects
 				(font
@@ -2430,7 +2436,7 @@
 		)
 	)
 	(symbol
-		(lib_id "MerrinLab_PrototypeA:NPN_FAULT_INVERTER_APPLICATION")
+		(lib_id "MerrinLab_PrototypeA:PMV20XNE_APPLICATION")
 		(at 132.08 198.12 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2448,7 +2454,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MMBT3904 fault inverter provisional"
+		(property "Value" "PMV20XNE HEALTHY-RELEASE DRIVER"
 			(at 132.08 187.96 0.0000)
 			(effects
 				(font
@@ -2457,7 +2463,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
 			(at 132.08 198.12 0.0000)
 			(effects
 				(font
@@ -2512,7 +2518,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2.2k +12V fault pull-up"
+		(property "Value" "820R 1% optocoupler LED series A"
 			(at 154.94 182.88 90)
 			(effects
 				(font
@@ -2573,7 +2579,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "3.3k optocoupler LED"
+		(property "Value" "1k 1% optocoupler LED series B"
 			(at 170.18 198.12 90)
 			(effects
 				(font
@@ -2616,7 +2622,7 @@
 		)
 	)
 	(symbol
-		(lib_id "MerrinLab_PrototypeA:LTV817S_MUTE_APPLICATION")
+		(lib_id "MerrinLab_PrototypeA:VO617A_3X007T_APPLICATION")
 		(at 203.2 198.12 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -2634,7 +2640,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LTV-817S-CLASS FAIL-MUTE"
+		(property "Value" "VO617A-3X007T HEALTHY RELEASE"
 			(at 203.2 187.96 0.0000)
 			(effects
 				(font
@@ -2643,7 +2649,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_DIP:SMDIP-4_W7.62mm"
 			(at 203.2 198.12 0.0000)
 			(effects
 				(font
@@ -2701,7 +2707,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100k controlled release"
+		(property "Value" "10k 1% negative release"
 			(at 238.76 182.88 90)
 			(effects
 				(font
@@ -2762,7 +2768,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1M power-off mute"
+		(property "Value" "100k 1% fail-mute pull"
 			(at 254 198.12 90)
 			(effects
 				(font
@@ -2823,7 +2829,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1uF mute ramp"
+		(property "Value" "100nF C0G 50V mute timing"
 			(at 269.875 195.58 0.0000)
 			(effects
 				(font
@@ -4111,7 +4117,7 @@
 		)
 		(uuid "4a089754-b9cf-4071-b907-092963f05808")
 	)
-	(label "FAULT_INV_BASE"
+	(label "FAULT_GATE"
 		(at 91.44 201.93 0)
 		(effects
 			(font
@@ -4121,7 +4127,7 @@
 		)
 		(uuid "2b6d68fb-c85f-4314-998b-04a9cc3a893b")
 	)
-	(label "FAULT_INV_BASE"
+	(label "FAULT_GATE"
 		(at 106.68 209.55 0)
 		(effects
 			(font
@@ -4141,7 +4147,7 @@
 		)
 		(uuid "3f3b208f-d977-4bd6-b35d-618da1064119")
 	)
-	(label "FAULT_INV_BASE"
+	(label "FAULT_GATE"
 		(at 121.92 195.58 0)
 		(effects
 			(font
@@ -4151,7 +4157,7 @@
 		)
 		(uuid "c7ce5233-40fb-4c31-a6a4-84be7b2b0e3b")
 	)
-	(label "MUTE_FAULT_HIGH"
+	(label "MUTE_LED_K"
 		(at 142.24 193.04 0)
 		(effects
 			(font
@@ -4181,7 +4187,7 @@
 		)
 		(uuid "2bae70f7-ca31-4be7-984c-8b980aa7c1c1")
 	)
-	(label "MUTE_FAULT_HIGH"
+	(label "MUTE_LED_SUPPLY"
 		(at 154.94 186.69 0)
 		(effects
 			(font
@@ -4191,7 +4197,7 @@
 		)
 		(uuid "18b0330a-2ef5-4e19-b42b-ee01eb68003d")
 	)
-	(label "MUTE_FAULT_HIGH"
+	(label "MUTE_LED_SUPPLY"
 		(at 170.18 194.31 0)
 		(effects
 			(font
@@ -4221,7 +4227,7 @@
 		)
 		(uuid "459f9dfd-8e5f-429d-8915-4ca2fe97b1de")
 	)
-	(label "GND"
+	(label "MUTE_LED_K"
 		(at 193.04 198.12 0)
 		(effects
 			(font
@@ -4231,7 +4237,7 @@
 		)
 		(uuid "e0631b61-91e7-44e7-adac-2721ab80610a")
 	)
-	(label "MUTE_GATE"
+	(label "RELEASE_SINK"
 		(at 213.36 198.12 0)
 		(effects
 			(font
@@ -4241,7 +4247,7 @@
 		)
 		(uuid "2a34ae07-1364-4075-bd94-a9a8e5a6034f")
 	)
-	(label "GND"
+	(label "MUTE_GATE"
 		(at 213.36 193.04 0)
 		(effects
 			(font
@@ -4261,7 +4267,7 @@
 		)
 		(uuid "da7820e1-10d4-4afe-922b-d81972d368b2")
 	)
-	(label "MUTE_GATE"
+	(label "RELEASE_SINK"
 		(at 238.76 186.69 0)
 		(effects
 			(font
@@ -4670,7 +4676,7 @@
 		)
 		(uuid "af304411-42c2-4d4d-ad86-c136e6efcf75")
 	)
-	(text "DIRECT + WET HALF-SUM • OUTPUT LEVEL • FAIL-MUTED JFET • PROTECTED MONO OUT"
+	(text "DIRECT + WET HALF-SUM • OUTPUT LEVEL • HEALTHY-RELEASE FAIL-MUTE • PROTECTED MONO OUT"
 		(exclude_from_sim no)
 		(at 20.32 17.78 0.0000)
 		(effects
@@ -4730,7 +4736,7 @@
 		)
 		(uuid "ce6f03e7-c859-4d56-9beb-4d3c81f50595")
 	)
-	(text "FAIL-MUTE CONTRACT\nFault/undefined HARDWARE_FAULT_N lights U70 and clamps MUTE_GATE toward 0 V.\nHealthy release approaches -10.91 V from RAIL_N12 with about 90.9 ms RC time constant.\nAt 50% assumed CTR, the first-pass fault-clamp estimate is 12.7 ms; exact optocoupler/JFET parts remain a later measured gate."
+	(text "EXACT FAIL-MUTE CONTRACT\nHealthy HARDWARE_FAULT_N drives PMV20XNE and VO617A-3X007T, connecting the negative release path.\nFault or +12 V loss removes release drive; 100k/100nF returns MUTE_GATE toward 0 V and crosses -3 V in about 12.6 ms.\n120k isolation with the 100 ohm MMBFJ113 maximum at TJ = 25 C calculates 61.5 dB static attenuation; temperature, spread and measured mute depth remain Gate C."
 		(exclude_from_sim no)
 		(at 294.64 223.52 0.0000)
 		(effects
@@ -4740,7 +4746,7 @@
 		)
 		(uuid "063b7672-aa85-47d4-9007-50af621616f2")
 	)
-	(text "BOUNDARY\nAll mix, level, mute, output-protection and jack nodes remain local to sheet 07.\nNo audio or control net is exported from this sheet; physical jack/footprint acceptance remains blocked."
+	(text "BOUNDARY\nAll mix, level, mute, output-protection and jack nodes remain local to sheet 07.\nNo audio or control net is exported; Q70/Q71/U70 package mappings are accepted, while jack mechanics and PCB work remain blocked."
 		(exclude_from_sim no)
 		(at 218.44 269.24 0.0000)
 		(effects

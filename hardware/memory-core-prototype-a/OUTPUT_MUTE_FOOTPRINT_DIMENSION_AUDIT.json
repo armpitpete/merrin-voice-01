@@ -1,0 +1,95 @@
+{
+  "schema_version": 3,
+  "authority": {
+    "purpose": "Dimensional compatibility audit for the three sheet-07 exact-part footprints",
+    "source_repository": "KiCad/kicad-footprints",
+    "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+    "source_commit_url": "https://github.com/KiCad/kicad-footprints/commit/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+    "accepted_geometry_is_project_local": true,
+    "pcb_authorised": false
+  },
+  "footprint_snapshots": {
+    "sot23": {
+      "path": "hardware/memory-core-prototype-a/footprint-audits/SOT-23.kicad_mod",
+      "source_url": "https://github.com/KiCad/kicad-footprints/blob/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod",
+      "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+      "github_blob_sha": "50a8c41bf25dc5843c0ceb95820dc83b930321f9",
+      "sha256": "db5b998f0d36708205a4b8edc0db1501deb0246a81b52e9cb036cfd58b7570d3",
+      "geometry_mm": {
+        "pad_1": [-1.0, -0.95, 0.9, 0.8],
+        "pad_2": [-1.0, 0.95, 0.9, 0.8],
+        "pad_3": [1.0, 0.0, 0.9, 0.8],
+        "courtyard": [3.4, 3.5]
+      }
+    },
+    "smdip4": {
+      "path": "hardware/memory-core-prototype-a/footprint-audits/SMDIP-4_W7.62mm.kicad_mod",
+      "source_url": "https://github.com/KiCad/kicad-footprints/blob/7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd/Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod",
+      "source_commit": "7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd",
+      "github_blob_sha": "f45a9a53110c40e6dfdcdae40d07a29856841be2",
+      "sha256": "23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d",
+      "geometry_mm": {
+        "pad_1": [-3.81, -1.27, 2.0, 1.78],
+        "pad_2": [-3.81, 1.27, 2.0, 1.78],
+        "pad_3": [3.81, 1.27, 2.0, 1.78],
+        "pad_4": [3.81, -1.27, 2.0, 1.78],
+        "courtyard": [10.2, 5.6]
+      }
+    }
+  },
+  "parts": {
+    "Q70": {
+      "part": "onsemi MMBFJ113",
+      "manufacturer_package": "SOT-23 / TO-236, CASE 318-08",
+      "datasheet": "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "snapshot": "sot23",
+      "equivalence_basis": "The onsemi datasheet identifies CASE 318-08 as SOT-23 (TO-236); the accepted footprint is the standard three-lead TO-236AB land pattern.",
+      "dimensions_mm": {
+        "body_length_max": 3.04,
+        "body_width_max": 1.4,
+        "overall_width_max": 2.64,
+        "lead_pitch_nominal": 0.95,
+        "outer_lead_pitch_min": 1.78,
+        "outer_lead_pitch_max": 2.04,
+        "lead_width_max": 0.5,
+        "lead_length_max": 0.69
+      },
+      "pin_orientation": "pins 1 and 2 on the two-lead side; pin 3 opposite"
+    },
+    "Q71": {
+      "part": "Nexperia PMV20XNE",
+      "manufacturer_package": "TO-236AB (SOT23)",
+      "datasheet": "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "snapshot": "sot23",
+      "dimensions_mm": {
+        "body_length_max": 3.0,
+        "body_width_max": 1.4,
+        "overall_width_max": 2.5,
+        "lead_pitch": 0.95,
+        "outer_lead_pitch": 1.9,
+        "lead_width_max": 0.48,
+        "lead_length_max": 0.55
+      },
+      "pin_orientation": "pins 1 and 2 on the two-lead side; pin 3 opposite"
+    },
+    "U70": {
+      "part": "Vishay VO617A-3X007T",
+      "manufacturer_package": "SMD-4, option 7",
+      "datasheet": "https://www.vishay.com/docs/83430/vo617a.pdf",
+      "footprint": "Package_DIP:SMDIP-4_W7.62mm",
+      "snapshot": "smdip4",
+      "dimensions_mm": {
+        "body_length_max": 7.0,
+        "body_width_max": 4.88,
+        "lead_row_spacing_nominal": 7.62,
+        "lead_pitch_nominal": 2.54,
+        "lead_width_max": 0.6,
+        "terminal_length_max": 0.95,
+        "overall_span_max": 9.98
+      },
+      "pin_orientation": "pin 1 at the notched end, with pins 1/2 on the left row and 4/3 on the right row"
+    }
+  }
+}

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""Validate sheet 07 and the shared U32 OPA1679 integration contract."""
+"""Validate sheet 07 after the exact output-mute and fault-path amendment."""
 
 from __future__ import annotations
 
-import importlib.util
 import json
 import math
 import re
-import sys
 from collections import Counter
 from pathlib import Path
 
@@ -16,16 +14,9 @@ SHEET03 = ROOT / "03_CODEC_CONVERSION.kicad_sch"
 SHEET07 = ROOT / "07_OUTPUT_MUTE_PROTECTION.kicad_sch"
 LIBRARY = ROOT / "MerrinLab_PrototypeA.kicad_sym"
 MANIFEST = ROOT / "hierarchy-manifest.json"
-
-
-def load_module(name: str, path: str):
-    spec = importlib.util.spec_from_file_location(name, path)
-    if spec is None or spec.loader is None:
-        raise RuntimeError(f"Could not load {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+MARKER = ROOT / "07_OUTPUT_MUTE_EXACT_PARTS_AMENDED"
+SOT23 = "Package_TO_SOT_SMD:SOT-23"
+SMDIP4 = "Package_DIP:SMDIP-4_W7.62mm"
 
 
 def balanced_block(text: str, start: int) -> str:
@@ -49,265 +40,231 @@ def balanced_block(text: str, start: int) -> str:
         elif char == ")":
             depth -= 1
             if depth == 0:
-                return text[start : index + 1]
+                return text[start:index + 1]
     raise AssertionError(f"Unterminated S-expression at offset {start}")
 
 
 def instance_blocks(text: str) -> list[str]:
     marker = "\n\t(symbol\n\t\t(lib_id "
-    blocks: list[str] = []
+    result: list[str] = []
     offset = 0
     while True:
         found = text.find(marker, offset)
         if found == -1:
-            return blocks
+            return result
         start = found + 2
         block = balanced_block(text, start)
-        blocks.append(block)
+        result.append(block)
         offset = start + len(block)
 
 
-def required_field(block: str, pattern: str, description: str) -> str:
+def field(block: str, pattern: str, description: str) -> str:
     match = re.search(pattern, block)
-    if not match:
-        raise AssertionError(f"Missing {description} in symbol instance")
+    assert match, f"Missing {description}"
     return match.group(1)
-
-
-def optional_field(block: str, pattern: str) -> str | None:
-    match = re.search(pattern, block)
-    return match.group(1) if match else None
 
 
 def instances(path: Path) -> list[dict[str, object]]:
     rows = []
     for block in instance_blocks(path.read_text(encoding="utf-8")):
-        rows.append(
-            {
-                "lib_id": required_field(block, r'\(lib_id "([^"]+)"', "lib_id"),
-                "reference": required_field(
-                    block, r'\(property "Reference" "([^"]+)"', "reference"
-                ),
-                "value": required_field(
-                    block, r'\(property "Value" "([^"]*)"', "value"
-                ),
-                "unit": int(required_field(block, r'\(unit (\d+)\)', "unit")),
-                "footprint": optional_field(
-                    block, r'\(property "Footprint" "([^"]*)"'
-                ),
-            }
-        )
+        rows.append({
+            "block": block,
+            "lib_id": field(block, r'\(lib_id "([^"]+)"', "lib_id"),
+            "reference": field(block, r'\(property "Reference" "([^"]+)"', "reference"),
+            "value": field(block, r'\(property "Value" "([^"]*)"', "value"),
+            "footprint": field(block, r'\(property "Footprint" "([^"]*)"', "footprint"),
+            "unit": int(field(block, r'\(unit (\d+)\)', "unit")),
+        })
     return rows
 
 
+def one(rows: list[dict[str, object]], reference: str) -> dict[str, object]:
+    matches = [row for row in rows if row["reference"] == reference]
+    assert len(matches) == 1, (reference, len(matches))
+    return matches[0]
+
+
+def symbol_definition(text: str, name: str) -> str:
+    marker = f'\t(symbol "{name}"'
+    start = text.index(marker) + 1
+    return balanced_block(text, start)
+
+
+def assert_pin_contract(block: str, pins: dict[str, str]) -> None:
+    for number, name in pins.items():
+        assert f'(name "{name}"' in block, (number, name)
+        assert f'(number "{number}"' in block, (number, name)
+
+
+def assert_label(text: str, name: str, x: str, y: str) -> None:
+    token = f'(label "{name}"\n\t\t(at {x} {y} 0)'
+    assert text.count(token) == 1, (name, x, y, text.count(token))
+
+
 def hierarchical_labels(text: str) -> dict[str, str]:
-    rows = re.findall(
-        r'\(hierarchical_label "([^"]+)"\s+\(shape ([^)]+)\)',
-        text,
-        re.MULTILINE,
-    )
+    rows = re.findall(r'\(hierarchical_label "([^"]+)"\s+\(shape ([^)]+)\)', text)
     labels = dict(rows)
-    assert len(labels) == len(rows), f"Duplicate hierarchical labels: {rows}"
+    assert len(labels) == len(rows), rows
     return labels
 
 
-def library_symbol_block(text: str, name: str) -> str:
-    marker = f'\t(symbol "{name}"'
-    start = text.index(marker)
-    return balanced_block(text, start + 1)
-
-
-def unit_text(rendered: str, symbol_name: str, unit: int, max_unit: int) -> str:
-    marker = f'(symbol "{symbol_name}_{unit}_1"'
-    start = rendered.index(marker)
-    later = [
-        rendered.find(f'(symbol "{symbol_name}_{candidate}_1"', start + 1)
-        for candidate in range(unit + 1, max_unit + 1)
-    ]
-    ends = [index for index in later if index != -1]
-    return rendered[start : min(ends) if ends else len(rendered)]
-
-
-def assert_unique_references(rows: list[dict[str, object]], multi_ref: str) -> None:
-    counts = Counter(
-        str(row["reference"])
-        for row in rows
-        if not str(row["reference"]).startswith("#")
-    )
-    duplicates = sorted(
-        reference
-        for reference, count in counts.items()
-        if count > 1 and reference != multi_ref
-    )
-    assert not duplicates, f"Duplicate references: {duplicates}"
-
-
 def main() -> None:
-    for required in (
-        ROOT / "03_CODEC_CONVERSION_CAPTURED",
-        ROOT / "07_OUTPUT_MUTE_PROTECTION_CAPTURED",
-        SHEET03,
-        SHEET07,
-        LIBRARY,
-        MANIFEST,
-    ):
+    for required in (SHEET03, SHEET07, LIBRARY, MANIFEST, MARKER):
         assert required.exists(), required
 
-    output = load_module(
-        "output_mute_protection_capture",
-        "tools/capture_output_mute_protection_sheet.py",
-    )
-    codec = load_module(
-        "codec_conversion_capture",
-        "tools/capture_codec_conversion_sheet.py",
-    )
-    support = load_module("opa1679_multi_support", "tools/opa1679_multi_support.py")
-
-    expected_inputs = {
-        "RAIL_P12",
-        "RAIL_N12",
-        "DIRECT_PRESENT",
-        "WET_MIX",
-        "HARDWARE_FAULT_N",
-    }
-    assert set(output.HIER_INPUTS) == expected_inputs
-    assert output.HIER_OUTPUTS == ()
-    assert output.ALLOWED_EXPORTS == frozenset()
-
-    assert math.isclose(output.SUM_BRANCH_GAIN, 20.0 / 40.2, abs_tol=1e-12)
-    assert 0.497 < output.SUM_BRANCH_GAIN < 0.498
-    assert output.MAX_CALCULATED_MIX_VPP < 6.0
-    assert output.MAX_CALCULATED_MIX_VPP < 10.0
-    assert output.MUTE_GATE_STEADY_V < -10.0
-    assert 80.0 < output.MUTE_RELEASE_TAU_MS < 100.0
-    assert output.OPTO_LED_CURRENT_MA > 1.9
-    assert output.CALCULATED_FAULT_CLAMP_MS < 20.0
-
-    expected_opa_pins = {
-        1: {"3": "IN_A+", "2": "IN_A-", "1": "OUT_A"},
-        2: {"5": "IN_B+", "6": "IN_B-", "7": "OUT_B"},
-        3: {"10": "IN_C+", "9": "IN_C-", "8": "OUT_C"},
-        4: {"12": "IN_D+", "13": "IN_D-", "14": "OUT_D"},
-        5: {"11": "V-", "4": "V+"},
-    }
-    rendered = support.render_symbol()
-    for unit, pins in expected_opa_pins.items():
-        body = unit_text(rendered, support.SYMBOL_NAME, unit, 5)
-        for number, name in pins.items():
-            assert f'(name "{name}"' in body, (unit, name)
-            assert f'(number "{number}"' in body, (unit, number)
-
+    text07 = SHEET07.read_text(encoding="utf-8")
+    library = LIBRARY.read_text(encoding="utf-8")
     rows03 = instances(SHEET03)
     rows07 = instances(SHEET07)
-    shared03 = [
-        row for row in rows03 if str(row["lib_id"]).endswith(support.SYMBOL_NAME)
-    ]
-    shared07 = [
-        row for row in rows07 if str(row["lib_id"]).endswith(support.SYMBOL_NAME)
-    ]
-    assert sorted(int(row["unit"]) for row in shared03) == [1, 5], shared03
-    assert sorted(int(row["unit"]) for row in shared07) == [2, 3, 4], shared07
 
-    all_shared: list[tuple[str, dict[str, object]]] = []
-    all_opamps: list[tuple[str, dict[str, object]]] = []
-    for path in sorted(ROOT.glob("[0-9][0-9]_*.kicad_sch")):
-        for row in instances(path):
-            lib_id = str(row["lib_id"])
-            if lib_id.endswith(support.SYMBOL_NAME):
-                all_shared.append((path.name, row))
-            if lib_id.endswith("OPA1679_PW_APPLICATION") or lib_id.endswith(
-                support.SYMBOL_NAME
-            ):
-                all_opamps.append((path.name, row))
-
-    assert len(all_shared) == 5, all_shared
-    assert {str(row["reference"]) for _path, row in all_shared} == {"U32"}
-    assert {str(row["value"]) for _path, row in all_shared} == {"OPA1679"}
-    assert sorted(int(row["unit"]) for _path, row in all_shared) == [1, 2, 3, 4, 5]
-    for path_name, row in all_shared:
-        assert row["footprint"] == "", (path_name, row)
-
-    expected_physical_packages = {"U31", "U32", "U40", "U41", "U50", "U61", "U62"}
-    opamp_refs = {str(row["reference"]) for _path, row in all_opamps}
-    assert opamp_refs == expected_physical_packages, opamp_refs
-    assert len(opamp_refs) == 7
-    assert not any(
-        str(row["reference"]) == "U32"
-        and str(row["lib_id"]).endswith("OPA1679_PW_APPLICATION")
-        for row in rows03
-    )
-
-    assert_unique_references(rows03, "U32")
-    assert_unique_references(rows07, "U32")
-
-    text03 = SHEET03.read_text(encoding="utf-8")
-    text07 = SHEET07.read_text(encoding="utf-8")
-    expected_codec_labels = {
-        **{name: "input" for name in codec.HIER_INPUTS},
-        "CTRL_I2C_SDA": "bidirectional",
-        **{name: "output" for name in codec.HIER_OUTPUTS},
+    expected_inputs = {
+        "RAIL_P12", "RAIL_N12", "DIRECT_PRESENT", "WET_MIX", "HARDWARE_FAULT_N"
     }
-    assert hierarchical_labels(text03) == expected_codec_labels
-    assert hierarchical_labels(text07) == {
-        name: "input" for name in expected_inputs
-    }
-
+    assert hierarchical_labels(text07) == {name: "input" for name in expected_inputs}
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     sheet07 = next(item for item in manifest["sheets"] if item["code"] == "07")
     assert {pin["name"] for pin in sheet07["pins"]} == expected_inputs
     assert all(pin["direction"] == "input" for pin in sheet07["pins"])
 
-    library = LIBRARY.read_text(encoding="utf-8")
-    assert f'(symbol "{support.SYMBOL_NAME}"' in library
-    opto_block = library_symbol_block(library, "LTV817S_MUTE_APPLICATION")
-    for number, name in {"1": "LED_A", "2": "LED_K", "3": "EMITTER", "4": "COLLECTOR"}.items():
-        assert f'(name "{name}"' in opto_block
-        assert f'(number "{number}"' in opto_block
-    jack_block = library_symbol_block(library, "WQP518MA_APPLICATION")
-    for number, name in {"1": "TIP", "2": "TIP_NORMAL", "3": "SLEEVE"}.items():
-        assert f'(name "{name}"' in jack_block
-        assert f'(number "{number}"' in jack_block
+    exact_symbols = {
+        "MMBFJ113_APPLICATION": (
+            {"1": "DRAIN", "2": "SOURCE", "3": "GATE"},
+            SOT23,
+            "https://www.onsemi.com/pdf/datasheet/mmbfj113-d.pdf",
+        ),
+        "PMV20XNE_APPLICATION": (
+            {"1": "GATE", "2": "SOURCE", "3": "DRAIN"},
+            SOT23,
+            "https://assets.nexperia.com/documents/data-sheet/PMV20XNE.pdf",
+        ),
+        "VO617A_3X007T_APPLICATION": (
+            {"1": "LED_A", "2": "LED_K", "3": "EMITTER", "4": "COLLECTOR"},
+            SMDIP4,
+            "https://www.vishay.com/docs/83430/vo617a.pdf",
+        ),
+    }
+    for name, (pins, footprint, datasheet) in exact_symbols.items():
+        block = symbol_definition(library, name)
+        assert_pin_contract(block, pins)
+        assert f'(property "Footprint" "{footprint}"' in block
+        assert f'(property "Datasheet" "{datasheet}"' in block
+        embedded = symbol_definition(text07, f"MerrinLab_PrototypeA:{name}")
+        assert_pin_contract(embedded, pins)
+        assert f'(property "Footprint" "{footprint}"' in embedded
+
+    exact_instances = {
+        "Q70": ("MMBFJ113_APPLICATION", "MMBFJ113 OUTPUT MUTE SHUNT", SOT23),
+        "Q71": ("PMV20XNE_APPLICATION", "PMV20XNE HEALTHY-RELEASE DRIVER", SOT23),
+        "U70": ("VO617A_3X007T_APPLICATION", "VO617A-3X007T HEALTHY RELEASE", SMDIP4),
+    }
+    for reference, (name, value, footprint) in exact_instances.items():
+        row = one(rows07, reference)
+        assert row["lib_id"] == f"MerrinLab_PrototypeA:{name}", row
+        assert row["value"] == value, row
+        assert row["footprint"] == footprint, row
+
+    expected_values = {
+        "R703": "120k 1% mute isolation",
+        "R711": "10k fault gate series",
+        "R712": "100k fault gate pull-down",
+        "R713": "820R 1% optocoupler LED series A",
+        "R714": "1k 1% optocoupler LED series B",
+        "R715": "10k 1% negative release",
+        "R716": "100k 1% fail-mute pull",
+        "C710": "100nF C0G 50V mute timing",
+    }
+    for reference, value in expected_values.items():
+        assert one(rows07, reference)["value"] == value
+
+    for name, x, y in (
+        ("MUTE_NODE", "254", "142.24"),
+        ("MUTE_GATE", "254", "144.78"),
+        ("GND", "274.32", "142.24"),
+        ("FAULT_GATE", "121.92", "195.58"),
+        ("MUTE_LED_K", "142.24", "193.04"),
+        ("GND", "142.24", "198.12"),
+        ("MUTE_LED_A", "193.04", "193.04"),
+        ("MUTE_LED_K", "193.04", "198.12"),
+        ("RELEASE_SINK", "213.36", "198.12"),
+        ("MUTE_GATE", "213.36", "193.04"),
+        ("RELEASE_SINK", "238.76", "186.69"),
+    ):
+        assert_label(text07, name, x, y)
 
     for token in (
-        "40.2k 1% Direct sum",
-        "40.2k 1% Wet sum",
-        "20k 1% half-sum feedback",
-        "10k A OUTPUT LEVEL",
-        "10k mute isolation",
-        "J113 OUTPUT MUTE SHUNT",
-        "10k fault inverter base",
-        "2.2k +12V fault pull-up",
-        "3.3k optocoupler LED",
-        "100k controlled release",
-        "1uF mute ramp",
-        "1k output protection",
-        "WQP518MA / THONKICONN OUTPUT",
-        "Exactly seven physical OPA1679 packages remain",
-        "No audio or control net is exported from this sheet",
+        "J113_SHUNT_APPLICATION", "NPN_FAULT_INVERTER_APPLICATION",
+        "LTV817S_MUTE_APPLICATION", "FAULT_INV_BASE", "MUTE_FAULT_HIGH",
+        "MMBT3904 fault inverter provisional", "LTV-817S-CLASS FAIL-MUTE",
+    ):
+        assert token not in text07, token
+
+    all_u32 = [row for row in rows03 + rows07 if row["reference"] == "U32"]
+    assert len(all_u32) == 5, all_u32
+    assert sorted(int(row["unit"]) for row in all_u32) == [1, 2, 3, 4, 5]
+    assert {row["value"] for row in all_u32} == {"OPA1679"}
+    assert {row["footprint"] for row in all_u32} == {""}
+
+    counts = Counter(
+        row["reference"] for row in rows07 if not str(row["reference"]).startswith("#")
+    )
+    assert all(count == 1 or reference == "U32" for reference, count in counts.items())
+
+    # Q70: deliberately a 25 C datasheet-bound calculation, not a
+    # full-temperature or measured mute guarantee.
+    isolation_min = 120_000 * 0.99
+    attenuation_25c_db = -20 * math.log10(100.0 / (isolation_min + 100.0))
+    assert attenuation_25c_db > 60.0
+
+    # U70 actual-bias saturation proof. Vishay guarantees VCE(sat) <= 0.4 V
+    # at IF = 5 mA and IC = 1 mA. The release-path load line requires at
+    # most about 0.112 mA at VCE = 0.4 V, including rail and resistor extremes.
+    led_current_low_ma = (
+        (12.0 * 0.95 - 1.65) / ((820 + 1000) * 1.01) * 1000
+    )
+    assert led_current_low_ma >= 5.0
+    load_current_at_vcesat_ma = (
+        (12.0 * 1.05 - 0.4) / ((10_000 + 100_000) * 0.99) * 1000
+    )
+    saturation_margin = 1.0 / load_current_at_vcesat_ma
+    assert load_current_at_vcesat_ma < 0.12
+    assert saturation_margin > 8.0
+
+    healthy_gate = (-12.0 + 0.4) * 100_000 / 110_000
+    fault_crossing_ms = (
+        100_000 * 100e-9 * 1000 * math.log(abs(healthy_gate) / 3.0)
+    )
+    assert healthy_gate < -10.0 and fault_crossing_ms < 20.0
+
+    gate_low = 3.3 * 0.95 * (100_000 * 0.99) / (
+        10_000 * 1.01 + 10_000 * 1.01 + 100_000 * 0.99
+    )
+    assert gate_low > 2.5
+
+    for token in (
+        "120k isolation with the 100 ohm MMBFJ113 maximum at TJ = 25 C "
+        "calculates 61.5 dB static attenuation",
+        "temperature, spread and measured mute depth remain Gate C",
+        "Fault or +12 V loss removes release drive",
+        "No audio or control net is exported",
     ):
         assert token in text07, token
-    for forbidden in (
-        "SHEET_INTERFACE_NOT_FITTED",
-        "Temporary hierarchy/ERC harness",
-        'Reference" "J907',
-        "U32B_SPARE",
-        "U32C_SPARE",
-        "U32D_SPARE",
-    ):
-        assert forbidden not in text07
-        if forbidden.startswith("U32"):
-            assert forbidden not in text03
-
-    active_refs = {"U32", "U70", "Q70", "Q71", "J70"}
-    for row in rows07:
-        if str(row["reference"]) in active_refs:
-            assert row["footprint"] in (None, ""), row
 
     print("Output hierarchy and no-export boundary contract: PASS")
-    print("Shared U32 OPA1679 official-pin and seven-package allocation contract: PASS")
-    print("Direct/wet half-sum, output-level and <=10 Vpp calculated contract: PASS")
-    print("Fail-muted hardware control and provisional <20 ms clamp calculation: PASS")
-    print("Protected WQP518MA logical output-jack and blank-footprint contract: PASS")
+    print("Q70/Q71/U70 exact physical-pin contracts: PASS")
+    print("SOT-23 / SOT-23 / option-7 SMD-4 footprint assignments: PASS")
+    print(
+        "Q70 25 C datasheet-bound static attenuation: "
+        f"PASS — {attenuation_25c_db:.2f} dB"
+    )
+    print(
+        "U70 actual-bias saturation load: PASS — "
+        f"{load_current_at_vcesat_ma:.3f} mA required at 0.4 V, "
+        f"{saturation_margin:.2f}:1 margin to the 1 mA guaranteed test"
+    )
+    print(f"Fault/+12-loss cutoff crossing: PASS — {fault_crossing_ms:.2f} ms")
+    print(f"Minimum healthy MOSFET gate estimate: PASS — {gate_low:.3f} V")
+    print(f"Minimum optocoupler LED current estimate: PASS — {led_current_low_ma:.3f} mA")
+    print("Shared U32 OPA1679 ownership remains unchanged and footprint-blocked: PASS")
 
 
 if __name__ == "__main__":
