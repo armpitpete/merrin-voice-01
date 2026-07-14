@@ -1,0 +1,199 @@
+name: KiCad Memory Ghost wet sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/repair_memory_ghost_wet_ssi_units.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_return_ssi_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - ".github/workflows/kicad-memory-ghost-wet-sheet-erc.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/README.md"
+  pull_request:
+    paths:
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/repair_memory_ghost_wet_ssi_units.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_return_ssi_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - ".github/workflows/kicad-memory-ghost-wet-sheet-erc.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  memory-ghost-wet-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed Memory Ghost wet stage
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_CAPTURED"
+          if [ -f "$marker" ]; then
+            echo "wet=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed Memory/Ghost/wet capture; generation will be skipped."
+          else
+            echo "wet=false" >> "$GITHUB_OUTPUT"
+            echo "Memory/Ghost/wet remains a scaffold; first capture is active."
+          fi
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Generate integrated sheet 05 and shared U60 sheet 06
+        if: steps.stage.outputs.wet == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_return_break_limiter_sheet_v3.py 2>&1 | tee build/generator/memory-ghost-wet.log
+          python tools/capture_memory_ghost_wet_sheet_v2.py 2>&1 | tee -a build/generator/memory-ghost-wet.log
+
+      - name: Validate Memory Ghost wet and SSI2164 contracts
+        run: python tools/validate_memory_ghost_wet_capture.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce zero errors and captured-sheet warning policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          if errors:
+              raise SystemExit(f'Memory/Ghost/wet stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET',
+              '06 RETURN / BREAK / LIMITER',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated labels')
+
+          print(f'Memory/Ghost/wet ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote only the first passing native artifact
+        if: github.event_name == 'push' && steps.stage.outputs.wet == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/05_MEMORY_GHOST_WET.kicad_sch" \
+            "$root/05_MEMORY_GHOST_WET_CAPTURED" \
+            "$root/06_RETURN_BREAK_LIMITER.kicad_sch" \
+            "$root/06_RETURN_BREAK_LIMITER_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+          if git diff --cached --quiet; then
+            echo "No validated Memory/Ghost/wet artifact to promote."
+            exit 0
+          fi
+          git commit -m "Capture ERC-validated Memory Ghost wet sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-ghost-wet-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-ghost-wet-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-ghost-wet-erc-report
+          path: build/erc
+          if-no-files-found: ignore

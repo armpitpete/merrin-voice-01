@@ -1,0 +1,242 @@
+name: KiCad codec sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/amend_codec_analog_rails.py"
+      - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/opa1679_multi_support.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - ".github/workflows/kicad-codec-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/CODEC_ANALOG_RAILS_AMENDED"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  pull_request:
+    paths:
+      - "tools/amend_codec_analog_rails.py"
+      - "tools/capture_codec_conversion_sheet.py"
+      - "tools/capture_codec_conversion_sheet_v2.py"
+      - "tools/opa1679_multi_support.py"
+      - "tools/validate_output_mute_protection_capture.py"
+      - ".github/workflows/kicad-codec-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
+      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/CODEC_ANALOG_RAILS_AMENDED"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  codec-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed codec and output stages
+        id: stage
+        shell: bash
+        run: |
+          root="hardware/memory-core-prototype-a"
+          test -f "$root/CODEC_ANALOG_RAILS_AMENDED" && rails=true || rails=false
+          test -f "$root/03_CODEC_CONVERSION_CAPTURED" && codec=true || codec=false
+          test -f "$root/07_OUTPUT_MUTE_PROTECTION_CAPTURED" && output=true || output=false
+          echo "rails=$rails" >> "$GITHUB_OUTPUT"
+          echo "codec=$codec" >> "$GITHUB_OUTPUT"
+          echo "output=$output" >> "$GITHUB_OUTPUT"
+          echo "rails=$rails codec=$codec output=$output"
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Add codec analogue rail interfaces
+        if: steps.stage.outputs.rails == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/amend_codec_analog_rails.py 2>&1 | tee build/generator/codec-rail-amendment.log
+
+      - name: Capture 03 codec conversion sheet
+        if: steps.stage.outputs.codec == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_codec_conversion_sheet.py 2>&1 | tee build/generator/codec-sheet.log
+
+      - name: Validate codec capture contract
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import json
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          assert (root / 'CODEC_ANALOG_RAILS_AMENDED').exists()
+          assert (root / '03_CODEC_CONVERSION_CAPTURED').exists()
+          assert (root / '03_CODEC_CONVERSION.kicad_sch').exists()
+
+          manifest = json.loads((root / 'hierarchy-manifest.json').read_text(encoding='utf-8'))
+          sheet = next(item for item in manifest['sheets'] if item['code'] == '03')
+          pin_names = {pin['name'] for pin in sheet['pins']}
+          assert {'RAIL_P12', 'RAIL_N12'} <= pin_names
+
+          spec = importlib.util.spec_from_file_location(
+              'codec_capture', 'tools/capture_codec_conversion_sheet.py'
+          )
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          assert len(module.PCM_PIN_NAMES) == 65
+          assert set(module.PCM_PIN_NAMES) == set(range(1, 66))
+          required = {
+              4: 'CODEC_RST_HW_N', 6: 'CODEC_LRCLK', 7: 'CODEC_BCLK',
+              8: 'CODEC_DOUT', 27: 'RETURN_DAC_P', 29: 'GHOST_DAC_P',
+              31: 'MEMORY_DAC_P', 35: 'CODEC_LRCLK', 36: 'CODEC_BCLK',
+              37: 'CODEC_DIN', 41: 'CODEC_MCLK', 42: 'CTRL_I2C_SCL',
+              43: 'CTRL_I2C_SDA', 44: 'GND', 45: 'GND', 48: 'GND',
+              51: 'ADC_VIN1_N', 52: 'ADC_VIN1_P', 65: 'GND',
+          }
+          for pin, net in required.items():
+              assert module.PCM_SELECTED_NETS[pin] == net
+
+          library = (root / 'MerrinLab_PrototypeA.kicad_sym').read_text(encoding='utf-8')
+          assert '(symbol "PCM3168A_PAP_APPLICATION"' in library
+          assert '(symbol "OPA1679_PW_APPLICATION"' in library
+          if (root / '07_OUTPUT_MUTE_PROTECTION_CAPTURED').exists():
+              assert '(symbol "OPA1679_PW_MULTI"' in library
+          print('Codec physical-pin, hierarchy and symbol contract: PASS')
+          PY
+          if [ -f hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION_CAPTURED ]; then
+            python tools/validate_output_mute_protection_capture.py
+          fi
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce codec-stage ERC policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          if errors:
+              raise SystemExit(f'Codec schematic stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION', '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION', '04 INPUT / PRESSURE / ABSENCE',
+              '05 MEMORY / GHOST / WET', '06 RETURN / BREAK / LIMITER',
+              '07 OUTPUT / MUTE / PROTECTION',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} retains temporary isolated labels')
+          print(f'Codec-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote first passing codec sheet
+        if: >-
+          github.event_name == 'push' &&
+          (steps.stage.outputs.rails == 'false' || steps.stage.outputs.codec == 'false')
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" \
+            "$root/hierarchy-manifest.json" \
+            "$root/CODEC_ANALOG_RAILS_AMENDED" \
+            "$root/03_CODEC_CONVERSION.kicad_sch" \
+            "$root/03_CODEC_CONVERSION_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+          if git diff --cached --quiet; then
+            echo "No validated codec stage to promote."
+            exit 0
+          fi
+          git commit -m "Capture ERC-validated codec conversion sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codec-sheet-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codec-sheet-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codec-sheet-erc-report
+          path: build/erc
+          if-no-files-found: ignore

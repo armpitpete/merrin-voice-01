@@ -1,0 +1,263 @@
+name: KiCad input sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/repair_input_adc_net.py"
+      - ".github/workflows/kicad-input-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE*"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  pull_request:
+    paths:
+      - "tools/capture_input_pressure_absence_sheet.py"
+      - "tools/repair_input_adc_net.py"
+      - ".github/workflows/kicad-input-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE*"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  input-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed input stage
+        id: stage
+        shell: bash
+        run: |
+          marker="hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE_CAPTURED"
+          if [ -f "$marker" ]; then
+            echo "input=true" >> "$GITHUB_OUTPUT"
+            echo "Using committed input/Pressure/Absence capture."
+          else
+            echo "input=false" >> "$GITHUB_OUTPUT"
+            echo "Input/Pressure/Absence remains a scaffold."
+          fi
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+          test -f "$KICAD_SYMBOL_DIR/Connector_Generic.kicad_sym"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Capture and repair 04 input Pressure Absence sheet
+        if: steps.stage.outputs.input == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_input_pressure_absence_sheet.py 2>&1 | tee build/generator/input-sheet.log
+          python tools/repair_input_adc_net.py 2>&1 | tee -a build/generator/input-sheet.log
+
+      - name: Validate input capture contract
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import json
+          from pathlib import Path
+
+          import kicad_sch_api as ksa
+
+          root = Path('hardware/memory-core-prototype-a')
+          sheet_path = root / '04_INPUT_PRESSURE_ABSENCE.kicad_sch'
+          library_path = root / 'MerrinLab_PrototypeA.kicad_sym'
+          assert (root / '04_INPUT_PRESSURE_ABSENCE_CAPTURED').exists()
+          assert sheet_path.exists()
+
+          spec = importlib.util.spec_from_file_location(
+              'input_capture', 'tools/capture_input_pressure_absence_sheet.py'
+          )
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+
+          assert set(module.HIER_INPUTS) == {
+              'RAIL_P12', 'RAIL_N12', 'RETURN_FEED', 'ABSENCE_INFLUENCE'
+          }
+          assert set(module.HIER_OUTPUTS) == {
+              'DIRECT_PRESENT', 'SHAPED_PRESENT', 'ADC_ANALOG_IN'
+          }
+          assert module.ALLOWED_RETURN_IMPORTS == frozenset({
+              'RETURN_FEED', 'ABSENCE_INFLUENCE'
+          })
+
+          manifest = json.loads((root / 'hierarchy-manifest.json').read_text(encoding='utf-8'))
+          sheet = next(item for item in manifest['sheets'] if item['code'] == '04')
+          manifest_pins = {pin['name']: pin['direction'] for pin in sheet['pins']}
+          assert manifest_pins == {
+              'RAIL_P12': 'input',
+              'RAIL_N12': 'input',
+              'RETURN_FEED': 'input',
+              'ABSENCE_INFLUENCE': 'input',
+              'DIRECT_PRESENT': 'output',
+              'SHAPED_PRESENT': 'output',
+              'ADC_ANALOG_IN': 'output',
+          }
+
+          library = library_path.read_text(encoding='utf-8')
+          assert '(symbol "WQP518MA_APPLICATION"' in library
+          assert '(symbol "J113_SHUNT_APPLICATION"' in library
+          assert '(symbol "OPA1679_PW_APPLICATION"' in library
+
+          cache = ksa.get_symbol_cache()
+          cache.add_library_path(str(library_path.resolve()))
+          schematic = ksa.load_schematic(str(sheet_path))
+          refs = {component.reference for component in schematic.components}
+          assert {'J40', 'Q40', 'U40', 'U41'} <= refs
+
+          text = sheet_path.read_text(encoding='utf-8')
+          for token in (
+              'WQP518MA / THONKICONN INPUT',
+              'TIP_NORMAL',
+              'DIRECT_PRESENT',
+              'SHAPED_PRESENT',
+              'ADC_ANALOG_IN',
+              'ADC_BUFFER',
+              'RETURN_FEED',
+              'ABSENCE_INFLUENCE',
+              '22k Pressure input',
+              '22k Pressure feedback',
+              '20k shaped input',
+              '20k fixed Return input',
+              '20k Memory feedback',
+              '30.1k Absence input',
+              '80.6k control gain',
+              '121k -12V offset',
+          ):
+              assert token in text, token
+
+          forbidden = ('RETURN_DAC', 'RETURN_LIMITED', 'BREAK_OUT', 'RETURN_NORM')
+          for token in forbidden:
+              assert token not in text, token
+          assert 'ADC_ANALOG_IN_OUT' not in text
+
+          print('Input, Direct Present, Pressure, Absence and Memory-sum contract: PASS')
+          PY
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce input-stage ERC policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
+          text = report.read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+
+          if errors:
+              raise SystemExit(f'Input schematic stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = (
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
+              '06 RETURN / BREAK / LIMITER',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          )
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated interface labels')
+
+          print(f'Input-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote first passing input sheet
+        if: >-
+          github.event_name == 'push' &&
+          steps.stage.outputs.input == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/04_INPUT_PRESSURE_ABSENCE.kicad_sch" \
+            "$root/04_INPUT_PRESSURE_ABSENCE_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+
+          if git diff --cached --quiet; then
+            echo "No validated input stage to promote."
+            exit 0
+          fi
+
+          git commit -m "Capture ERC-validated input Pressure Absence sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: input-sheet-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: input-sheet-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: input-sheet-erc-report
+          path: build/erc
+          if-no-files-found: ignore

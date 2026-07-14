@@ -1,0 +1,309 @@
+name: KiCad Return sheet ERC
+
+on:
+  push:
+    branches:
+      - v5.2-native-schematic-capture-erc
+    paths:
+      - "tools/amend_return_safety_interfaces.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/repair_return_ssi_units.py"
+      - "tools/repair_return_ssi_units_v2.py"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
+      - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  pull_request:
+    paths:
+      - "tools/amend_return_safety_interfaces.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v2.py"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/repair_return_ssi_units.py"
+      - "tools/repair_return_ssi_units_v2.py"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET*"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER*"
+      - "hardware/memory-core-prototype-a/RETURN_SAFETY_INTERFACES_AMENDED"
+      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+      - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KICAD_SYMBOL_DIR: /usr/share/kicad/symbols
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  return-sheet-erc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect committed Return and integrated wet stages
+        id: stage
+        shell: bash
+        run: |
+          root="hardware/memory-core-prototype-a"
+          test -f "$root/06_RETURN_BREAK_LIMITER_CAPTURED" && return_stage=true || return_stage=false
+          test -f "$root/05_MEMORY_GHOST_WET_CAPTURED" && wet_stage=true || wet_stage=false
+          echo "return=$return_stage" >> "$GITHUB_OUTPUT"
+          echo "wet=$wet_stage" >> "$GITHUB_OUTPUT"
+          echo "return=$return_stage wet=$wet_stage"
+
+      - name: Install symbol libraries and pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+          python -c "import kicad_sch_api; print('kicad-sch-api import: OK')"
+
+      - name: Verify pinned official KiCad CLI image
+        run: |
+          docker pull "$KICAD_IMAGE"
+          docker run --rm "$KICAD_IMAGE" kicad-cli --version
+          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
+
+      - name: Add Return safety interfaces
+        if: steps.stage.outputs.return == 'false'
+        shell: bash
+        run: |
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/amend_return_safety_interfaces.py 2>&1 | tee build/generator/return-sheet.log
+
+      - name: Capture and stage 06 Return Break limiter sheet
+        if: steps.stage.outputs.return == 'false'
+        shell: bash
+        run: |
+          set -o pipefail
+          python tools/capture_return_break_limiter_sheet_v2.py 2>&1 | tee -a build/generator/return-sheet.log
+          if [ "${{ steps.stage.outputs.wet }}" != "true" ]; then
+            python tools/repair_return_ssi_units_v2.py 2>&1 | tee -a build/generator/return-sheet.log
+          fi
+
+      - name: Validate Return capture and shared SSI2164 ownership
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import math
+          import re
+          from collections import Counter
+          from pathlib import Path
+
+          import kicad_sch_api as ksa
+
+          root = Path('hardware/memory-core-prototype-a')
+          return_path = root / '06_RETURN_BREAK_LIMITER.kicad_sch'
+          wet_path = root / '05_MEMORY_GHOST_WET.kicad_sch'
+          library_path = root / 'MerrinLab_PrototypeA.kicad_sym'
+          integrated = (root / '05_MEMORY_GHOST_WET_CAPTURED').exists()
+
+          assert (root / '06_RETURN_BREAK_LIMITER_CAPTURED').exists()
+          assert (root / 'RETURN_SAFETY_INTERFACES_AMENDED').exists()
+          assert return_path.exists()
+
+          spec = importlib.util.spec_from_file_location(
+              'return_capture', 'tools/capture_return_break_limiter_sheet.py'
+          )
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+
+          assert set(module.HIER_INPUTS) == {
+              'RAIL_P12', 'RAIL_N12', 'RAIL_3V3', 'HARDWARE_FAULT_N',
+              'RETURN_DAC', 'VCA_RETURN_CTRL',
+          }
+          assert set(module.HIER_OUTPUTS) == {
+              'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE'
+          }
+          assert module.ALLOWED_EXPORTS == frozenset(module.HIER_OUTPUTS)
+          assert math.isclose(module.FIXED_FEED_NOMINAL, 27.4 / 40.2, abs_tol=1e-12)
+          assert module.FIXED_FEED_NOMINAL < 0.682
+
+          rendered = module.render_ssi2164_multi_symbol()
+          for unit in range(1, 6):
+              assert f'(symbol "SSI2164S_MULTI_{unit}_1"' in rendered
+          unit3 = re.search(
+              r'\(symbol "SSI2164S_MULTI_3_1"(?P<body>.*?)\n\t\t\)',
+              rendered,
+              re.DOTALL,
+          )
+          assert unit3
+          for number, name in (('15', 'IIN3'), ('14', 'VC3'), ('13', 'IOUT3')):
+              assert f'(name "{name}"' in unit3.group('body')
+              assert f'(number "{number}"' in unit3.group('body')
+
+          cache = ksa.get_symbol_cache()
+          cache.add_library_path(str(library_path.resolve()))
+          return_schematic = ksa.load_schematic(str(return_path))
+          return_units = sorted(
+              component._data.unit
+              for component in return_schematic.components
+              if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
+          )
+
+          if integrated:
+              assert wet_path.exists()
+              wet_schematic = ksa.load_schematic(str(wet_path))
+              wet_units = sorted(
+                  component._data.unit
+                  for component in wet_schematic.components
+                  if component.reference == 'U60' and component.lib_id.endswith('SSI2164S_MULTI')
+              )
+              assert return_units == [3, 5], return_units
+              assert wet_units == [1, 2, 4], wet_units
+              assert sorted(return_units + wet_units) == [1, 2, 3, 4, 5]
+          else:
+              assert return_units == [1, 2, 3, 4, 5], return_units
+
+          references = [
+              component.reference
+              for component in return_schematic.components
+              if not component.reference.startswith('#')
+          ]
+          duplicate_refs = sorted(
+              reference
+              for reference, count in Counter(references).items()
+              if count > 1 and reference != 'U60'
+          )
+          assert not duplicate_refs, duplicate_refs
+          for reference in ('C610', 'C611', 'C640', 'C641'):
+              assert references.count(reference) == 1, reference
+
+          text = return_path.read_text(encoding='utf-8')
+          for token in (
+              'RETURN_LIMITED', 'RETURN_FEED', 'ABSENCE_INFLUENCE',
+              'HARDWARE_FAULT_N', '40.2k 1%', '27.4k 1%',
+              '2.2k clamp current', 'BREAK AMOUNT',
+              'Official SSI2164 channel 3 pins: 15 IIN3, 14 VC3, 13 IOUT3',
+          ):
+              assert token in text, token
+          assert 'pins 10 IIN3' not in text
+          if integrated:
+              assert 'visible staged reservations for sheet 05' not in text
+              assert 'same physical SSI2164' not in text
+          else:
+              assert 'visible staged reservations for sheet 05' in text
+              assert 'same physical SSI2164' in text
+
+          print('Return symbol/pin, gain, safety and shared-device contract: PASS')
+          PY
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          set -o pipefail
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top" 2>&1 | tee build/erc/kicad-cli.log
+          cat "$report"
+
+      - name: Enforce Return-stage ERC policy
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          text = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          codes = re.findall(r'^\[([^\]]+)\]:', text, re.MULTILINE)
+          unexpected = sorted(set(codes) - {'isolated_pin_label'})
+          if errors:
+              raise SystemExit(f'Return schematic stage has {errors} ERC error(s)')
+          if unexpected:
+              raise SystemExit(f'Unexpected ERC classes: {unexpected}')
+
+          captured = [
+              '01 POWER / PROTECTION',
+              '02 MCU / CLOCK / DEBUG',
+              '03 CODEC / CONVERSION',
+              '04 INPUT / PRESSURE / ABSENCE',
+              '06 RETURN / BREAK / LIMITER',
+              '08 CONTROLS / STATE / SAFE SELECTOR',
+          ]
+          if (root / '05_MEMORY_GHOST_WET_CAPTURED').exists():
+              captured.append('05 MEMORY / GHOST / WET')
+
+          for sheet_name in captured:
+              match = re.search(
+                  rf'\*\* Sheet /{re.escape(sheet_name)}(?P<body>.*?)(?=\*\* Sheet |\*\* ERC messages:)',
+                  text,
+                  re.DOTALL,
+              )
+              if match and '[isolated_pin_label]:' in match.group('body'):
+                  raise SystemExit(f'{sheet_name} still contains temporary isolated labels')
+
+          print(f'Return-stage ERC: PASS — 0 errors, {warnings} remaining scaffold warning(s)')
+          PY
+
+      - name: Promote first passing Return sheet
+        if: github.event_name == 'push' && steps.stage.outputs.return == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          root="hardware/memory-core-prototype-a"
+          git add \
+            "$root/MerrinGriefSynthMemoryCoreA.kicad_sch" \
+            "$root/hierarchy-manifest.json" \
+            "$root/RETURN_SAFETY_INTERFACES_AMENDED" \
+            "$root/06_RETURN_BREAK_LIMITER.kicad_sch" \
+            "$root/06_RETURN_BREAK_LIMITER_CAPTURED" \
+            "$root/MerrinLab_PrototypeA.kicad_sym"
+          if git diff --cached --quiet; then
+            echo "No validated Return stage to promote."
+            exit 0
+          fi
+          git commit -m "Capture ERC-validated Return Break limiter sheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload generator log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: return-sheet-generator-log
+          path: build/generator
+          if-no-files-found: ignore
+
+      - name: Upload native hierarchy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: return-sheet-native-hierarchy
+          path: hardware/memory-core-prototype-a
+          if-no-files-found: error
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: return-sheet-erc-report
+          path: build/erc
+          if-no-files-found: ignore
