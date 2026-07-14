@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "authority": {
+    "lane": "Gate B lane 02 — input and output jacks",
+    "base_commit": "651d594e3c9993b2fdc6ca527328887458a7d849",
+    "pcb_authorised": false,
+    "panel_fabrication_authorised": false,
+    "purchasing_authorised": false
+  },
+  "supplier_evidence": {
+    "orderable_candidate": "Thonkiconn Mono 3.5mm Audio Jack — WQP518MA",
+    "product_url": "https://www.thonk.co.uk/shop/thonkiconn/",
+    "drawing_url": "https://www.thonk.co.uk/wp-content/uploads/2018/07/Thonkiconn_Jack_Datasheet-new.jpg",
+    "drawing_model_label": "PJ398SM",
+    "declared_equivalence": "Thonk states that WQP518MA, PJ301M-12 and PJ398SM are functionally identical and interchangeable; the newer WQP518MA/PJ398SM footprint is stated to be the same as the original.",
+    "manufacturer_controlled_wqp518ma_drawing_found": false
+  },
+  "candidate": {
+    "exact_orderable_name": "WQP518MA",
+    "manufacturer_family": "WQP / QingPu-style Thonkiconn",
+    "connector": "3.5 mm mono TS switched vertical PCB jack",
+    "status": "RETAINED_CANDIDATE_NOT_ACCEPTED",
+    "contacts": {
+      "1": "TIP",
+      "2": "TIP_NORMAL",
+      "3": "SLEEVE",
+      "no_plug_state": "contacts 1 and 2 closed",
+      "plug_inserted_state": "contacts 1 and 2 open; contact 1 remains plug tip"
+    },
+    "published_electrical_limits": {
+      "rating": "30 V DC, 0.5 A",
+      "contact_resistance_max_ohm": 0.03,
+      "insulation_resistance_min_megohm_at_250vdc": 100,
+      "withstand_voltage_vac": 500,
+      "insertion_extraction_force_n": [3, 25],
+      "life_cycles": 5000
+    },
+    "published_mechanical_mm": {
+      "body_width": 9.0,
+      "body_depth_shown": 9.0,
+      "body_height_shown": 8.3,
+      "front_bushing_projection_shown": 5.5,
+      "rear_contact_projection_shown": 3.5,
+      "bushing_diameter": 6.0,
+      "tip_terminal_y": -4.92,
+      "tip_normal_terminal_y": 3.38,
+      "sleeve_terminal_y": 6.48,
+      "tip_hole": [0.6, 1.5],
+      "tip_normal_hole": [0.6, 1.5],
+      "sleeve_hole": [0.6, 1.3]
+    }
+  },
+  "schematic_use": {
+    "J40": {
+      "role": "INPUT",
+      "pin_1": "INPUT_TIP",
+      "pin_2": "GND",
+      "pin_3": "GND",
+      "normal_contact_required": true,
+      "no_cable_result": "INPUT_TIP is grounded through the closed 1-2 contact"
+    },
+    "J70": {
+      "role": "OUTPUT",
+      "pin_1": "OUTPUT_TIP",
+      "pin_2": "NO_CONNECT",
+      "pin_3": "GND",
+      "normal_contact_required": false
+    }
+  },
+  "footprint_candidate": {
+    "source_repository": "clacktronics/AudioJacks",
+    "source_commit": "14a88866e93b8ce4a31ad376b0c6eb85cd4d2cf3",
+    "source_path": "AudioJacks.pretty/Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical.kicad_mod",
+    "source_blob_sha": "1ebfa641294a0fd38f9c0e2c5c8b85dbc71ccaf6",
+    "project_path": "hardware/memory-core-prototype-a/jack-footprint-audits/Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical.kicad_mod",
+    "sha256": "9f54f81d8f0152e77082746b47158c297c84154dd6fbe0b459ef147a86b10678",
+    "source_testing_status": "UNTESTED BY UPSTREAM LIBRARY",
+    "pads": {
+      "T": [0.0, -4.92, 2.6, 2.6, 1.6, 0.6],
+      "TN": [0.0, 3.38, 2.6, 2.6, 1.6, 0.6],
+      "S": [0.0, 6.48, 3.1, 2.3, 1.6, 0.6]
+    },
+    "courtyard_mm": [10.0, 14.83],
+    "symbol_pad_mapping": {
+      "schematic_identifiers": ["1", "2", "3"],
+      "footprint_identifiers": ["T", "TN", "S"],
+      "direct_assignment_valid": false,
+      "required_resolution": "Create an independently reviewed numeric project-local footprint with 1=T, 2=TN and 3=S, or deliberately change the symbol identifiers. Do not assign the current semantic-pad snapshot directly."
+    }
+  },
+  "panel_and_mounting": {
+    "vertical_pcb_mount": true,
+    "front_panel_retention_required": true,
+    "supplier_sells_nuts_and_washers_separately": true,
+    "candidate_panel_hole_mm": 6.5,
+    "candidate_panel_hole_status": "DERIVED_CLEARANCE_NOT_ACCEPTED",
+    "exact_thread": "UNKNOWN",
+    "exact_nut": "NOT_SELECTED",
+    "exact_washer": "NOT_SELECTED",
+    "maximum_panel_thickness": "UNKNOWN",
+    "panel_to_pcb_seating_distance": "NOT_YET_ACCEPTED",
+    "pcb_barrel_relief": "Drawing advises a 3 mm PCB hole directly below the barrel or an equivalent copper/trace keepout."
+  },
+  "decision": {
+    "contact_contract": "PASS",
+    "current_schematic_use": "PASS",
+    "exact_orderable_identity": "BLOCKED_BY_WQP518MA_TO_PJ398SM_DRAWING_EQUIVALENCE",
+    "direct_source_footprint_assignment": "FAIL_PAD_IDENTIFIER_MISMATCH",
+    "panel_geometry": "BLOCKED",
+    "mounting_hardware": "BLOCKED",
+    "footprints_assigned": false,
+    "overall": "RETURN_FOR_EVIDENCE_AND_NUMERIC_FOOTPRINT_REPAIR"
+  }
+}
