@@ -118,60 +118,64 @@ def validate_sot23_snapshot(
     text: str, snapshot: dict[str, object]
 ) -> tuple[dict[int, tuple[float, float, float, float]], tuple[float, float]]:
     geometry = snapshot["geometry_mm"]
-    p = pads(text)
-    assert set(p) == {1, 2, 3}, p
+    footprint_pads = pads(text)
+    assert set(footprint_pads) == {1, 2, 3}, footprint_pads
     for number in (1, 2, 3):
-        assert_exact_pad(p[number], geometry[f"pad_{number}"])
+        assert_exact_pad(footprint_pads[number], geometry[f"pad_{number}"])
 
-    close(p[1][0], p[2][0])
-    close(abs(p[1][1] - p[2][1]), 1.9)
-    assert p[3][0] > p[1][0]
-    close(p[3][1], (p[1][1] + p[2][1]) / 2)
+    close(footprint_pads[1][0], footprint_pads[2][0])
+    close(abs(footprint_pads[1][1] - footprint_pads[2][1]), 1.9)
+    assert footprint_pads[3][0] > footprint_pads[1][0]
+    close(
+        footprint_pads[3][1],
+        (footprint_pads[1][1] + footprint_pads[2][1]) / 2,
+    )
 
-    cx, cy = courtyard(text)
-    close(cx, geometry["courtyard"][0])
-    close(cy, geometry["courtyard"][1])
-    return p, (cx, cy)
+    courtyard_size = courtyard(text)
+    close(courtyard_size[0], geometry["courtyard"][0])
+    close(courtyard_size[1], geometry["courtyard"][1])
+    return footprint_pads, courtyard_size
 
 
 def validate_q70_case318(
-    p: dict[int, tuple[float, float, float, float]],
+    footprint_pads: dict[int, tuple[float, float, float, float]],
     courtyard_size: tuple[float, float],
     q70: dict[str, object],
 ) -> None:
     dims = q70["dimensions_mm"]
-    pitch = abs(p[1][1] - p[2][1])
+    pitch = abs(footprint_pads[1][1] - footprint_pads[2][1])
     assert dims["outer_lead_pitch_min"] <= pitch <= dims["outer_lead_pitch_max"]
     close(dims["lead_pitch_nominal"], 0.95)
     cx, cy = courtyard_size
     assert max(cx, cy) > dims["body_length_max"]
     assert min(cx, cy) > dims["overall_width_max"]
-    assert p[1][2] > dims["lead_length_max"]
-    assert p[1][3] > dims["lead_width_max"]
+    assert footprint_pads[1][2] > dims["lead_length_max"]
+    assert footprint_pads[1][3] > dims["lead_width_max"]
     assert "CASE 318-08" in q70["manufacturer_package"]
     assert "TO-236" in q70["equivalence_basis"]
     print(
         "Q70 CASE 318-08 independent dimensional audit: PASS — "
-        f"lead pitch {pitch:.2f} mm, pad {p[1][2]:.2f} x {p[1][3]:.2f} mm, "
+        f"lead pitch {pitch:.2f} mm, "
+        f"pad {footprint_pads[1][2]:.2f} x {footprint_pads[1][3]:.2f} mm, "
         f"courtyard {cx:.2f} x {cy:.2f} mm"
     )
 
 
 def validate_q71_to236ab(
-    p: dict[int, tuple[float, float, float, float]],
+    footprint_pads: dict[int, tuple[float, float, float, float]],
     courtyard_size: tuple[float, float],
     q71: dict[str, object],
 ) -> None:
     dims = q71["dimensions_mm"]
-    close(abs(p[1][1] - p[2][1]), dims["outer_lead_pitch"])
+    close(abs(footprint_pads[1][1] - footprint_pads[2][1]), dims["outer_lead_pitch"])
     cx, cy = courtyard_size
     assert max(cx, cy) > dims["body_length_max"]
     assert min(cx, cy) > dims["overall_width_max"]
-    assert p[1][2] > dims["lead_length_max"]
-    assert p[1][3] > dims["lead_width_max"]
+    assert footprint_pads[1][2] > dims["lead_length_max"]
+    assert footprint_pads[1][3] > dims["lead_width_max"]
     print(
         "Q71 TO-236AB independent dimensional audit: PASS — "
-        f"pad {p[1][2]:.2f} x {p[1][3]:.2f} mm, "
+        f"pad {footprint_pads[1][2]:.2f} x {footprint_pads[1][3]:.2f} mm, "
         f"courtyard {cx:.2f} x {cy:.2f} mm"
     )
 
@@ -180,32 +184,41 @@ def validate_smdip4(
     text: str, snapshot: dict[str, object], u70: dict[str, object]
 ) -> None:
     geometry = snapshot["geometry_mm"]
-    p = pads(text)
-    assert set(p) == {1, 2, 3, 4}, p
+    footprint_pads = pads(text)
+    assert set(footprint_pads) == {1, 2, 3, 4}, footprint_pads
     for number in (1, 2, 3, 4):
-        assert_exact_pad(p[number], geometry[f"pad_{number}"])
+        assert_exact_pad(footprint_pads[number], geometry[f"pad_{number}"])
 
-    left_x = (p[1][0] + p[2][0]) / 2
-    right_x = (p[3][0] + p[4][0]) / 2
-    close(abs(right_x - left_x), u70["dimensions_mm"]["lead_row_spacing_nominal"])
-    close(abs(p[1][1] - p[2][1]), u70["dimensions_mm"]["lead_pitch_nominal"])
-    close(abs(p[3][1] - p[4][1]), u70["dimensions_mm"]["lead_pitch_nominal"])
-    assert p[1][0] == p[2][0] < p[3][0] == p[4][0]
-    assert p[1][1] == p[4][1] < p[2][1] == p[3][1]
+    left_x = (footprint_pads[1][0] + footprint_pads[2][0]) / 2
+    right_x = (footprint_pads[3][0] + footprint_pads[4][0]) / 2
+    close(
+        abs(right_x - left_x),
+        u70["dimensions_mm"]["lead_row_spacing_nominal"],
+    )
+    close(
+        abs(footprint_pads[1][1] - footprint_pads[2][1]),
+        u70["dimensions_mm"]["lead_pitch_nominal"],
+    )
+    close(
+        abs(footprint_pads[3][1] - footprint_pads[4][1]),
+        u70["dimensions_mm"]["lead_pitch_nominal"],
+    )
+    assert footprint_pads[1][0] == footprint_pads[2][0] < footprint_pads[3][0] == footprint_pads[4][0]
+    assert footprint_pads[1][1] == footprint_pads[4][1] < footprint_pads[2][1] == footprint_pads[3][1]
 
     cx, cy = courtyard(text)
     close(cx, geometry["courtyard"][0])
     close(cy, geometry["courtyard"][1])
     assert cx > u70["dimensions_mm"]["overall_span_max"]
     assert cy > u70["dimensions_mm"]["body_width_max"]
-    assert p[1][2] > u70["dimensions_mm"]["terminal_length_max"]
-    assert p[1][3] > u70["dimensions_mm"]["lead_width_max"]
+    assert footprint_pads[1][2] > u70["dimensions_mm"]["terminal_length_max"]
+    assert footprint_pads[1][3] > u70["dimensions_mm"]["lead_width_max"]
 
     print(
         "U70 option-7 SMD-4 dimensional audit: PASS — "
         f"row {abs(right_x-left_x):.2f} mm, "
-        f"pitch {abs(p[1][1]-p[2][1]):.2f} mm, "
-        f"pads {p[1][2]:.2f} x {p[1][3]:.2f} mm, "
+        f"pitch {abs(footprint_pads[1][1]-footprint_pads[2][1]):.2f} mm, "
+        f"pads {footprint_pads[1][2]:.2f} x {footprint_pads[1][3]:.2f} mm, "
         f"courtyard {cx:.2f} x {cy:.2f} mm"
     )
 
@@ -233,12 +246,9 @@ def main() -> None:
     assert u70["snapshot"] == "smdip4"
 
     sot_text = locked_text(snapshots["sot23"], source_commit)
-    sot_pads, sot_courtyard = validate_sot23_snapshot(
-        sot_text, snapshots["sot23"]
-    )
+    sot_pads, sot_courtyard = validate_sot23_snapshot(sot_text, snapshots["sot23"])
     validate_q70_case318(sot_pads, sot_courtyard, q70)
     validate_q71_to236ab(sot_pads, sot_courtyard, q71)
-
     validate_smdip4(
         locked_text(snapshots["smdip4"], source_commit),
         snapshots["smdip4"],
@@ -246,9 +256,9 @@ def main() -> None:
     )
 
     for authority_path in (REVIEW, VALIDATION):
-        text = authority_path.read_text(encoding="utf-8")
-        assert "U70 25 C datasheet-bound saturation proof" in text
-        assert "full-temperature release behaviour remains Gate C" in text
+        authority_text = authority_path.read_text(encoding="utf-8").lower()
+        assert "u70 25 c datasheet-bound saturation proof" in authority_text
+        assert "full-temperature release behaviour remains gate c" in authority_text
 
     print("U70 25 C temperature-bound authority: PASS")
     print("Immutable official KiCad source revision: PASS")
