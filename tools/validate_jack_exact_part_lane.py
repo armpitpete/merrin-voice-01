@@ -301,6 +301,7 @@ def main() -> None:
         "2": "TN / TIP_NORMAL",
         "3": "S / SLEEVE",
     }
+    assert numeric["geometry_status"] == "PASS"
     assert numeric["assignment_status"] == "BLOCKED_PENDING_PANEL_STACK_MEASUREMENT"
 
     fp_table = FP_TABLE.read_text(encoding="utf-8")
@@ -335,6 +336,17 @@ def main() -> None:
     ):
         assert token in measurement_text, token
 
+    validation = audit["validation"]
+    assert validation == {
+        "validated_head": "d1510cfcb4b85a3e6d17283d795b2a545ed4860a",
+        "jack_workflow_run": 29368887533,
+        "schematic_erc_run": 29368887574,
+        "current_stage_authority_run": 29368887521,
+        "jack_validator": "PASS",
+        "hierarchical_erc": "PASS — 0 errors / 0 warnings",
+        "footprint_assignment_remained_blank": True,
+    }
+
     decision = audit["decision"]
     assert decision == {
         "contact_contract": "PASS",
@@ -342,7 +354,7 @@ def main() -> None:
         "supplier_controlled_wqp518ma_pj398sm_equivalence": (
             "PASS_FOR_CONTACT_AND_FOOTPRINT_GEOMETRY"
         ),
-        "numeric_project_footprint": "PASS_PENDING_CURRENT_HEAD_CI",
+        "numeric_project_footprint": "PASS",
         "panel_hole_tolerance": "DERIVED_TARGET_RECORDED",
         "mounting_hardware_products": "SELECTED_BUT_DIMENSIONAL_STACK_UNPROVEN",
         "panel_stack": "BLOCKED_PENDING_PHYSICAL_SAMPLE_OR_CONTROLLED_HARDWARE_DRAWING",
