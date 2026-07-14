@@ -38,16 +38,18 @@ Detailed records:
 Current result:
 
 ```text
-Q70 MMBFJ113 exact part / pin map                RETAINED
-Q71 PMV20XNE exact part / pin map                 RETAINED
-U70 VO617A-3X007T exact part / pin map            RETAINED
+Q70 MMBFJ113 exact part / pin map                PASS, SUBJECT TO PR REVIEW
+Q71 PMV20XNE exact part / pin map                 PASS, SUBJECT TO PR REVIEW
+U70 VO617A-3X007T exact part / pin map            PASS, SUBJECT TO PR REVIEW
 POWERED HEALTHY-RELEASE TOPOLOGY                  PASS AT CALCULATED LEVEL
-Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT     PASS, PENDING CURRENT-HEAD CI
-Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT        PASS, PENDING CURRENT-HEAD CI
-U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT              PASS, PENDING CURRENT-HEAD CI
+Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT     PASS
+Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT        PASS
+U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT              PASS
 U70 25 C DATASHEET-BOUND SATURATION PROOF         PASS — 8.93:1
 Q70 25 C DATASHEET-BOUND ATTENUATION              PASS — 61.50 dB
-IMMUTABLE KICAD FOOTPRINT PROVENANCE              PASS, PENDING CURRENT-HEAD CI
+IMMUTABLE KICAD FOOTPRINT PROVENANCE              PASS
+KICAD 10 HIERARCHICAL ERC                         PASS — 0 / 0
+COMMITTED-FILE NO-DIFF RERUN                      PASS
 MEASURED MUTE / POP / RAIL SEQUENCING             GATE C
 PCB / ROUTING / FABRICATION / PURCHASING          BLOCKED
 ```
@@ -78,8 +80,6 @@ fault / +12 V loss crossing of -3 V = 12.57 ms
 
 ### Q70 independent dimensional evidence
 
-Q70's CASE 318-08 package is independently recorded and checked:
-
 ```text
 body length maximum       3.04 mm
 body width maximum        1.40 mm
@@ -89,7 +89,7 @@ lead width maximum        0.50 mm
 lead length maximum       0.69 mm
 ```
 
-It no longer inherits the Q71 package decision.
+Q70 has its own CASE 318-08 validation path and no longer inherits Q71's package result.
 
 ### Immutable footprint authority
 
@@ -109,13 +109,23 @@ Git blob f45a9a53110c40e6dfdcdae40d07a29856841be2
 SHA-256 23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
 ```
 
-The validator checks each package independently against these immutable files. Placement, neighbouring clearances, creepage strategy and assembly acceptance remain blocked.
+Moving library branches and ambient workstation footprints are not Gate-B authority. Placement, neighbouring clearances, creepage strategy and assembly acceptance remain blocked.
 
-### Required closure
+### Closure evidence
 
-The current PR head must pass the independent package validators, immutable provenance checks, temperature-scope checks, exact electrical validators, KiCad ERC and a committed-file no-diff rerun.
+Committed head `8d0187bf2ed4bc3caceb9cc4844b2d50bef65b6a` passed dedicated workflow run `29347852152`, including:
 
-Lane 01 remains subject to another PR #46 approval review. It is not merged.
+```text
+independent Q70 / Q71 / U70 package validation PASS
+immutable source revision and footprint hashes PASS
+U70 25 C authority validation                  PASS
+exact electrical / pin / hierarchy checks      PASS
+KiCad 10 hierarchical ERC                      PASS — 0 / 0
+committed-file promotion                       NO DIFF
+complete affected workflow chain               PASS
+```
+
+Lane 01 is ready for another deliberate PR #46 approval-or-rejection review. It is not approved or merged by this repair.
 
 ## Remaining Gate-B lanes
 
