@@ -20,7 +20,7 @@ An active device or connector is accepted only when all of these are traceable:
 3. package designation and dimensional envelope;
 4. physical pin numbering and symbol mapping;
 5. electrical limits at the actual circuit bias and fault states;
-6. actual KiCad footprint geometry from the pinned toolchain;
+6. SHA-256-locked KiCad footprint geometry from an authoritative source;
 7. dimensional comparison of pads, pitch, orientation and courtyard;
 8. explicit transfer of remaining physical and measured gates.
 
@@ -37,15 +37,17 @@ Detailed records:
 Current result:
 
 ```text
-Q70 MMBFJ113 physical part and pin map          RETAIN
-Q71 PMV20XNE physical part and pin map           RETAIN
-U70 VO617A-3X007T physical part and pin map       RETAIN
-POWERED HEALTHY-RELEASE TOPOLOGY                 RETAIN
-U70 ACTUAL-BIAS SATURATION PROOF                  PASS
-Q70 25 C DATASHEET-BOUND ATTENUATION              61.50 dB
-DIMENSIONAL FOOTPRINT AUDIT                       PENDING CURRENT PR RERUN
-MEASURED MUTE / POP / RAIL SEQUENCING             GATE C
-PCB / ROUTING / FABRICATION / PURCHASING          BLOCKED
+Q70 MMBFJ113 exact part / pin map / package      PASS, SUBJECT TO PR REVIEW
+Q71 PMV20XNE exact part / pin map / package       PASS, SUBJECT TO PR REVIEW
+U70 VO617A-3X007T exact part / pin map / package  PASS, SUBJECT TO PR REVIEW
+POWERED HEALTHY-RELEASE TOPOLOGY                  PASS AT CALCULATED LEVEL
+U70 ACTUAL-BIAS SATURATION PROOF                   PASS — 8.93:1 MARGIN
+Q70 25 C DATASHEET-BOUND ATTENUATION               PASS — 61.50 dB
+HASH-LOCKED DIMENSIONAL FOOTPRINT AUDIT             PASS
+KICAD 10 HIERARCHICAL ERC                           PASS — 0 / 0
+COMMITTED-FILE NO-DIFF RERUN                        PASS
+MEASURED MUTE / POP / RAIL SEQUENCING               GATE C
+PCB / ROUTING / FABRICATION / PURCHASING            BLOCKED
 ```
 
 ### Candidate register
@@ -73,16 +75,23 @@ fault / +12 V loss crossing of -3 V = 12.57 ms
 
 ### Dimensional evidence
 
-The validator uses the actual footprints copied from the pinned KiCad image rather than trusting the library identifiers:
+The validator parses committed, SHA-256-locked snapshots from KiCad's official footprint library:
 
 ```text
-Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod
-Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod
+SOT-23 snapshot hash:
+f8fd6dd6411c47f6547df13b1efe33867682117b7fb6f2ea829d1d726d565887
+
+SMDIP-4_W7.62mm snapshot hash:
+5d9faa2287c41ae0b7930be347813bde5098acb8688513fff275fde904b532a0
 ```
 
-It checks pad centres, pad dimensions, package pitch, pin orientation and courtyard coverage against `OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json`.
+It verifies pad centres, pad dimensions, package pitch, pin orientation and courtyard coverage. Placement, neighbour interaction and assembly acceptance remain blocked.
 
-Lane 01 is not approved until the current committed head passes those checks and PR #46 receives a new review.
+### Closure evidence
+
+Committed head `59b96b78891bc95c6c025fad70b9137c6c4241f4` passed dedicated run `29339271573`, including exact electrical validation, snapshot hashes, dimensional footprint validation, KiCad ERC and a no-diff promotion step.
+
+Lane 01 remains subject to a new PR #46 approval review. It is not merged.
 
 ## Remaining Gate-B lanes
 
