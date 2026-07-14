@@ -21,6 +21,7 @@ on:
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
       - "hardware/memory-core-prototype-a/OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json"
+      - "hardware/memory-core-prototype-a/footprint-audits/**"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -42,6 +43,7 @@ on:
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
       - "hardware/memory-core-prototype-a/OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json"
+      - "hardware/memory-core-prototype-a/footprint-audits/**"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -92,23 +94,6 @@ jobs:
           docker pull "$KICAD_IMAGE"
           docker run --rm "$KICAD_IMAGE" kicad-cli --version
           docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
-
-      - name: Extract pinned KiCad footprint geometry
-        shell: bash
-        run: |
-          mkdir -p build/footprints
-          docker run --rm \
-            --volume "$PWD:/work" \
-            --workdir /work \
-            "$KICAD_IMAGE" \
-            sh -lc '
-              cp /usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod \
-                /work/build/footprints/SOT-23.kicad_mod
-              cp /usr/share/kicad/footprints/Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod \
-                /work/build/footprints/SMDIP-4_W7.62mm.kicad_mod
-            '
-          test -s build/footprints/SOT-23.kicad_mod
-          test -s build/footprints/SMDIP-4_W7.62mm.kicad_mod
 
       - name: Generate shared U32 codec and output sheets
         if: steps.stage.outputs.output == 'false'
@@ -242,12 +227,12 @@ jobs:
           path: build/generator
           if-no-files-found: ignore
 
-      - name: Upload footprint audit inputs
+      - name: Upload audited footprint snapshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: output-mute-footprint-geometry
-          path: build/footprints
+          name: output-mute-footprint-snapshots
+          path: hardware/memory-core-prototype-a/footprint-audits
           if-no-files-found: error
 
       - name: Upload native hierarchy
