@@ -13,11 +13,14 @@ on:
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/amend_output_mute_exact_parts.py"
       - "tools/preserve_shared_j113_symbol.py"
+      - "tools/repair_output_mute_gateb_evidence.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
+      - "tools/validate_output_exact_footprint_dimensions.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -31,11 +34,14 @@ on:
       - "tools/capture_output_mute_protection_sheet_v2.py"
       - "tools/amend_output_mute_exact_parts.py"
       - "tools/preserve_shared_j113_symbol.py"
+      - "tools/repair_output_mute_gateb_evidence.py"
       - "tools/validate_output_mute_protection_capture.py"
       - "tools/validate_output_control_symbols.py"
+      - "tools/validate_output_exact_footprint_dimensions.py"
       - ".github/workflows/kicad-output-mute-protection-erc.yml"
       - "hardware/memory-core-prototype-a/03_CODEC_CONVERSION*"
       - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION*"
+      - "hardware/memory-core-prototype-a/OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json"
       - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
       - "hardware/memory-core-prototype-a/hierarchy-manifest.json"
       - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
@@ -87,6 +93,23 @@ jobs:
           docker run --rm "$KICAD_IMAGE" kicad-cli --version
           docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
 
+      - name: Extract pinned KiCad footprint geometry
+        shell: bash
+        run: |
+          mkdir -p build/footprints
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            sh -lc '
+              cp /usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod \
+                /work/build/footprints/SOT-23.kicad_mod
+              cp /usr/share/kicad/footprints/Package_DIP.pretty/SMDIP-4_W7.62mm.kicad_mod \
+                /work/build/footprints/SMDIP-4_W7.62mm.kicad_mod
+            '
+          test -s build/footprints/SOT-23.kicad_mod
+          test -s build/footprints/SMDIP-4_W7.62mm.kicad_mod
+
       - name: Generate shared U32 codec and output sheets
         if: steps.stage.outputs.output == 'false'
         shell: bash
@@ -119,11 +142,14 @@ jobs:
             python tools/preserve_shared_j113_symbol.py 2>&1 \
               | tee -a build/generator/output-sheet.log
           fi
+          python tools/repair_output_mute_gateb_evidence.py 2>&1 \
+            | tee -a build/generator/output-sheet.log
 
       - name: Validate output, mute, protection and shared U32 contracts
         run: |
           python tools/validate_output_mute_protection_capture.py
           python tools/validate_output_control_symbols.py
+          python tools/validate_output_exact_footprint_dimensions.py
 
       - name: Run KiCad 10 hierarchical ERC
         shell: bash
@@ -205,7 +231,7 @@ jobs:
             exit 0
           fi
           target="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
-          git commit -m "Apply validated exact output mute parts"
+          git commit -m "Repair output mute Gate-B evidence"
           git push origin "HEAD:$target"
 
       - name: Upload generator log
@@ -215,6 +241,14 @@ jobs:
           name: output-mute-protection-generator-log
           path: build/generator
           if-no-files-found: ignore
+
+      - name: Upload footprint audit inputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output-mute-footprint-geometry
+          path: build/footprints
+          if-no-files-found: error
 
       - name: Upload native hierarchy
         if: always()
