@@ -169,3 +169,14 @@ PR #47 merge                           NOT REVIEWED
 ```
 
 PCB placement, routing, panel fabrication and purchasing remain blocked.
+
+## Bounded J40/J70 footprint assignment
+
+```text
+J40 footprint field               ASSIGNED
+J70 footprint field               ASSIGNED
+project symbol default            BLANK
+assignment commit                 f34eea95c216cd31df4d4e3f1498adc4b9014ec9
+post-assignment validation        PENDING
+PCB / panel fab / purchasing      BLOCKED
+```

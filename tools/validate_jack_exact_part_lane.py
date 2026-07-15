@@ -267,13 +267,14 @@ def main() -> None:
     ):
         assert row["lib_id"] == "MerrinLab_PrototypeA:WQP518MA_APPLICATION", row
         assert row["value"] == value, row
-        assert row["footprint"] == "", row
-        assert FOOTPRINT_ID not in row["block"]
+        assert row["footprint"] == FOOTPRINT_ID, row
+        assert row["block"].count(FOOTPRINT_ID) == 1, row
 
-    assert_generator_contracts(
-        INPUT_GENERATOR.read_text(encoding="utf-8"),
-        OUTPUT_GENERATOR.read_text(encoding="utf-8"),
-    )
+    input_generator_text = INPUT_GENERATOR.read_text(encoding="utf-8")
+    output_generator_text = OUTPUT_GENERATOR.read_text(encoding="utf-8")
+    assert_generator_contracts(input_generator_text, output_generator_text)
+    assert input_generator_text.count(FOOTPRINT_ID) == 1
+    assert output_generator_text.count(FOOTPRINT_ID) == 1
 
     use = audit["schematic_use"]
     assert use["J40"]["normal_contact_required"] is True
@@ -298,7 +299,7 @@ def main() -> None:
     assert numeric["sha256"] == NUMERIC_SHA256 == sha256(NUMERIC_FP)
     assert (
         numeric["assignment_status"]
-        == "INDEPENDENT_REVIEW_APPROVED_ASSIGNMENT_NOT_YET_PERFORMED"
+        == "ASSIGNED_TO_J40_J70"
     )
     numeric_pads, numeric_npth = parse_pads(NUMERIC_FP.read_text(encoding="utf-8"))
     assert set(numeric_pads) == {"1", "2", "3"}
@@ -363,7 +364,8 @@ def main() -> None:
         "barrel_and_terminal_clearance": "PASS",
         "evidence_limitations": "ACCEPTED_WITH_EXPLICIT_TRANSFER",
         "decision": "APPROVED_FOR_NEXT_BOUNDED_FOOTPRINT_ASSIGNMENT_GATE",
-        "footprint_assignment_performed": False,
+        "footprint_assignment_performed": True,
+        "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
         "pcb_placement_authorised": False,
         "panel_fabrication_authorised": False,
         "purchasing_authorised": False,
@@ -376,7 +378,8 @@ def main() -> None:
         "WASHER                                   NONE",
         "CORRECT NUT-ONLY PHYSICAL FIT            USER-ATTESTED PASS",
         "INDEPENDENT REVIEW                       APPROVED FOR FOOTPRINT-ASSIGNMENT GATE",
-        "J40 footprint field                    BLANK",
+        "J40 footprint field                    ASSIGNED",
+        "J70 footprint field                    ASSIGNED",
         "PCB placement, routing, panel fabrication and purchasing remain blocked",
     ):
         assert token in measurement_text, token
@@ -401,10 +404,10 @@ def main() -> None:
         "numeric_project_footprint": "PASS",
         "panel_hole_tolerance": "DERIVED_TARGET_RECORDED",
         "mounting_hardware": "HEX_NUT_ONLY_PHYSICAL_FIT_INDEPENDENTLY_APPROVED",
-        "panel_stack": "APPROVED_FOR_NEXT_BOUNDED_FOOTPRINT_ASSIGNMENT_GATE",
+        "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
         "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
-        "footprints_assigned": False,
-        "overall": "INDEPENDENT_REVIEW_COMPLETE_READY_FOR_BOUNDED_FOOTPRINT_ASSIGNMENT",
+        "footprints_assigned": True,
+        "overall": "FOOTPRINT_ASSIGNMENT_APPLIED_POST_ASSIGNMENT_VALIDATION_PENDING",
     }
 
     review_text = REVIEW.read_text(encoding="utf-8").lower()
@@ -412,8 +415,9 @@ def main() -> None:
     for token in (
         "correct nut-only physical fit               approved",
         "independent mechanical review               pass",
-        "footprints assigned                         none",
-        "ready for bounded footprint assignment",
+        "bounded j40/j70 footprint assignment",
+        "j40 footprint field               assigned",
+        "j70 footprint field               assigned",
         "pcb / panel fab / purchasing                blocked",
     ):
         assert token in review_text, token
@@ -426,8 +430,8 @@ def main() -> None:
     print("Numeric 1/2/3 project-local footprint geometry and hash: PASS")
     print("3 mm barrel-relief NPTH geometry and physical clearance: PASS")
     print("Corrected 1.60 mm nut-only physical fit: INDEPENDENTLY APPROVED")
-    print("Next bounded footprint-assignment gate: AUTHORISED")
-    print("J40/J70 footprint assignment remains blank in review-only state: PASS")
+    print("Bounded J40/J70 footprint assignment: PASS")
+    print("Project symbol default footprint remains blank: PASS")
     print("PCB placement, routing, panel fabrication and purchasing remain blocked.")
 
 

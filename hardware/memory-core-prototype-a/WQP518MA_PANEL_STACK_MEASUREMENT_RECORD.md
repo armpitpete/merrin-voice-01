@@ -145,3 +145,13 @@ status: WITHDRAWN — WRONG STACK
 ```
 
 PCB placement, routing, panel fabrication and purchasing remain blocked.
+
+## Post-review footprint assignment
+
+```text
+J40 footprint field                    ASSIGNED
+J70 footprint field                    ASSIGNED
+project symbol default footprint       BLANK
+assignment commit                      f34eea95c216cd31df4d4e3f1498adc4b9014ec9
+PCB placement, routing, panel fabrication and purchasing remain blocked
+```

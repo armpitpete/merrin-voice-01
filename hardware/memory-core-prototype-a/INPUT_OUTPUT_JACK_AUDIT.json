@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
   "authority": {
-    "lane": "Gate B lane 02 — input and output jacks",
+    "lane": "Gate B lane 02 \u2014 input and output jacks",
     "base_commit": "651d594e3c9993b2fdc6ca527328887458a7d849",
     "pcb_authorised": false,
     "panel_fabrication_authorised": false,
     "purchasing_authorised": false
   },
   "supplier_evidence": {
-    "orderable_candidate": "Thonkiconn Mono 3.5mm Audio Jack — WQP518MA",
+    "orderable_candidate": "Thonkiconn Mono 3.5mm Audio Jack \u2014 WQP518MA",
     "product_url": "https://www.thonk.co.uk/shop/thonkiconn/",
     "drawing_url": "https://www.thonk.co.uk/wp-content/uploads/2018/07/Thonkiconn_Jack_Datasheet-new.jpg",
     "drawing_model_label": "PJ398SM",
@@ -35,7 +35,10 @@
       "contact_resistance_max_ohm": 0.03,
       "insulation_resistance_min_megohm_at_250vdc": 100,
       "withstand_voltage_vac": 500,
-      "insertion_extraction_force_n": [3, 25],
+      "insertion_extraction_force_n": [
+        3,
+        25
+      ],
       "life_cycles": 5000
     },
     "published_mechanical_mm": {
@@ -50,9 +53,18 @@
       "tip_terminal_y_relative_to_barrel": -4.92,
       "tip_normal_terminal_y_relative_to_barrel": 3.38,
       "sleeve_terminal_y_relative_to_barrel": 6.48,
-      "tip_tab": [0.6, 1.5],
-      "tip_normal_tab": [0.6, 1.5],
-      "sleeve_tab": [0.6, 1.3]
+      "tip_tab": [
+        0.6,
+        1.5
+      ],
+      "tip_normal_tab": [
+        0.6,
+        1.5
+      ],
+      "sleeve_tab": [
+        0.6,
+        1.3
+      ]
     }
   },
   "schematic_use": {
@@ -80,12 +92,36 @@
     "project_snapshot_path": "hardware/memory-core-prototype-a/jack-footprint-audits/KiCad_Official_Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles.kicad_mod",
     "sha256": "8ae08dd1e353c7fdbea2827c890ecd150e6f5f528598770bec85a8f2422b98cc",
     "pads": {
-      "T": [0.0, 11.4, 2.13, 2.13, 1.43],
-      "TN": [0.0, 3.1, 2.13, 2.13, 1.42],
-      "S": [0.0, 0.0, 1.93, 1.83, 1.22]
+      "T": [
+        0.0,
+        11.4,
+        2.13,
+        2.13,
+        1.43
+      ],
+      "TN": [
+        0.0,
+        3.1,
+        2.13,
+        2.13,
+        1.42
+      ],
+      "S": [
+        0.0,
+        0.0,
+        1.93,
+        1.83,
+        1.22
+      ]
     },
-    "barrel_centre": [0.0, 6.48],
-    "courtyard_mm": [10.0, 14.4]
+    "barrel_centre": [
+      0.0,
+      6.48
+    ],
+    "courtyard_mm": [
+      10.0,
+      14.4
+    ]
   },
   "project_numeric_footprint": {
     "library_id": "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric",
@@ -97,23 +133,45 @@
       "3": "S / SLEEVE"
     },
     "pads": {
-      "1": [0.0, 11.4, 2.13, 2.13, 1.43],
-      "2": [0.0, 3.1, 2.13, 2.13, 1.42],
-      "3": [0.0, 0.0, 1.93, 1.83, 1.22]
+      "1": [
+        0.0,
+        11.4,
+        2.13,
+        2.13,
+        1.43
+      ],
+      "2": [
+        0.0,
+        3.1,
+        2.13,
+        2.13,
+        1.42
+      ],
+      "3": [
+        0.0,
+        0.0,
+        1.93,
+        1.83,
+        1.22
+      ]
     },
-    "barrel_relief_npth": [0.0, 6.48, 3.0],
+    "barrel_relief_npth": [
+      0.0,
+      6.48,
+      3.0
+    ],
     "geometry_status": "PASS",
-    "assignment_status": "INDEPENDENT_REVIEW_APPROVED_ASSIGNMENT_NOT_YET_PERFORMED"
+    "assignment_status": "ASSIGNED_TO_J40_J70"
   },
   "panel_and_mounting": {
     "vertical_pcb_mount": true,
     "front_panel_retention_required": true,
     "selected_nut": "Thonkiconn Hex Nuts product variant from the WQP518MA supplier page",
-    "selected_washer": "NONE — no washer used",
+    "selected_washer": "NONE \u2014 no washer used",
     "selection_scope": "HEX_NUT_ONLY; CORRECTED_1P60MM_PHYSICAL_FIT_USER_ATTESTED_AND_INDEPENDENTLY_APPROVED; PANEL_CONSTRUCTION_PROVISIONAL",
-    "exact_thread": "UNKNOWN — DEFERRED UNLESS FINAL STACK CANNOT REPRODUCE APPROVED FIT",
-    "nut_thickness": "UNKNOWN — DIRECT SECURE FIT ACCEPTED",
-    "washer_thickness": "NOT_APPLICABLE — NO_WASHER_USED",
+    "exact_thread": "UNKNOWN \u2014 DEFERRED UNLESS FINAL STACK CANNOT REPRODUCE APPROVED FIT",
+    "nut_thickness": "UNKNOWN \u2014 DIRECT SECURE FIT ACCEPTED",
+    "washer_thickness": "NOT_APPLICABLE \u2014 NO_WASHER_USED",
     "panel_material": "PROVISIONAL FR-4 PCB PANEL; JLCPCB NOT LOCKED",
     "panel_thickness_target_mm": 1.6,
     "panel_thickness_status": "NOMINAL_TARGET; CORRECTED_STACK_FIT APPROVED; FINAL_FINISHED_THICKNESS NOT LOCKED",
@@ -164,19 +222,16 @@
     "barrel_and_terminal_clearance": "PASS",
     "evidence_limitations": "ACCEPTED_WITH_EXPLICIT_TRANSFER",
     "decision": "APPROVED_FOR_NEXT_BOUNDED_FOOTPRINT_ASSIGNMENT_GATE",
-    "footprint_assignment_performed": false,
+    "footprint_assignment_performed": true,
     "pcb_placement_authorised": false,
     "panel_fabrication_authorised": false,
-    "purchasing_authorised": false
+    "purchasing_authorised": false,
+    "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9"
   },
   "validation": {
-    "validated_head": "d1510cfcb4b85a3e6d17283d795b2a545ed4860a",
-    "jack_workflow_run": 29368887533,
-    "schematic_erc_run": 29368887574,
-    "current_stage_authority_run": 29368887521,
-    "jack_validator": "PASS",
-    "hierarchical_erc": "PASS — 0 errors / 0 warnings",
-    "footprint_assignment_remained_blank": true
+    "status": "PENDING_POST_ASSIGNMENT_CI",
+    "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
+    "footprint_assignment_remained_blank": false
   },
   "decision": {
     "contact_contract": "PASS",
@@ -185,9 +240,20 @@
     "numeric_project_footprint": "PASS",
     "panel_hole_tolerance": "DERIVED_TARGET_RECORDED",
     "mounting_hardware": "HEX_NUT_ONLY_PHYSICAL_FIT_INDEPENDENTLY_APPROVED",
-    "panel_stack": "APPROVED_FOR_NEXT_BOUNDED_FOOTPRINT_ASSIGNMENT_GATE",
+    "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
     "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
-    "footprints_assigned": false,
-    "overall": "INDEPENDENT_REVIEW_COMPLETE_READY_FOR_BOUNDED_FOOTPRINT_ASSIGNMENT"
+    "footprints_assigned": true,
+    "overall": "FOOTPRINT_ASSIGNMENT_APPLIED_POST_ASSIGNMENT_VALIDATION_PENDING"
+  },
+  "footprint_assignment": {
+    "footprint": "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric",
+    "J40": "ASSIGNED",
+    "J70": "ASSIGNED",
+    "project_symbol_default": "BLANK",
+    "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
+    "post_assignment_validation": "PENDING",
+    "pcb_placement_authorised": false,
+    "panel_fabrication_authorised": false,
+    "purchasing_authorised": false
   }
 }
