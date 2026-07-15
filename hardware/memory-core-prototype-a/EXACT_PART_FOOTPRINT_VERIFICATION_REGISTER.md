@@ -65,24 +65,23 @@ Detailed records:
 Current result:
 
 ```text
-STATUS                                      ACTIVE — INDEPENDENT REVIEW GATE
+STATUS                                      ACTIVE — CORRECTED FIT GATE
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
 WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE      PASS FOR CONTACT / PCB GEOMETRY
 OFFICIAL KICAD SOURCE FOOTPRINT              PINNED AND VERIFIED
 NUMERIC PROJECT-LOCAL FOOTPRINT              PASS — 1 / 2 / 3
-3 MM BARREL RELIEF NPTH                      PASS
+3 MM BARREL RELIEF NPTH                      PASS AS FOOTPRINT GEOMETRY
 PANEL HOLE TARGET                            6.50 +0.10 / -0.00 MM — DERIVED
+PANEL NOMINAL THICKNESS                      1.60 MM
+PANEL MATERIAL / SUPPLIER                    PROVISIONAL
 HEX NUT PRODUCT VARIANT                      SELECTED
-WASHER PRODUCT VARIANT                       SELECTED
-2 MM PANEL STACK                             USER-ATTESTED PASS
-NO JACK LIFT / TERMINAL LOADING              USER-ATTESTED PASS
-3 MM PHYSICAL BARREL CLEARANCE               USER-ATTESTED PASS
-PCB-TO-PANEL ALIGNMENT                       USER-ATTESTED PASS
-EXACT SAMPLE SEATING VALUE                   DEFERRED — 8.30 MM SUPPLIER NOMINAL
-THREAD / NUT / WASHER DIMENSIONS             DEFERRED
-INDEPENDENT MECHANICAL REVIEW                REQUIRED
+WASHER                                       NONE
+AVAILABLE THREAD BEFORE NUT                  2.90 MM NOMINAL
+PREVIOUS 2 MM + WASHER FIT RECORD            WITHDRAWN
+CORRECT NUT-ONLY PHYSICAL FIT                PENDING
+INDEPENDENT MECHANICAL REVIEW                NOT READY
 J40 / J70 FOOTPRINT FIELDS                   BLANK
 KICAD 10 HIERARCHICAL ERC                    PASS — 0 / 0
 PCB / PANEL FAB / PURCHASING                 BLOCKED
@@ -101,7 +100,7 @@ PCB / PANEL FAB / PURCHASING                 BLOCKED
 orderable jack        Thonkiconn WQP518MA
 controlled drawing    PJ398SM
 accepted scope         contacts, switching and PCB footprint geometry
-excluded scope         unpublished numerical thread, nut and washer dimensions
+excluded scope         final panel construction and complete mounting stack
 ```
 
 Thonk explicitly states that WQP518MA, PJ398SM and PJ301M-12 are functionally identical and interchangeable and that the WQP518MA footprint is unchanged. That controlled supplier statement is accepted for the limited scope above.
@@ -129,49 +128,33 @@ SHA-256      e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 
 The numeric footprint copies the official electrical pad geometry exactly and resolves the earlier `1/2/3` versus `T/TN/S` mismatch. It remains unassigned.
 
-### Validation evidence
-
-Measurement-record head:
+### Corrected mechanical stack
 
 ```text
-e64365a017abe0e35df6024dc0721837e1a15426
+panel nominal thickness      1.60 mm
+panel construction           provisional FR-4 PCB panel
+panel supplier               not locked; JLCPCB only a possibility
+nut                          selected Thonk hex nut
+washer                       none
+threaded bushing             4.50 mm supplier nominal
+available thread             2.90 mm nominal before nut engagement
+panel-to-PCB seating         8.30 mm supplier nominal
 ```
 
-```text
-KiCad jack exact-part verification  run 29405232875  PASS
-KiCad schematic ERC                 run 29405232999  PASS
-Current schematic stage authority   run 29405232860  PASS
-Hierarchical ERC                     0 errors / 0 warnings
-Footprint assignment                 remained blank
-```
+The earlier `2.00 mm aluminium + washer + nut` attestation is withdrawn because it described the wrong stack. No independent review is authorised until the corrected nut-only stack receives direct physical confirmation.
 
-### Mechanical record outcome
+### Required human closure
 
-The project owner reported on 15 July 2026 that all required functional fit checks passed for:
-
-1. secure Thonk hex-nut and washer engagement through the 2.00 mm aluminium panel;
-2. no lifting or tilting of the soldered jack during tightening;
-3. no mechanical loading of its solder terminals;
-4. natural PCB-to-panel alignment;
-5. clearance of the physical jack through the 3.00 mm NPTH barrel relief;
-6. unobstructed electrical terminal holes.
-
-The exact sample calliper reading for PCB-to-panel seating was not recorded. The `8.30 mm` value remains the supplier-drawing nominal, not a measured sample value. Exact thread, nut and washer dimensions were also deliberately deferred.
-
-This is a user-attested qualitative fit result. It now requires independent review. That review must explicitly accept the deferral, name required corrections, or return the mechanical record for revision.
-
-### Current boundary
-
-```text
-physical-fit attestation              RECORDED
-independent mechanical review         REQUIRED
-schematic footprint assignment        BLOCKED
-PCB placement and routing             BLOCKED
-panel fabrication                     BLOCKED
-purchasing                            BLOCKED
-```
-
-Only after independent approval may the project-local footprint be assigned to J40 and J70 and KiCad ERC rerun.
+1. Use the actual WQP518MA, selected Thonk hex nut, no washer and a representative nominal `1.60 mm` panel or coupon.
+2. Confirm the nut starts cleanly and clamps before bottoming.
+3. Confirm secure nut-only engagement.
+4. Confirm the jack does not rotate, lift or tilt.
+5. Confirm tightening does not load the solder terminals or bow the PCB.
+6. Confirm the 3.00 mm barrel relief clears the physical jack and leaves terminal holes unobstructed.
+7. Record the actual PCB-to-panel seating distance before mechanical geometry becomes irreversible.
+8. Lock panel material, supplier and finished thickness before fabrication release.
+9. Return the corrected physical record for independent review.
+10. Only after approval, assign the project-local footprint to J40 and J70 and rerun KiCad ERC.
 
 ## Remaining Gate-B lanes
 
