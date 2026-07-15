@@ -1501,7 +1501,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric"
 			(at 55.88 91.44 0.0000)
 			(effects
 				(font

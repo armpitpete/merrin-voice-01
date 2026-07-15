@@ -178,7 +178,7 @@ def build() -> None:
     label_pin(sch, "#PWR0401", "1", "GND")
 
     # Switched jack. TIP_NORMAL is grounded so no cable forces TIP to quiet zero.
-    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40", "WQP518MA / THONKICONN INPUT", (55.88, 91.44))
+    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40", "WQP518MA / THONKICONN INPUT", (55.88, 91.44), "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric")
     label_pin(sch, "J40", "1", "INPUT_TIP")
     label_pin(sch, "J40", "2", "GND")
     label_pin(sch, "J40", "3", "GND")
