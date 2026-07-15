@@ -23,6 +23,8 @@ panel supplier               not locked; JLCPCB only a current possibility
 retaining hardware           selected Thonk hex nut
 washer                       none
 thread above nominal panel   2.90 mm before nut engagement
+physical fit                 user-attested pass
+independent review           required before footprint assignment
 ```
 
 The former `2.00 mm aluminium + washer + nut` stack is rejected. No fit result from that superseded stack may be used to approve the corrected assembly.
@@ -63,10 +65,10 @@ This bounded repair may:
 5. select the supplier's compatible hex-nut product variant;
 6. record that no washer is used;
 7. record the provisional `1.60 mm` panel target and derived seating targets;
-8. create a physical-sample record for the corrected nut-only stack;
-9. keep both schematic footprint fields blank until the hardware stack is proven.
+8. record the project owner's corrected-stack physical-fit attestation;
+9. keep both schematic footprint fields blank until independent review approves the evidence.
 
-A later bounded patch may assign the reviewed project-local footprint to J40 and J70 only after the corrected `1.60 mm panel + nut + no washer` sample record, or a controlled mechanical drawing, proves the stack.
+A later bounded patch may assign the reviewed project-local footprint to J40 and J70 only after the corrected `1.60 mm panel + nut + no washer` record receives independent approval.
 
 ## Check command
 
@@ -76,17 +78,23 @@ python tools/validate_jack_exact_part_lane.py
 
 The complete KiCad 10 hierarchical ERC policy must remain at zero errors and zero warnings.
 
-## Stop rule
+## Current gate
 
-Stop for physical confirmation rather than assign the footprint if any of these remains unknown:
+The corrected physical stack has a user-attested qualitative pass. The next bounded gate is independent review of `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`.
 
-- secure nut-only engagement through the nominal `1.60 mm` panel;
-- whether the nut clamps before bottoming;
-- actual finished panel thickness once construction is locked;
-- actual panel-to-PCB seating distance before geometry becomes irreversible;
-- whether panel clamping loads the solder joints or lifts the jack from the PCB;
-- whether the 3.00 mm barrel relief clears the physical part.
+The reviewer must either:
 
-The current stop is deliberate: the supplier-controlled electrical and PCB geometry may pass while the corrected mechanical stack remains unproven.
+1. approve the qualitative fit and transfer the deferred dimensional evidence to the later mechanical-release gate;
+2. require named measurements or photographs; or
+3. return the record for revision.
+
+## Remaining mechanical-release controls
+
+Even after independent review, do not release irreversible mechanical work until these are resolved:
+
+- final panel material and supplier;
+- actual finished panel thickness;
+- actual panel-to-PCB seating distance;
+- finished panel-hole diameter.
 
 PCB placement, routing, panel fabrication, purchasing and production remain blocked throughout this lane.
