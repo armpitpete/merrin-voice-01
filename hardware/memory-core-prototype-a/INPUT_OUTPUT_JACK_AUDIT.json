@@ -229,8 +229,17 @@
     "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9"
   },
   "validation": {
-    "status": "PENDING_POST_ASSIGNMENT_CI",
-    "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
+    "status": "PASS",
+    "validated_head": "bbc54c59152fdab8ac42ad0035a163e2e383c92b",
+    "jack_workflow_run": 29414296763,
+    "schematic_erc_run": 29414296913,
+    "current_stage_authority_run": 29414296878,
+    "input_sheet_erc_run": 29414296832,
+    "output_sheet_erc_run": 29414296789,
+    "final_top_review_run": 29414296776,
+    "codec_sheet_erc_run": 29414296796,
+    "jack_validator": "PASS",
+    "hierarchical_erc": "PASS \u2014 0 errors / 0 warnings",
     "footprint_assignment_remained_blank": false
   },
   "decision": {
@@ -243,7 +252,7 @@
     "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
     "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
     "footprints_assigned": true,
-    "overall": "FOOTPRINT_ASSIGNMENT_APPLIED_POST_ASSIGNMENT_VALIDATION_PENDING"
+    "overall": "FOOTPRINT_ASSIGNMENT_VALIDATED"
   },
   "footprint_assignment": {
     "footprint": "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric",
@@ -251,7 +260,7 @@
     "J70": "ASSIGNED",
     "project_symbol_default": "BLANK",
     "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
-    "post_assignment_validation": "PENDING",
+    "post_assignment_validation": "PASS",
     "pcb_placement_authorised": false,
     "panel_fabrication_authorised": false,
     "purchasing_authorised": false

@@ -407,7 +407,7 @@ def main() -> None:
         "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
         "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
         "footprints_assigned": True,
-        "overall": "FOOTPRINT_ASSIGNMENT_APPLIED_POST_ASSIGNMENT_VALIDATION_PENDING",
+        "overall": "FOOTPRINT_ASSIGNMENT_VALIDATED",
     }
 
     review_text = REVIEW.read_text(encoding="utf-8").lower()

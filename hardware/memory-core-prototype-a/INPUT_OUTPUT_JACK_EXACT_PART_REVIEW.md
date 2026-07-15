@@ -177,6 +177,6 @@ J40 footprint field               ASSIGNED
 J70 footprint field               ASSIGNED
 project symbol default            BLANK
 assignment commit                 f34eea95c216cd31df4d4e3f1498adc4b9014ec9
-post-assignment validation        PENDING
+post-assignment validation        PASS
 PCB / panel fab / purchasing      BLOCKED
 ```
