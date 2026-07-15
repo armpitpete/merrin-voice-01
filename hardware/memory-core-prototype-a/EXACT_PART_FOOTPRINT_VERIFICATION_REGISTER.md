@@ -65,7 +65,7 @@ Detailed records:
 Current result:
 
 ```text
-STATUS                                      ACTIVE — HUMAN MEASUREMENT GATE
+STATUS                                      ACTIVE — INDEPENDENT REVIEW GATE
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
@@ -76,8 +76,13 @@ NUMERIC PROJECT-LOCAL FOOTPRINT              PASS — 1 / 2 / 3
 PANEL HOLE TARGET                            6.50 +0.10 / -0.00 MM — DERIVED
 HEX NUT PRODUCT VARIANT                      SELECTED
 WASHER PRODUCT VARIANT                       SELECTED
-THREAD / NUT / WASHER DIMENSIONS             BLOCKED — SAMPLE REQUIRED
-2 MM PANEL STACK                             BLOCKED — SAMPLE REQUIRED
+2 MM PANEL STACK                             USER-ATTESTED PASS
+NO JACK LIFT / TERMINAL LOADING              USER-ATTESTED PASS
+3 MM PHYSICAL BARREL CLEARANCE               USER-ATTESTED PASS
+PCB-TO-PANEL ALIGNMENT                       USER-ATTESTED PASS
+EXACT SAMPLE SEATING VALUE                   DEFERRED — 8.30 MM SUPPLIER NOMINAL
+THREAD / NUT / WASHER DIMENSIONS             DEFERRED
+INDEPENDENT MECHANICAL REVIEW                REQUIRED
 J40 / J70 FOOTPRINT FIELDS                   BLANK
 KICAD 10 HIERARCHICAL ERC                    PASS — 0 / 0
 PCB / PANEL FAB / PURCHASING                 BLOCKED
@@ -96,7 +101,7 @@ PCB / PANEL FAB / PURCHASING                 BLOCKED
 orderable jack        Thonkiconn WQP518MA
 controlled drawing    PJ398SM
 accepted scope         contacts, switching and PCB footprint geometry
-excluded scope         thread, nut, washer and complete panel stack
+excluded scope         unpublished numerical thread, nut and washer dimensions
 ```
 
 Thonk explicitly states that WQP518MA, PJ398SM and PJ301M-12 are functionally identical and interchangeable and that the WQP518MA footprint is unchanged. That controlled supplier statement is accepted for the limited scope above.
@@ -126,43 +131,47 @@ The numeric footprint copies the official electrical pad geometry exactly and re
 
 ### Validation evidence
 
-Engineering head:
+Measurement-record head:
 
 ```text
-d1510cfcb4b85a3e6d17283d795b2a545ed4860a
+e64365a017abe0e35df6024dc0721837e1a15426
 ```
 
 ```text
-KiCad jack exact-part verification  run 29368887533  PASS
-KiCad schematic ERC                 run 29368887574  PASS
-Current schematic stage authority   run 29368887521  PASS
+KiCad jack exact-part verification  run 29405232875  PASS
+KiCad schematic ERC                 run 29405232999  PASS
+Current schematic stage authority   run 29405232860  PASS
 Hierarchical ERC                     0 errors / 0 warnings
 Footprint assignment                 remained blank
 ```
 
-### Mechanical targets and blocker
+### Mechanical record outcome
+
+The project owner reported on 15 July 2026 that all required functional fit checks passed for:
+
+1. secure Thonk hex-nut and washer engagement through the 2.00 mm aluminium panel;
+2. no lifting or tilting of the soldered jack during tightening;
+3. no mechanical loading of its solder terminals;
+4. natural PCB-to-panel alignment;
+5. clearance of the physical jack through the 3.00 mm NPTH barrel relief;
+6. unobstructed electrical terminal holes.
+
+The exact sample calliper reading for PCB-to-panel seating was not recorded. The `8.30 mm` value remains the supplier-drawing nominal, not a measured sample value. Exact thread, nut and washer dimensions were also deliberately deferred.
+
+This is a user-attested qualitative fit result. It now requires independent review. That review must explicitly accept the deferral, name required corrections, or return the mechanical record for revision.
+
+### Current boundary
 
 ```text
-panel material                 aluminium
-panel thickness target         2.00 mm
-panel hole target              6.50 +0.10 / -0.00 mm
-maximum assembled axis offset  0.15 mm
-panel-to-PCB nominal target    8.30 mm — sample confirmation required
-nut                            Thonkiconn Hex Nuts variant
-washer                         Thonkiconn Washers variant
+physical-fit attestation              RECORDED
+independent mechanical review         REQUIRED
+schematic footprint assignment        BLOCKED
+PCB placement and routing             BLOCKED
+panel fabrication                     BLOCKED
+purchasing                            BLOCKED
 ```
 
-The supplier does not publish thread pitch, nut thickness, washer thickness or minimum secure engagement. The physical sample record must be completed before the 2 mm panel stack or footprint assignment can pass.
-
-### Required human closure
-
-1. Measure one WQP518MA, selected hex nut and selected washer.
-2. Complete `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`.
-3. Prove secure engagement through a 2 mm panel coupon.
-4. Confirm the panel-to-PCB seating distance and that tightening does not load the solder joints.
-5. Confirm the 3 mm NPTH barrel relief clears the actual jack.
-6. Return the mechanical record for independent review.
-7. Only after approval, assign the project-local footprint to J40 and J70 and rerun KiCad ERC.
+Only after independent approval may the project-local footprint be assigned to J40 and J70 and KiCad ERC rerun.
 
 ## Remaining Gate-B lanes
 
