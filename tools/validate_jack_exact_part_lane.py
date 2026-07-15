@@ -302,7 +302,7 @@ def main() -> None:
         "3": "S / SLEEVE",
     }
     assert numeric["geometry_status"] == "PASS"
-    assert numeric["assignment_status"] == "BLOCKED_PENDING_PANEL_STACK_MEASUREMENT"
+    assert numeric["assignment_status"] == "BLOCKED_PENDING_INDEPENDENT_PANEL_STACK_REVIEW"
 
     fp_table = FP_TABLE.read_text(encoding="utf-8")
     assert '(name "MerrinLab_PrototypeA")' in fp_table
@@ -315,23 +315,48 @@ def main() -> None:
     radial_clearance = (hole_min - bushing_max) / 2
     close(radial_clearance, panel["minimum_radial_clearance_before_position_error_mm"])
     assert panel["maximum_total_panel_to_jack_axis_offset_target_mm"] < radial_clearance
+    close(panel["panel_thickness_target_mm"], 1.6)
     available_thread = (
         mechanical["threaded_bushing_length_shown"]
         - panel["panel_thickness_target_mm"]
     )
-    close(available_thread, panel["available_thread_above_2mm_panel_before_hardware_mm"])
+    close(available_thread, panel["available_thread_above_panel_before_nut_mm"])
+    close(available_thread, 2.9)
     assert "Hex Nuts" in panel["selected_nut"]
-    assert "Washers" in panel["selected_washer"]
-    assert panel["exact_thread"].startswith("UNKNOWN")
-    assert panel["nut_thickness"].startswith("UNKNOWN")
-    assert panel["washer_thickness"].startswith("UNKNOWN")
-    assert panel["hardware_stack_status"].startswith("BLOCKED_")
+    assert panel["selected_washer"].startswith("NONE")
+    assert panel["washer_thickness"].startswith("NOT_APPLICABLE")
+    assert panel["hardware_stack_status"] == "USER_ATTESTED_PASS_PENDING_INDEPENDENT_REVIEW"
+    assert "PROVISIONAL" in panel["panel_material"]
+
+    attestation = audit["physical_fit_attestation"]
+    assert attestation["superseded_attestation_status"] == "WITHDRAWN_WRONG_STACK"
+    assert attestation["current_stack"] == "1.60 mm nominal panel plus Thonk hex nut; no washer"
+    for key in (
+        "bushing_passes_panel_hole_without_forcing",
+        "secure_nut_engagement_through_1p60mm_panel",
+        "nut_starts_without_cross_threading",
+        "nut_clamps_before_bottoming",
+        "housing_not_crushed_or_distorted",
+        "jack_does_not_rotate_or_wobble",
+        "tightening_does_not_lift_or_tilt_soldered_jack",
+        "tightening_does_not_load_solder_terminals",
+        "pcb_remains_flat",
+        "panel_to_pcb_alignment",
+        "barrel_relief_3mm_clears_physical_jack",
+        "terminal_holes_remain_unobstructed",
+    ):
+        assert attestation[key] == "PASS", (key, attestation[key])
+    assert attestation["exact_sample_measurements_recorded"] is False
+    assert attestation["independent_review_status"] == "REQUIRED_BEFORE_FOOTPRINT_ASSIGNMENT"
 
     measurement_text = MEASUREMENT.read_text(encoding="utf-8")
     for token in (
-        "PHYSICAL SAMPLE: NOT PRESENTED",
-        "MEASUREMENTS: PENDING HUMAN INPUT",
-        "2.00 mm panel + washer + nut obtains full secure engagement",
+        "PANEL NOMINAL THICKNESS                  1.60 MM",
+        "MOUNTING HARDWARE                        THONK HEX NUT ONLY",
+        "WASHER                                   NONE",
+        "CORRECT NUT-ONLY PHYSICAL FIT            USER-ATTESTED PASS",
+        "exact corrected-stack sample reading     NOT RECORDED",
+        "INDEPENDENT REVIEW                       REQUIRED BEFORE FOOTPRINT ASSIGNMENT",
         "PCB placement, routing, panel fabrication and purchasing remain blocked",
     ):
         assert token in measurement_text, token
@@ -356,10 +381,15 @@ def main() -> None:
         ),
         "numeric_project_footprint": "PASS",
         "panel_hole_tolerance": "DERIVED_TARGET_RECORDED",
-        "mounting_hardware_products": "SELECTED_BUT_DIMENSIONAL_STACK_UNPROVEN",
-        "panel_stack": "BLOCKED_PENDING_PHYSICAL_SAMPLE_OR_CONTROLLED_HARDWARE_DRAWING",
+        "mounting_hardware": "HEX_NUT_ONLY_USER_ATTESTED_FIT_PASS",
+        "panel_stack": "USER_ATTESTED_PASS_PENDING_INDEPENDENT_REVIEW",
+        "panel_release": (
+            "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_AND_SEATING_DISTANCE"
+        ),
         "footprints_assigned": False,
-        "overall": "PARTIAL_REPAIR_COMPLETE_HUMAN_MEASUREMENT_REQUIRED_BEFORE_ASSIGNMENT",
+        "overall": (
+            "CORRECTED_PHYSICAL_FIT_RECORDED_INDEPENDENT_REVIEW_REQUIRED_BEFORE_ASSIGNMENT"
+        ),
     }
 
     review_text = REVIEW.read_text(encoding="utf-8").lower()
@@ -367,7 +397,8 @@ def main() -> None:
     for token in (
         "supplier-controlled equivalence",
         "numeric project-local footprint",
-        "physical sample",
+        "correct nut-only physical fit               user-attested pass",
+        "ready for independent review",
         "footprints assigned                         none",
         "pcb / panel fab / purchasing                blocked",
     ):
@@ -379,13 +410,12 @@ def main() -> None:
     print("Thonk supplier-controlled WQP518MA/PJ398SM equivalence: PASS")
     print("Pinned official KiCad WQP/PJ398SM source geometry and hash: PASS")
     print("Numeric 1/2/3 project-local footprint geometry and hash: PASS")
-    print("3 mm barrel-relief NPTH: PASS")
-    print(
-        "Derived 6.50 +0.10/-0.00 mm panel-hole target: PASS AS NON-FABRICATION TARGET"
-    )
-    print("Nut/washer products selected; dimensional panel stack: BLOCKED AS REQUIRED")
+    print("3 mm barrel-relief NPTH geometry: PASS")
+    print("Derived 6.50 +0.10/-0.00 mm panel-hole target: PASS AS NON-FABRICATION TARGET")
+    print("Corrected 1.60 mm nut-only physical fit: USER-ATTESTED PASS")
+    print("Independent mechanical review before assignment: REQUIRED")
     print("J40/J70 footprint assignment remains blank: PASS")
-    print("Human sample measurement is required before footprint assignment.")
+    print("Panel material, supplier, finished thickness and exact seating: BLOCKED")
     print("PCB placement, routing, panel fabrication and purchasing remain blocked.")
 
 
