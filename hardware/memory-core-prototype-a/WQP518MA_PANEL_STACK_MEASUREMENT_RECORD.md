@@ -9,13 +9,13 @@ PANEL MATERIAL / SUPPLIER                PROVISIONAL — FR-4 / JLCPCB NOT LOCKE
 MOUNTING HARDWARE                        THONK HEX NUT ONLY
 WASHER                                   NONE
 CORRECT NUT-ONLY PHYSICAL FIT            USER-ATTESTED PASS
+INDEPENDENT REVIEW                       APPROVED FOR FOOTPRINT-ASSIGNMENT GATE
 EXACT PCB-TO-PANEL SAMPLE READING        NOT RECORDED
-INDEPENDENT REVIEW                       REQUIRED BEFORE FOOTPRINT ASSIGNMENT
-J40 / J70 FOOTPRINT ASSIGNMENT           BLOCKED
+J40 / J70 FOOTPRINT ASSIGNMENT           NOT YET PERFORMED
 PCB / PANEL FABRICATION / PURCHASING     BLOCKED
 ```
 
-The project owner corrected the intended mechanical stack and then reported that all required physical checks passed on 15 July 2026:
+The project owner corrected the intended mechanical stack and reported that all required physical checks passed on 15 July 2026:
 
 - the panel is nominally `1.60 mm`;
 - the likely construction is an FR-4 PCB panel, but JLCPCB and the final material remain provisional;
@@ -23,6 +23,8 @@ The project owner corrected the intended mechanical stack and then reported that
 - no washer is used.
 
 The earlier qualitative pass record described a `2.00 mm aluminium panel + washer + nut` stack. That was the wrong assembly and remains withdrawn. The pass results below apply only to the corrected `1.60 mm panel + nut + no washer` stack.
+
+Independent review is recorded in `WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md`. That review approves the qualitative fit for the next bounded footprint-assignment gate only. It does not authorise PCB placement, panel fabrication, purchasing or production.
 
 ## Controlled stack
 
@@ -59,7 +61,7 @@ minus washer                  0.00 mm
 available for nut engagement  2.90 mm nominal
 ```
 
-This is `0.40 mm` more available thread than the superseded 2.00 mm panel assumption, and no washer thickness is deducted. The physical fit result below, rather than the calculation alone, is the basis for the qualitative stack pass.
+The direct secure-fit attestation, rather than the nominal calculation alone, is the accepted basis for the qualitative stack pass.
 
 ## Corrected physical-fit results
 
@@ -78,6 +80,24 @@ This is `0.40 mm` more available thread than the superseded 2.00 mm panel assump
 | 3.00 mm barrel-relief hole clears the physical jack | PASS | project-owner direct attestation |
 | all three electrical terminal holes remain unobstructed | PASS | project-owner direct attestation |
 
+## Independent-review outcome
+
+```text
+corrected stack identity                 PASS
+qualitative retention and stress checks  PASS
+3.00 mm barrel-relief clearance          PASS
+terminal-hole clearance                  PASS
+evidence limitations                     ACCEPTED WITH EXPLICIT TRANSFER
+```
+
+Decision:
+
+```text
+corrected physical fit                   APPROVED
+next bounded footprint-assignment gate   AUTHORISED
+footprint assignment in this record      NOT PERFORMED
+```
+
 ## PCB-to-panel seating
 
 ```text
@@ -88,37 +108,25 @@ exact corrected-stack sample reading     NOT RECORDED
 
 The `8.30 mm` value remains a supplier nominal. It is not represented as an actual assembled measurement.
 
-The physical fit is sufficient to return this record for independent review, but the actual PCB-to-panel seating distance must be recorded before PCB placement, standoff selection or panel geometry becomes irreversible.
+The exact PCB-to-panel seating distance must be recorded before PCB placement, standoff selection or panel geometry becomes irreversible.
 
-## Measurements retained for later mechanical release
+## Deferred mechanical-release evidence
 
-| Measurement | Status |
+| Measurement or decision | Status |
 |---|---|
-| actual finished panel thickness | required after panel construction and supplier are locked |
+| final panel material and supplier | required before fabrication release |
+| actual finished panel thickness or controlled supplier tolerance | required before fabrication release |
 | actual PCB-to-panel seating distance | required before irreversible PCB/panel geometry |
-| finished panel-hole diameter | required before fabrication release |
-| nut thickness or engaged depth | deferred unless independent review requires it |
-| thread pitch | deferred unless independent review requires it |
-
-## Evidence limitations
-
-- No calibrated calliper readings were supplied.
-- No exact assembled PCB-to-panel distance was supplied.
-- No repository-controlled photographs were supplied.
-- Panel construction and supplier remain provisional.
-- The fit results are direct project-owner attestations.
+| finished panel-hole diameter and tolerance | required before fabrication release |
+| nut thickness or engaged depth | deferred unless the accepted fit cannot be reproduced |
+| thread pitch | deferred unless the accepted fit cannot be reproduced |
+| repository-controlled photographs | optional unless later review requires them |
 
 ## Acceptance boundary
 
-This record is complete as a **user-attested corrected-stack physical-fit record**. It is now ready for independent review. It is not itself independent approval and does not authorise footprint assignment.
+This record is approved for the narrow purpose of allowing the already validated project-local footprint to be assigned to J40 and J70 in a later bounded patch.
 
-The reviewer must explicitly:
-
-1. approve the corrected nut-only qualitative fit evidence and transfer the named dimensional checks to the later mechanical-release gate;
-2. require named measurements or photographs; or
-3. return the record for revision.
-
-Until independent review is recorded:
+This review does not itself assign the footprint. Until the next bounded gate is deliberately applied:
 
 ```text
 J40 footprint field                    BLANK
