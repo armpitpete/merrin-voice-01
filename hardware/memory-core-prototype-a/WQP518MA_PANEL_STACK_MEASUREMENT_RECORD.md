@@ -26,7 +26,7 @@ panel thickness              2.00 mm
 panel hole target            6.50 +0.10 / -0.00 mm
 panel-hole concentricity      total assembled offset <= 0.15 mm
 PCB barrel relief            3.00 mm NPTH at jack barrel centre
-mounting condition            jack terminals soldered to PCB
+mounting condition           jack terminals soldered to PCB
 ```
 
 The panel-hole target is a derived engineering value, not fabrication authority. It uses the supplier drawing's 6.00 mm bushing and general ±0.15 mm tolerance, leaving at least 0.175 mm radial clearance at a 6.50 mm minimum hole before positional error.
@@ -67,7 +67,7 @@ The 4.50 mm threaded length leaves 2.50 mm above the 2.00 mm panel for the selec
 ```text
 supplier nominal                         8.30 mm
 physical alignment at assembled stack    PASS
-exact sample calliper reading             NOT RECORDED — DEFERRED
+exact sample calliper reading            NOT RECORDED — DEFERRED
 ```
 
 The user confirmed that the assembled PCB, jack and panel fit passes. The exact physical PCB-top-to-panel-rear distance was not supplied. Therefore this record does not mislabel `8.30 mm` as a measured sample value.
@@ -133,8 +133,8 @@ J40 footprint field                    BLANK
 J70 footprint field                    BLANK
 project symbol default footprint       BLANK
 PCB placement and routing              BLOCKED
-panel fabrication                       BLOCKED
-purchasing                              BLOCKED
+panel fabrication                      BLOCKED
+purchasing                             BLOCKED
 ```
 
 ## Prior record state
