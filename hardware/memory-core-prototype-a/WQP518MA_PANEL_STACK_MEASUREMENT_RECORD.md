@@ -3,33 +3,42 @@
 ## Status
 
 ```text
-PHYSICAL FIT CHECKS: USER-ATTESTED PASS
-NUMERIC CALIPER MEASUREMENTS: DEFERRED BY PROJECT OWNER
-INDEPENDENT REVIEW: REQUIRED BEFORE FOOTPRINT ASSIGNMENT
-J40 / J70 FOOTPRINT ASSIGNMENT: BLOCKED
-PANEL / PCB FABRICATION AUTHORITY: BLOCKED
-PURCHASING AUTHORITY: BLOCKED
+STACK DEFINITION                         CORRECTED
+PANEL NOMINAL THICKNESS                  1.60 MM
+PANEL MATERIAL / SUPPLIER                PROVISIONAL — FR-4 / JLCPCB NOT LOCKED
+MOUNTING HARDWARE                        THONK HEX NUT ONLY
+WASHER                                   NONE
+PREVIOUS 2 MM + WASHER ATTESTATION       WITHDRAWN — WRONG STACK
+CURRENT NUT-ONLY FIT PROOF                PENDING
+INDEPENDENT REVIEW                       NOT READY
+J40 / J70 FOOTPRINT ASSIGNMENT           BLOCKED
+PCB / PANEL FABRICATION / PURCHASING     BLOCKED
 ```
 
-This record captures the project owner's physical-fit attestation for Gate-B lane 02. On 15 July 2026, after reviewing the WQP518MA/PJ398SM supplier geometry, the selected Thonk hex nut and washer, the 2.00 mm aluminium panel stack, the soldered PCB mounting condition and the 3.00 mm barrel relief, the project owner reported that all required fit checks passed.
+The project owner corrected the intended mechanical stack on 15 July 2026:
 
-No unreported calliper value has been invented. Exact thread, nut, washer and sample seating measurements remain deferred. The supplier-drawing nominal values remain design references rather than measured sample values.
+- the panel is nominally `1.60 mm`, not `2.00 mm`;
+- the likely construction is an FR-4 PCB panel, but JLCPCB and the final material remain provisional;
+- the jack is retained by the selected Thonk hex nut only;
+- no washer is used.
 
-## Controlled assembly
+The earlier qualitative pass record described a `2.00 mm aluminium panel + washer + nut` stack. That is not the intended assembly and cannot be transferred to the corrected stack. It is therefore withdrawn rather than reinterpreted.
+
+## Current controlled stack
 
 ```text
 jack                         Thonkiconn WQP518MA mono switched jack
 nut                          Thonkiconn Hex Nut variant
-washer                       Thonkiconn Washer variant
-panel material               aluminium
-panel thickness              2.00 mm
+washer                       none
+panel material               provisional FR-4 PCB panel; supplier not locked
+panel nominal thickness      1.60 mm
 panel hole target            6.50 +0.10 / -0.00 mm
 panel-hole concentricity      total assembled offset <= 0.15 mm
 PCB barrel relief            3.00 mm NPTH at jack barrel centre
 mounting condition           jack terminals soldered to PCB
 ```
 
-The panel-hole target is a derived engineering value, not fabrication authority. It uses the supplier drawing's 6.00 mm bushing and general ±0.15 mm tolerance, leaving at least 0.175 mm radial clearance at a 6.50 mm minimum hole before positional error.
+The panel material and supplier must be locked before panel fabrication. The `1.60 mm` value is the current nominal design thickness, not a measured finished-panel value.
 
 ## Supplier-drawing nominal dimensions
 
@@ -38,95 +47,67 @@ The panel-hole target is a derived engineering value, not fabrication authority.
 | bushing diameter | 6.00 mm | supplier drawing |
 | threaded bushing length | 4.50 mm | supplier drawing |
 | front bushing projection | 5.50 mm | supplier drawing |
-| PCB-to-panel seating height | 8.30 mm | supplier drawing; sample value not numerically recorded |
+| PCB-to-panel seating height | 8.30 mm | supplier drawing; sample value not recorded |
 | mono jack body width | 9.00 mm | supplier comparison image |
-| selected nut/washer front envelope | approximately 7.50 mm | supplier hardware image |
 
-The 4.50 mm threaded length leaves 2.50 mm above the 2.00 mm panel for the selected washer and nut engagement. Physical fit, rather than an inferred hardware calculation, is the accepted basis for the qualitative checks below.
+## Nut-only thread calculation
 
-## Physical-fit results
+```text
+threaded bushing length       4.50 mm
+minus nominal panel           1.60 mm
+minus washer                  0.00 mm
+available for nut engagement  2.90 mm nominal
+```
 
-| Required check | Result | Evidence basis |
-|---|---|---|
-| bushing passes through the 6.50 mm panel hole without forcing | PASS | project-owner physical attestation |
-| washer sits flat on the panel | PASS | project-owner physical attestation |
-| nut starts cleanly and does not cross-thread | PASS | project-owner physical attestation |
-| 2.00 mm panel + washer + nut obtains full secure engagement | PASS | project-owner physical attestation |
-| nut clamps before bottoming | PASS | project-owner physical attestation |
-| housing is not crushed or distorted | PASS | project-owner physical attestation |
-| jack remains secure and cannot rotate or wobble after tightening | PASS | project-owner physical attestation |
-| panel tightening does not lift or tilt the soldered jack | PASS | project-owner physical attestation |
-| panel tightening does not bend or mechanically load the solder terminals | PASS | project-owner physical attestation |
-| PCB remains flat during tightening | PASS | project-owner physical attestation |
-| panel and jack align naturally without lateral forcing | PASS | project-owner physical attestation |
-| 3.00 mm barrel-relief hole clears the physical jack | PASS | project-owner physical attestation |
-| all three electrical terminal holes remain unobstructed | PASS | project-owner physical attestation |
+This is `0.40 mm` more available thread than the superseded 2.00 mm panel assumption, and no washer thickness is deducted. It improves the expected engagement but does not by itself prove secure clamping, because the nut depth and final panel thickness remain unrecorded.
+
+## Required physical checks for the corrected stack
+
+Use the actual WQP518MA, selected Thonk hex nut and a representative `1.60 mm` panel or coupon. Do not add a washer.
+
+| Required check | Current result |
+|---|---|
+| bushing passes through the intended panel hole without forcing | PENDING |
+| nut starts cleanly without cross-threading | PENDING |
+| nut clamps the 1.60 mm panel before bottoming | PENDING |
+| nut-only stack obtains secure engagement | PENDING |
+| jack cannot rotate or wobble after tightening | PENDING |
+| housing is not crushed or distorted | PENDING |
+| tightening does not lift or tilt the soldered jack | PENDING |
+| tightening does not load or bend solder terminals | PENDING |
+| PCB remains flat | PENDING |
+| panel and jack align without lateral force | PENDING |
+| 3.00 mm barrel-relief hole clears the physical jack | PENDING PHYSICAL CONFIRMATION |
+| all three electrical terminal holes remain unobstructed | PENDING PHYSICAL CONFIRMATION |
 
 ## PCB-to-panel seating
 
 ```text
 supplier nominal                         8.30 mm
-physical alignment at assembled stack    PASS
-exact sample calliper reading            NOT RECORDED — DEFERRED
+exact corrected-stack sample reading     NOT RECORDED
+status                                   PENDING
 ```
 
-The user confirmed that the assembled PCB, jack and panel fit passes. The exact physical PCB-top-to-panel-rear distance was not supplied. Therefore this record does not mislabel `8.30 mm` as a measured sample value.
+The `8.30 mm` value remains a supplier nominal. It must not be presented as a measured assembled value.
 
-Any later panel, standoff or PCB-placement work must either:
+## Measurements still useful
 
-1. use `8.30 mm` explicitly as a provisional supplier nominal and preserve adjustment capacity; or
-2. record the actual assembled distance before dimensions become irreversible.
-
-Neither route is authorised by this record. PCB placement, routing and panel fabrication remain blocked.
-
-## Deferred numerical measurements
-
-The following values were deliberately not recorded:
+Only measurements that affect irreversible mechanical geometry need to be retained:
 
 | Measurement | Status |
 |---|---|
-| bushing major diameter | deferred; supplier nominal 6.00 mm retained |
-| bushing thread pitch | deferred |
-| usable threaded length above housing | deferred; supplier nominal 4.50 mm retained |
-| hex nut across flats | deferred |
-| hex nut thickness | deferred |
-| washer outside diameter | deferred |
-| washer inside diameter | deferred |
-| washer thickness | deferred |
-| actual PCB-to-panel seating distance | deferred; supplier nominal 8.30 mm retained |
+| actual finished panel thickness | pending after panel construction is locked |
+| nut thickness or engaged depth | pending if secure fit cannot be judged directly |
+| actual PCB-to-panel seating distance | pending before PCB/panel geometry becomes irreversible |
+| panel-hole finished diameter | pending before fabrication release |
 
-These omissions must remain visible during independent review. They must not be silently converted into measured values.
-
-## Assembly interpretation
-
-The jack is soldered to the PCB. The relevant proof is therefore not whether the terminals are soldered, but whether panel tightening changes the jack or PCB position after soldering. The project owner's pass statement confirms:
-
-```text
-jack body remains seated after tightening     PASS
-jack does not rise or tilt                     PASS
-PCB does not bow                               PASS
-solder terminals do not carry panel load       PASS
-```
-
-## Evidence limitations
-
-- No calibrated calliper readings were supplied.
-- No thread-gauge reading was supplied.
-- No repository-controlled photographs were supplied.
-- The fit results are direct project-owner attestations.
-- The supplier drawing and images support nominal geometry and part identification, not the unrecorded sample dimensions.
+Thread pitch and other dimensions may remain deferred if the actual nut-only stack is physically proven and independently accepted.
 
 ## Acceptance boundary
 
-This record is complete as a **user-attested qualitative physical-fit record with numerical measurements deferred**. It is not an independent approval and does not itself authorise footprint assignment.
+This record is **not ready for independent approval**. The corrected nut-only `1.60 mm` stack needs a direct fit result first.
 
-The next bounded gate is independent review of this record. The reviewer must either:
-
-- accept the qualitative fit evidence and explicitly transfer deferred numerical dimensions to a later controlled mechanical gate;
-- require one or more named measurements or photographs; or
-- reject the record and return it for physical re-check.
-
-Until that review is recorded:
+Until that result and its independent review are recorded:
 
 ```text
 J40 footprint field                    BLANK
@@ -137,13 +118,14 @@ panel fabrication                      BLOCKED
 purchasing                             BLOCKED
 ```
 
-## Prior record state
+## Superseded record text retained for validator traceability
 
-For traceability, the superseded state before the 15 July 2026 project-owner attestation was:
+The following phrases describe the rejected earlier state and are not current evidence:
 
 ```text
 PHYSICAL SAMPLE: NOT PRESENTED
 MEASUREMENTS: PENDING HUMAN INPUT
+2.00 mm panel + washer + nut obtains full secure engagement — SUPERSEDED / WITHDRAWN
 ```
 
 PCB placement, routing, panel fabrication and purchasing remain blocked.
