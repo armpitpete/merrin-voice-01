@@ -13,16 +13,20 @@ NUMERIC PROJECT-LOCAL FOOTPRINT             PASS — 1 / 2 / 3
 PANEL HOLE TARGET                           6.50 +0.10 / -0.00 MM — DERIVED
 HEX NUT PRODUCT VARIANT                     SELECTED
 WASHER PRODUCT VARIANT                      SELECTED
-THREAD / NUT / WASHER DIMENSIONS            NOT PUBLISHED
-2 MM PANEL STACK                            NOT YET FIT-PROVEN
-PHYSICAL SAMPLE                             REQUIRED
+2 MM PANEL STACK                            USER-ATTESTED PASS
+NO JACK LIFT / TERMINAL LOADING             USER-ATTESTED PASS
+PHYSICAL 3 MM BARREL CLEARANCE              USER-ATTESTED PASS
+PCB-TO-PANEL ALIGNMENT                      USER-ATTESTED PASS
+EXACT SAMPLE SEATING VALUE                  DEFERRED
+THREAD / NUT / WASHER DIMENSIONS            DEFERRED
+INDEPENDENT MECHANICAL REVIEW               REQUIRED
 FOOTPRINTS ASSIGNED                         NONE
 KICAD 10 HIERARCHICAL ERC                   PASS — 0 ERRORS / 0 WARNINGS
 PCB / PANEL FAB / PURCHASING                BLOCKED
-OVERALL                                     HUMAN MEASUREMENT REQUIRED
+OVERALL                                     READY FOR INDEPENDENT REVIEW
 ```
 
-This repair closes the electrical-contact, supplier-equivalence, pin-map and PCB-footprint geometry defects. It does not close the panel stack. Product photographs and generic thread assumptions are not accepted as dimensional evidence.
+This repair closes the electrical-contact, supplier-equivalence, pin-map and PCB-footprint geometry defects. The project owner has now attested that the physical fit checks pass. Exact sample dimensions were deliberately not supplied and remain visible as deferred evidence.
 
 ## Supplier-controlled equivalence
 
@@ -41,7 +45,7 @@ That supplier statement is accepted for:
 - terminal geometry;
 - PCB footprint equivalence.
 
-It is not treated as evidence for unpublished nut, washer or thread-stack dimensions.
+It is not treated as evidence for unpublished nut, washer or thread dimensions.
 
 ## Existing schematic contracts
 
@@ -121,7 +125,7 @@ panel material                 aluminium
 panel thickness                2.00 mm
 panel hole                     6.50 +0.10 / -0.00 mm
 maximum total axis offset      0.15 mm
-nominal panel-to-PCB seating   8.30 mm, pending sample confirmation
+nominal panel-to-PCB seating   8.30 mm supplier nominal
 ```
 
 At the maximum drawn bushing diameter of `6.15 mm` and minimum panel hole of `6.50 mm`, the minimum radial clearance before positional error is `0.175 mm`. The `0.15 mm` total axis-offset target therefore remains inside the derived clearance.
@@ -146,34 +150,36 @@ The supplier page proves that these are sold for the Thonkiconn family. It does 
 - minimum secure thread engagement;
 - maximum permitted panel thickness.
 
-The drawing leaves `2.50 mm` of shown threaded length above a `2.00 mm` panel before accounting for washer thickness, nut thickness and required engagement. That stack cannot be accepted without measurements.
+The drawing leaves `2.50 mm` of shown threaded length above a `2.00 mm` panel before accounting for washer thickness, nut thickness and required engagement. The project owner has physically attested that the selected stack clamps securely despite those unpublished dimensions.
 
-## Required physical sample evidence
+## Physical sample record
 
-Complete `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md` using one actual WQP518MA, the selected Thonk hex nut, the selected Thonk washer and a 2.00 mm panel coupon.
+`WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md` now records project-owner pass statements for:
 
-The required checks include:
+1. secure engagement through the 2.00 mm panel;
+2. correct nut start and clamping before bottoming;
+3. no housing distortion;
+4. no jack rotation or wobble after tightening;
+5. no lift or tilt of the soldered jack;
+6. no mechanical loading of the solder terminals;
+7. natural PCB-to-panel alignment;
+8. physical clearance through the 3.00 mm barrel relief;
+9. unobstructed terminal holes.
 
-1. thread pitch and major diameter;
-2. usable threaded length;
-3. nut and washer dimensions;
-4. secure engagement through the 2 mm panel;
-5. measured PCB-to-panel seating distance;
-6. confirmation that panel tightening does not lift the jack or load its solder joints;
-7. confirmation that the 3 mm barrel relief clears the physical part.
+The record does **not** claim that unprovided dimensions were measured. The exact PCB-to-panel sample distance remains unrecorded; `8.30 mm` remains the supplier nominal. Thread pitch, nut thickness and washer dimensions are also deferred.
 
 ## Validation evidence
 
-Engineering head:
+Measurement-record head:
 
 ```text
-d1510cfcb4b85a3e6d17283d795b2a545ed4860a
+e64365a017abe0e35df6024dc0721837e1a15426
 ```
 
 ```text
-KiCad jack exact-part verification  run 29368887533  PASS
-KiCad schematic ERC                 run 29368887574  PASS
-Current schematic stage authority   run 29368887521  PASS
+KiCad jack exact-part verification  run 29405232875  PASS
+KiCad schematic ERC                 run 29405232999  PASS
+Current schematic stage authority   run 29405232860  PASS
 Hierarchical ERC                     0 errors / 0 warnings
 Footprint assignment                 remained blank
 ```
@@ -182,9 +188,15 @@ The validator independently compared the numeric `1/2/3` pad geometry with the p
 
 ## Assignment decision
 
-The project-local footprint has passed geometry validation, but **no footprint assignment before the panel stack passes**.
+The project-local footprint has passed geometry validation, but **no footprint assignment before the panel stack passes** and receives independent review.
 
-J40 and J70 therefore retain blank footprint fields. The project symbol also retains a blank default footprint.
+The physical-fit record is now ready for that review. J40 and J70 retain blank footprint fields. The project symbol also retains a blank default footprint.
+
+The independent reviewer must explicitly choose one outcome:
+
+1. approve the qualitative physical-fit evidence and transfer the deferred numerical dimensions to a later controlled mechanical gate;
+2. require named measurements or photographs; or
+3. return the record for revision.
 
 ## Current boundary
 
@@ -195,7 +207,9 @@ official source footprint provenance  PASS
 numeric footprint geometry            PASS
 panel-hole target                      RECORDED, NOT FABRICATION AUTHORITY
 nut and washer products               SELECTED
-dimensional panel stack               BLOCKED
+physical-fit checks                    USER-ATTESTED PASS
+exact sample dimensions                DEFERRED
+independent review                     REQUIRED
 schematic footprint assignment        BLOCKED
 ```
 
