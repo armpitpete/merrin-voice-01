@@ -59,20 +59,21 @@ Detailed records:
 - `INPUT_OUTPUT_JACK_AUDIT.json`
 - `INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md`
 - `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`
+- `WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md`
 - `jack-footprint-audits/KiCad_Official_Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles.kicad_mod`
 - `MerrinLab_PrototypeA.pretty/Jack_3.5mm_Thonkiconn_WQP518MA_Numeric.kicad_mod`
 
 Current result:
 
 ```text
-STATUS                                      ACTIVE — INDEPENDENT REVIEW GATE
+STATUS                                      ACTIVE — READY FOR FOOTPRINT ASSIGNMENT
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
 WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE      PASS FOR CONTACT / PCB GEOMETRY
 OFFICIAL KICAD SOURCE FOOTPRINT              PINNED AND VERIFIED
 NUMERIC PROJECT-LOCAL FOOTPRINT              PASS — 1 / 2 / 3
-3 MM BARREL RELIEF NPTH                      PASS AS FOOTPRINT GEOMETRY
+3 MM BARREL RELIEF NPTH                      PASS
 PANEL HOLE TARGET                            6.50 +0.10 / -0.00 MM — DERIVED
 PANEL NOMINAL THICKNESS                      1.60 MM
 PANEL MATERIAL / SUPPLIER                    PROVISIONAL
@@ -80,10 +81,8 @@ HEX NUT PRODUCT VARIANT                      SELECTED
 WASHER                                       NONE
 AVAILABLE THREAD BEFORE NUT                  2.90 MM NOMINAL
 CORRECT NUT-ONLY PHYSICAL FIT                USER-ATTESTED PASS
-EXACT SAMPLE SEATING VALUE                   NOT RECORDED
-INDEPENDENT MECHANICAL REVIEW                REQUIRED
+INDEPENDENT MECHANICAL REVIEW                PASS
 J40 / J70 FOOTPRINT FIELDS                   BLANK
-KICAD 10 HIERARCHICAL ERC                    PASS — 0 / 0
 PCB / PANEL FAB / PURCHASING                 BLOCKED
 ```
 
@@ -102,8 +101,6 @@ controlled drawing    PJ398SM
 accepted scope         contacts, switching and PCB footprint geometry
 excluded scope         final panel construction and fabrication dimensions
 ```
-
-Thonk explicitly states that WQP518MA, PJ398SM and PJ301M-12 are functionally identical and interchangeable and that the WQP518MA footprint is unchanged. That controlled supplier statement is accepted for the limited scope above.
 
 ### Official footprint authority
 
@@ -141,33 +138,50 @@ available thread             2.90 mm nominal before nut engagement
 panel-to-PCB seating         8.30 mm supplier nominal
 ```
 
-The earlier `2.00 mm aluminium + washer + nut` attestation remains withdrawn because it described the wrong stack.
+The earlier `2.00 mm aluminium + washer + nut` attestation remains withdrawn.
 
-The project owner has now directly attested that the corrected nut-only stack passes:
+### Independent review outcome
 
-1. clean nut start without cross-threading;
-2. clamping before bottoming;
-3. secure nut-only engagement;
-4. no jack rotation or wobble;
-5. no lift or tilt during tightening;
-6. no solder-terminal loading;
-7. no PCB bow;
-8. natural panel alignment;
-9. physical 3.00 mm barrel-relief clearance;
-10. unobstructed terminal holes.
+Reviewed authority:
 
-### Remaining review and release boundaries
+```text
+head                         2d1e58e61b1a04653b17cd666dda2160808079cf
+record                       WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md
+```
 
-The corrected physical-fit record is ready for independent review. The review must either accept the qualitative fit and transfer the deferred dimensions, require named evidence, or return the record for revision.
+Decision:
 
-Even after that review, the following remain required before irreversible mechanical release:
+```text
+corrected stack identity                 PASS
+qualitative retention and stress checks  PASS
+barrel-relief and terminal clearance      PASS
+evidence limitations                      ACCEPTED WITH EXPLICIT TRANSFER
+next footprint-assignment gate            AUTHORISED
+```
 
-- lock panel material and supplier;
-- record actual finished panel thickness;
-- record actual PCB-to-panel seating distance;
-- confirm finished panel-hole diameter.
+The independent review approves the corrected qualitative fit for footprint assignment only. It does not assign the footprint and does not release downstream mechanical work.
 
-Only after independent review may the project-local footprint be assigned to J40 and J70 and KiCad ERC rerun.
+### Deferred mechanical-release gate
+
+Before PCB placement, standoff selection, panel fabrication or purchasing, lock or measure:
+
+1. final panel material and supplier;
+2. actual finished panel thickness or controlled supplier tolerance;
+3. actual assembled PCB-to-panel seating distance;
+4. finished panel-hole diameter and manufacturing tolerance;
+5. any resulting axis-offset correction.
+
+### Current boundary
+
+```text
+physical-fit evidence                  APPROVED
+footprint-assignment gate              AUTHORISED AS NEXT BOUNDED GATE
+J40 / J70 footprint fields             BLANK
+PCB placement and routing              BLOCKED
+panel fabrication                      BLOCKED
+purchasing                             BLOCKED
+PR #47 merge                           NOT REVIEWED
+```
 
 ## Remaining Gate-B lanes
 
