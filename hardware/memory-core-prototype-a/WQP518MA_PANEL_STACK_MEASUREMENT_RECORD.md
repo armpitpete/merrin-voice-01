@@ -1,6 +1,6 @@
 # WQP518MA Panel-Stack Measurement Record
 
-## Status
+## Current status
 
 ```text
 STACK DEFINITION                         CORRECTED
@@ -9,22 +9,22 @@ PANEL MATERIAL / SUPPLIER                PROVISIONAL — FR-4 / JLCPCB NOT LOCKE
 MOUNTING HARDWARE                        THONK HEX NUT ONLY
 WASHER                                   NONE
 CORRECT NUT-ONLY PHYSICAL FIT            USER-ATTESTED PASS
-INDEPENDENT REVIEW                       APPROVED FOR FOOTPRINT-ASSIGNMENT GATE
+INDEPENDENT REVIEW                       PASS
 EXACT PCB-TO-PANEL SAMPLE READING        NOT RECORDED
-J40 / J70 FOOTPRINT ASSIGNMENT           NOT YET PERFORMED
+J40 FOOTPRINT FIELD                      ASSIGNED
+J70 FOOTPRINT FIELD                      ASSIGNED
+PROJECT SYMBOL DEFAULT                   BLANK
 PCB / PANEL FABRICATION / PURCHASING     BLOCKED
 ```
 
 The project owner corrected the intended mechanical stack and reported that all required physical checks passed on 15 July 2026:
 
-- the panel is nominally `1.60 mm`;
-- the likely construction is an FR-4 PCB panel, but JLCPCB and the final material remain provisional;
-- the jack is retained by the selected Thonk hex nut only;
-- no washer is used.
+- panel nominal thickness `1.60 mm`;
+- likely FR-4 PCB-panel construction, with final material and supplier still provisional;
+- selected Thonk hex nut only;
+- no washer.
 
-The earlier qualitative pass record described a `2.00 mm aluminium panel + washer + nut` stack. That was the wrong assembly and remains withdrawn. The pass results below apply only to the corrected `1.60 mm panel + nut + no washer` stack.
-
-Independent review is recorded in `WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md`. That review approves the qualitative fit for the next bounded footprint-assignment gate only. It does not authorise PCB placement, panel fabrication, purchasing or production.
+The earlier qualitative pass described a `2.00 mm aluminium panel + washer + nut` stack. That was the wrong assembly and is withdrawn. The pass results below apply only to the corrected `1.60 mm panel + nut + no washer` stack.
 
 ## Controlled stack
 
@@ -40,7 +40,7 @@ PCB barrel relief            3.00 mm NPTH at jack barrel centre
 mounting condition           jack terminals soldered to PCB
 ```
 
-The panel material and supplier must be locked before panel fabrication. The `1.60 mm` value is the current nominal design thickness, not a recorded finished-panel measurement.
+The panel material and supplier must be locked before panel fabrication. The `1.60 mm` value is a nominal design thickness, not a recorded finished-panel measurement.
 
 ## Supplier-drawing nominal dimensions
 
@@ -88,15 +88,10 @@ qualitative retention and stress checks  PASS
 3.00 mm barrel-relief clearance          PASS
 terminal-hole clearance                  PASS
 evidence limitations                     ACCEPTED WITH EXPLICIT TRANSFER
-```
-
-Decision:
-
-```text
 corrected physical fit                   APPROVED
-next bounded footprint-assignment gate   AUTHORISED
-footprint assignment in this record      NOT PERFORMED
 ```
+
+The independent review authorised the later footprint-assignment gate. That assignment has now been performed and validated.
 
 ## PCB-to-panel seating
 
@@ -122,36 +117,30 @@ The exact PCB-to-panel seating distance must be recorded before PCB placement, s
 | thread pitch | deferred unless the accepted fit cannot be reproduced |
 | repository-controlled photographs | optional unless later review requires them |
 
-## Acceptance boundary
-
-This record is approved for the narrow purpose of allowing the already validated project-local footprint to be assigned to J40 and J70 in a later bounded patch.
-
-This review does not itself assign the footprint. Until the next bounded gate is deliberately applied:
-
-```text
-J40 footprint field                    BLANK
-J70 footprint field                    BLANK
-project symbol default footprint       BLANK
-PCB placement and routing              BLOCKED
-panel fabrication                      BLOCKED
-purchasing                             BLOCKED
-```
-
-## Superseded record state
-
-```text
-2.00 mm aluminium panel + washer + nut
-status: WITHDRAWN — WRONG STACK
-```
-
-PCB placement, routing, panel fabrication and purchasing remain blocked.
-
-## Post-review footprint assignment
+## Current assignment boundary
 
 ```text
 J40 footprint field                    ASSIGNED
 J70 footprint field                    ASSIGNED
 project symbol default footprint       BLANK
 assignment commit                      f34eea95c216cd31df4d4e3f1498adc4b9014ec9
-PCB placement, routing, panel fabrication and purchasing remain blocked
+post-assignment validation             PASS
+PCB creation / placement / routing     BLOCKED
+panel CAD / fabrication                BLOCKED
+purchasing / production                BLOCKED
 ```
+
+## Superseded history
+
+### Wrong physical stack
+
+```text
+2.00 mm aluminium panel + washer + nut
+status: WITHDRAWN — WRONG STACK
+```
+
+### Pre-assignment review point
+
+At the independent-review head, J40 and J70 were deliberately blank because that review only authorised a later assignment patch. That historical blank state was superseded by assignment commit `f34eea95c216cd31df4d4e3f1498adc4b9014ec9` and is not current authority.
+
+PR #47 remains draft and unmerged. PCB creation, placement, routing, panel CAD, fabrication, purchasing and production remain blocked.
