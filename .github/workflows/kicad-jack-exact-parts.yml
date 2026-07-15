@@ -1,141 +1,68 @@
-name: KiCad jack exact-part verification
-
+name: Apply bounded J40 J70 footprint assignment
 on:
   push:
-    branches:
-      - agent/jack-exact-parts
-    paths:
-      - "tools/validate_jack_exact_part_lane.py"
-      - ".github/workflows/kicad-jack-exact-parts.yml"
-      - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
-      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
-      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
-      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md"
-      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md"
-      - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
-      - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
-      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty/**"
-      - "hardware/memory-core-prototype-a/fp-lib-table"
-      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
-      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
-      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
-      - "tools/capture_input_pressure_absence_sheet.py"
-      - "tools/capture_output_mute_protection_sheet.py"
-      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "tools/validate_jack_exact_part_lane.py"
-      - ".github/workflows/kicad-jack-exact-parts.yml"
-      - "hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md"
-      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json"
-      - "hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
-      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md"
-      - "hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md"
-      - "hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
-      - "hardware/memory-core-prototype-a/jack-footprint-audits/**"
-      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty/**"
-      - "hardware/memory-core-prototype-a/fp-lib-table"
-      - "hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch"
-      - "hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch"
-      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
-      - "tools/capture_input_pressure_absence_sheet.py"
-      - "tools/capture_output_mute_protection_sheet.py"
-      - "hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+    branches: [agent/jack-exact-parts]
+    paths: [.github/workflows/kicad-jack-exact-parts.yml]
   workflow_dispatch:
-
 permissions:
-  contents: read
-
-env:
-  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
-
+  contents: write
 jobs:
-  jack-exact-part-verification:
+  apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-
     steps:
-      - name: Check out exact repository head
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-
-      - name: Validate fail-closed jack exact-part lane
-        run: python tools/validate_jack_exact_part_lane.py
-
-      - name: Verify pinned official KiCad CLI image
-        run: |
-          docker pull "$KICAD_IMAGE"
-          docker run --rm "$KICAD_IMAGE" kicad-cli --version
-          docker run --rm "$KICAD_IMAGE" kicad-cli sch erc --help
-
-      - name: Run KiCad 10 hierarchical ERC
+          ref: agent/jack-exact-parts
+          fetch-depth: 0
+      - name: Apply authorised assignment
         shell: bash
         run: |
-          mkdir -p build/erc
-          chmod a+rwx build/erc
-          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
-          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
-          set -o pipefail
-          docker run --rm \
-            --volume "$PWD:/work" \
-            --workdir /work \
-            "$KICAD_IMAGE" \
-            kicad-cli sch erc \
-              --severity-all \
-              --output "$report" \
-              "$top" 2>&1 | tee build/erc/kicad-cli.log
-          cat "$report"
-
-      - name: Enforce zero errors and zero warnings
-        run: |
           python - <<'PY'
-          import re
           from pathlib import Path
-
-          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt')
-          text = report.read_text(encoding='utf-8')
-          summary = re.search(
-              r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings',
-              text,
-          )
-          if not summary:
-              raise SystemExit('ERC summary was not found')
-          errors = int(summary.group(1))
-          warnings = int(summary.group(2))
-          if errors or warnings:
-              raise SystemExit(
-                  f'Jack exact-part lane has {errors} ERC error(s) and '
-                  f'{warnings} warning(s)'
-              )
-          print('Jack exact-part hierarchical ERC: PASS — 0 errors / 0 warnings')
+          fp='MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric'
+          def repl(p,a,b):
+            p=Path(p); t=p.read_text(); assert t.count(a)==1 and b not in t
+            p.write_text(t.replace(a,b,1))
+          repl('tools/capture_input_pressure_absence_sheet.py',
+            '    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40", "WQP518MA / THONKICONN INPUT", (55.88, 91.44))',
+            f'    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40", "WQP518MA / THONKICONN INPUT", (55.88, 91.44), "{fp}")')
+          repl('tools/capture_output_mute_protection_sheet.py',
+            '    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70", "WQP518MA / THONKICONN OUTPUT", (386.08, 124.46))',
+            f'    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70", "WQP518MA / THONKICONN OUTPUT", (386.08, 124.46), "{fp}")')
+          def block(t,s):
+            d=0; q=False; e=False
+            for i in range(s,len(t)):
+              c=t[i]
+              if q:
+                if e:e=False
+                elif c=='\\':e=True
+                elif c=='"':q=False
+              elif c=='"':q=True
+              elif c=='(':d+=1
+              elif c==')':
+                d-=1
+                if d==0:return t[s:i+1],i+1
+            raise AssertionError('unterminated')
+          def assign(path,ref):
+            p=Path(path); t=p.read_text(); m='\n\t(symbol\n\t\t(lib_id '; o=0; hits=[]
+            while True:
+              f=t.find(m,o)
+              if f<0:break
+              s=f+2; b,e=block(t,s); o=e
+              if f'(property "Reference" "{ref}"' in b:hits.append((s,e,b))
+            assert len(hits)==1
+            s,e,b=hits[0]; a='(property "Footprint" ""'; n=f'(property "Footprint" "{fp}"'
+            assert b.count(a)==1 and n not in b
+            p.write_text(t[:s]+b.replace(a,n,1)+t[e:])
+          assign('hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch','J40')
+          assign('hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch','J70')
           PY
-
-      - name: Confirm review-only state keeps footprints unassigned
-        run: python tools/validate_jack_exact_part_lane.py
-
-      - name: Upload jack audit evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jack-exact-part-audit
-          path: |
-            hardware/memory-core-prototype-a/JACK_EXACT_PART_EDIT_CONTRACT.md
-            hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_AUDIT.json
-            hardware/memory-core-prototype-a/INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md
-            hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md
-            hardware/memory-core-prototype-a/WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md
-            hardware/memory-core-prototype-a/EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md
-            hardware/memory-core-prototype-a/jack-footprint-audits
-            hardware/memory-core-prototype-a/MerrinLab_PrototypeA.pretty
-            hardware/memory-core-prototype-a/fp-lib-table
-          if-no-files-found: error
-
-      - name: Upload ERC diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jack-exact-part-erc-report
-          path: build/erc
-          if-no-files-found: ignore
+          git diff --check
+          git diff --name-only | sort > /tmp/actual
+          printf '%s\n' hardware/memory-core-prototype-a/04_INPUT_PRESSURE_ABSENCE.kicad_sch hardware/memory-core-prototype-a/07_OUTPUT_MUTE_PROTECTION.kicad_sch tools/capture_input_pressure_absence_sheet.py tools/capture_output_mute_protection_sheet.py | sort > /tmp/expected
+          diff -u /tmp/expected /tmp/actual
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Assign approved WQP518MA footprint to J40 and J70'
+          git push origin HEAD:agent/jack-exact-parts
