@@ -65,7 +65,7 @@ Detailed records:
 Current result:
 
 ```text
-STATUS                                      ACTIVE — CORRECTED FIT GATE
+STATUS                                      ACTIVE — INDEPENDENT REVIEW GATE
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
@@ -79,9 +79,9 @@ PANEL MATERIAL / SUPPLIER                    PROVISIONAL
 HEX NUT PRODUCT VARIANT                      SELECTED
 WASHER                                       NONE
 AVAILABLE THREAD BEFORE NUT                  2.90 MM NOMINAL
-PREVIOUS 2 MM + WASHER FIT RECORD            WITHDRAWN
-CORRECT NUT-ONLY PHYSICAL FIT                PENDING
-INDEPENDENT MECHANICAL REVIEW                NOT READY
+CORRECT NUT-ONLY PHYSICAL FIT                USER-ATTESTED PASS
+EXACT SAMPLE SEATING VALUE                   NOT RECORDED
+INDEPENDENT MECHANICAL REVIEW                REQUIRED
 J40 / J70 FOOTPRINT FIELDS                   BLANK
 KICAD 10 HIERARCHICAL ERC                    PASS — 0 / 0
 PCB / PANEL FAB / PURCHASING                 BLOCKED
@@ -100,7 +100,7 @@ PCB / PANEL FAB / PURCHASING                 BLOCKED
 orderable jack        Thonkiconn WQP518MA
 controlled drawing    PJ398SM
 accepted scope         contacts, switching and PCB footprint geometry
-excluded scope         final panel construction and complete mounting stack
+excluded scope         final panel construction and fabrication dimensions
 ```
 
 Thonk explicitly states that WQP518MA, PJ398SM and PJ301M-12 are functionally identical and interchangeable and that the WQP518MA footprint is unchanged. That controlled supplier statement is accepted for the limited scope above.
@@ -141,20 +141,33 @@ available thread             2.90 mm nominal before nut engagement
 panel-to-PCB seating         8.30 mm supplier nominal
 ```
 
-The earlier `2.00 mm aluminium + washer + nut` attestation is withdrawn because it described the wrong stack. No independent review is authorised until the corrected nut-only stack receives direct physical confirmation.
+The earlier `2.00 mm aluminium + washer + nut` attestation remains withdrawn because it described the wrong stack.
 
-### Required human closure
+The project owner has now directly attested that the corrected nut-only stack passes:
 
-1. Use the actual WQP518MA, selected Thonk hex nut, no washer and a representative nominal `1.60 mm` panel or coupon.
-2. Confirm the nut starts cleanly and clamps before bottoming.
-3. Confirm secure nut-only engagement.
-4. Confirm the jack does not rotate, lift or tilt.
-5. Confirm tightening does not load the solder terminals or bow the PCB.
-6. Confirm the 3.00 mm barrel relief clears the physical jack and leaves terminal holes unobstructed.
-7. Record the actual PCB-to-panel seating distance before mechanical geometry becomes irreversible.
-8. Lock panel material, supplier and finished thickness before fabrication release.
-9. Return the corrected physical record for independent review.
-10. Only after approval, assign the project-local footprint to J40 and J70 and rerun KiCad ERC.
+1. clean nut start without cross-threading;
+2. clamping before bottoming;
+3. secure nut-only engagement;
+4. no jack rotation or wobble;
+5. no lift or tilt during tightening;
+6. no solder-terminal loading;
+7. no PCB bow;
+8. natural panel alignment;
+9. physical 3.00 mm barrel-relief clearance;
+10. unobstructed terminal holes.
+
+### Remaining review and release boundaries
+
+The corrected physical-fit record is ready for independent review. The review must either accept the qualitative fit and transfer the deferred dimensions, require named evidence, or return the record for revision.
+
+Even after that review, the following remain required before irreversible mechanical release:
+
+- lock panel material and supplier;
+- record actual finished panel thickness;
+- record actual PCB-to-panel seating distance;
+- confirm finished panel-hole diameter.
+
+Only after independent review may the project-local footprint be assigned to J40 and J70 and KiCad ERC rerun.
 
 ## Remaining Gate-B lanes
 
