@@ -1,6 +1,6 @@
 # Input and Output Jack Exact-Part Review
 
-## Decision after independent mechanical review
+## Final decision
 
 ```text
 J40 INPUT CONTACT CONTRACT                 PASS
@@ -10,30 +10,31 @@ WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE     PASS FOR CONTACT / PCB GEOMETRY
 OFFICIAL KICAD SOURCE FOOTPRINT             PINNED AND VERIFIED
 NUMERIC PROJECT-LOCAL FOOTPRINT             PASS — 1 / 2 / 3
 3 MM BARREL RELIEF NPTH                     PASS
-PANEL HOLE TARGET                           6.50 +0.10 / -0.00 MM — DERIVED
-HEX NUT PRODUCT VARIANT                     SELECTED
-WASHER                                      NONE
 PANEL NOMINAL THICKNESS                     1.60 MM
 PANEL MATERIAL / SUPPLIER                   PROVISIONAL
-AVAILABLE THREAD BEFORE NUT                 2.90 MM NOMINAL
+HEX NUT PRODUCT VARIANT                     SELECTED
+WASHER                                      NONE
 CORRECT NUT-ONLY PHYSICAL FIT               APPROVED
 INDEPENDENT MECHANICAL REVIEW               PASS
-FOOTPRINTS ASSIGNED                         NONE
+J40 FOOTPRINT FIELD                         ASSIGNED
+J70 FOOTPRINT FIELD                         ASSIGNED
+PROJECT SYMBOL DEFAULT                      BLANK
+POST-ASSIGNMENT VALIDATION                  PASS
 PCB / PANEL FAB / PURCHASING                BLOCKED
-OVERALL                                     READY FOR BOUNDED FOOTPRINT ASSIGNMENT
+OVERALL                                     READY FOR MERGE REVIEW
 ```
 
-The electrical-contact, supplier-equivalence, pin-map and PCB-footprint geometry work remains valid. The corrected mechanical stack is:
+The current authoritative stack is:
 
 ```text
 1.60 mm nominal panel + selected Thonk hex nut + no washer
 ```
 
-The former `2.00 mm aluminium panel + washer + nut` result remains withdrawn and is not used as evidence.
+The former `2.00 mm aluminium panel + washer + nut` result is withdrawn and is not used as evidence.
 
 ## Supplier-controlled equivalence
 
-The selected orderable jack remains:
+Selected orderable jack:
 
 ```text
 Thonkiconn Mono 3.5 mm Audio Jack — WQP518MA
@@ -41,9 +42,9 @@ Thonkiconn Mono 3.5 mm Audio Jack — WQP518MA
 
 Thonk states that WQP518MA, PJ301M-12 and PJ398SM are functionally identical and interchangeable, and that the WQP518MA footprint is unchanged.
 
-That equivalence is accepted for contact arrangement, switched-normal behaviour, terminal geometry and PCB footprint equivalence. It is not treated as proof of final panel fabrication dimensions.
+That equivalence is accepted for contact arrangement, switched-normal behaviour, terminal geometry and PCB footprint equivalence. It is not proof of final panel fabrication dimensions.
 
-## Existing schematic contracts
+## Schematic contracts
 
 ### J40 input
 
@@ -53,7 +54,7 @@ pin 2 TIP_NORMAL  → GND
 pin 3 SLEEVE      → GND
 ```
 
-Contacts 1 and 2 must be closed with no plug inserted. Inserting a plug opens the normal contact and leaves contact 1 connected to the plug tip.
+Contacts 1 and 2 are closed with no plug inserted. Inserting a plug opens the normal contact and leaves contact 1 connected to the plug tip.
 
 ### J70 output
 
@@ -65,7 +66,7 @@ pin 3 SLEEVE      → GND
 
 The output normal contact is deliberately unused.
 
-## Official source geometry
+## Footprint authority
 
 ```text
 repository  KiCad/kicad-footprints
@@ -75,17 +76,18 @@ Git blob    6c9440c957bf566ae79058cdab7afabfb86955d8
 SHA-256     8ae08dd1e353c7fdbea2827c890ecd150e6f5f528598770bec85a8f2422b98cc
 ```
 
-## Numeric project-local footprint
+Project-local footprint:
 
 ```text
 MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
 1 = T  = TIP
 2 = TN = TIP_NORMAL
 3 = S  = SLEEVE
-3.00 mm NPTH at published jack-barrel centre
+3.00 mm NPTH at the published jack-barrel centre
+SHA-256 e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 ```
 
-The electrical pad centres, sizes and drills match the pinned official KiCad source geometry exactly. The footprint remains unassigned.
+The electrical pad centres, sizes and drills match the pinned official KiCad source geometry. J40 and J70 now use this numeric footprint. The project symbol default remains blank so the decision is instance-specific.
 
 ## Corrected panel and hardware stack
 
@@ -96,21 +98,21 @@ panel supplier               not locked; JLCPCB only a possibility
 nut                          selected Thonk hex nut
 washer                       none
 threaded bushing length      4.50 mm supplier nominal
-available above panel        4.50 - 1.60 = 2.90 mm nominal
-panel-to-PCB seating         8.30 mm supplier nominal
+available above panel        2.90 mm nominal
+panel-to-PCB seating         8.30 mm supplier nominal; not measured
 ```
 
-The project owner directly attested that the corrected stack passes the complete qualitative fit set: clean insertion, clean nut start, clamping before bottoming, secure retention, no rotation or wobble, no housing distortion, no jack lift or tilt, no solder-terminal loading, no PCB bow, no forced alignment, physical clearance through the 3.00 mm barrel relief and unobstructed terminal holes.
+The project owner attested that the corrected stack passes clean insertion, clean nut start, clamping before bottoming, secure retention, no rotation or wobble, no housing distortion, no jack lift or tilt, no solder-terminal loading, no PCB bow, no forced alignment, 3.00 mm barrel-relief clearance and unobstructed terminal holes.
 
-## Independent review
+## Independent review and assignment history
 
-`WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md` independently reviewed the corrected record at head:
+The corrected physical-fit record was reviewed at:
 
 ```text
 2d1e58e61b1a04653b17cd666dda2160808079cf
 ```
 
-Findings:
+The review found:
 
 ```text
 corrected stack identity                 PASS
@@ -119,17 +121,38 @@ barrel-relief and terminal clearance      PASS
 evidence limitations                      ACCEPTED WITH EXPLICIT TRANSFER
 ```
 
-Decision:
+That review authorised assignment as a later bounded action. At the review point only, the footprint fields were blank. This is superseded pre-assignment history, not the current state.
+
+Assignment was applied in:
 
 ```text
-corrected physical fit                   APPROVED
-next bounded footprint-assignment gate   AUTHORISED
-footprint assignment by this review      NOT PERFORMED
+f34eea95c216cd31df4d4e3f1498adc4b9014ec9
 ```
+
+Current assignment state:
+
+```text
+J40 footprint field               ASSIGNED
+J70 footprint field               ASSIGNED
+project symbol default            BLANK
+controlled generators             UPDATED
+post-assignment validation        PASS
+```
+
+## Validation authority
+
+Two distinct validation stages are retained without conflation:
+
+```text
+assignment-state validation head  bbc54c59152fdab8ac42ad0035a163e2e383c92b
+restored-workflow validation head  5e07b4657436c19db32ea9651ee68e510df402eb
+```
+
+The first validated the assigned engineering state and recorded the assignment evidence. The second restored the normal read-only workflow and passed the complete untouched chain. A fresh chain is required on the repository-authority synchronisation head before merge review.
 
 ## Deferred mechanical-release evidence
 
-The following remain deliberately unclaimed and transferred to a later mechanical-release gate:
+The following remain deliberately unclaimed:
 
 - final panel material and supplier;
 - actual finished panel thickness or controlled supplier tolerance;
@@ -137,21 +160,9 @@ The following remain deliberately unclaimed and transferred to a later mechanica
 - finished panel-hole diameter and manufacturing tolerance;
 - any resulting axis-offset correction.
 
-Nut thickness, thread pitch and photographs remain optional unless the final physical stack no longer reproduces the accepted fit.
+Nut thickness, thread pitch and photographs remain optional unless the final stack no longer reproduces the accepted fit.
 
-These omissions do not block assignment of the already validated footprint. They continue to block PCB placement, standoff selection, panel fabrication and purchasing.
-
-## Assignment decision
-
-The next bounded gate may assign:
-
-```text
-MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
-```
-
-to J40 and J70, regenerate the controlled schematic sources, rerun KiCad hierarchical ERC and update the lane evidence.
-
-This review does not perform that assignment.
+These omissions do not invalidate the schematic footprint assignment. They continue to block PCB creation, placement, routing, standoff selection, panel CAD, panel fabrication and purchasing.
 
 ## Current boundary
 
@@ -161,22 +172,12 @@ supplier-controlled equivalence       PASS FOR CONTACT / PCB GEOMETRY
 official source footprint provenance  PASS
 numeric footprint geometry            PASS
 corrected panel stack                  INDEPENDENTLY APPROVED
-schematic footprint assignment        NOT YET PERFORMED
-panel material / supplier lock        BLOCKED
-actual seating measurement            BLOCKED
-PCB placement / panel fab / purchase  BLOCKED
-PR #47 merge                           NOT REVIEWED
+bounded J40/J70 footprint assignment  COMPLETE
+project symbol default                BLANK
+PCB creation / placement / routing    BLOCKED
+panel CAD / fabrication               BLOCKED
+purchasing / production               BLOCKED
+PR #47 merge                          AWAITING REVIEW
 ```
 
-PCB placement, routing, panel fabrication and purchasing remain blocked.
-
-## Bounded J40/J70 footprint assignment
-
-```text
-J40 footprint field               ASSIGNED
-J70 footprint field               ASSIGNED
-project symbol default            BLANK
-assignment commit                 f34eea95c216cd31df4d4e3f1498adc4b9014ec9
-post-assignment validation        PASS
-PCB / panel fab / purchasing      BLOCKED
-```
+PR #47 remains draft and unmerged.
