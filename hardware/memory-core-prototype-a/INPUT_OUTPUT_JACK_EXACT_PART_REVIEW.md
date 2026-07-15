@@ -1,6 +1,6 @@
 # Input and Output Jack Exact-Part Review
 
-## Decision after corrected mechanical definition
+## Decision after corrected mechanical fit
 
 ```text
 J40 INPUT CONTACT CONTRACT                 PASS
@@ -16,17 +16,22 @@ WASHER                                      NONE
 PANEL NOMINAL THICKNESS                     1.60 MM
 PANEL MATERIAL / SUPPLIER                   PROVISIONAL
 AVAILABLE THREAD BEFORE NUT                 2.90 MM NOMINAL
-CORRECT NUT-ONLY PHYSICAL FIT               PENDING
-PREVIOUS 2 MM + WASHER ATTESTATION          WITHDRAWN
+CORRECT NUT-ONLY PHYSICAL FIT               USER-ATTESTED PASS
+EXACT SAMPLE SEATING VALUE                  NOT RECORDED
+INDEPENDENT MECHANICAL REVIEW               REQUIRED
 FOOTPRINTS ASSIGNED                         NONE
 KICAD 10 HIERARCHICAL ERC                   PASS — 0 ERRORS / 0 WARNINGS
 PCB / PANEL FAB / PURCHASING                BLOCKED
-OVERALL                                     STOPPED FOR CORRECT-STACK FIT
+OVERALL                                     READY FOR INDEPENDENT REVIEW
 ```
 
-The electrical-contact, supplier-equivalence, pin-map and PCB-footprint geometry work remains valid. The mechanical record was corrected after the project owner clarified that the intended stack uses a nominal `1.60 mm` panel and the selected Thonk hex nut, with no washer.
+The electrical-contact, supplier-equivalence, pin-map and PCB-footprint geometry work remains valid. The intended mechanical stack is now correctly defined and physically attested:
 
-The former user-attested pass described a `2.00 mm aluminium panel + washer + nut` stack. Because that is not the intended assembly, the pass is withdrawn and cannot support footprint assignment.
+```text
+1.60 mm nominal panel + selected Thonk hex nut + no washer
+```
+
+The former `2.00 mm aluminium panel + washer + nut` result remains withdrawn and is not used as evidence.
 
 ## Supplier-controlled equivalence
 
@@ -45,7 +50,7 @@ That supplier-controlled equivalence is accepted for:
 - terminal geometry;
 - PCB footprint equivalence.
 
-It is not treated as proof of the final panel stack.
+It is not treated as proof of final panel fabrication dimensions.
 
 ## Existing schematic contracts
 
@@ -104,32 +109,44 @@ available above panel        4.50 - 1.60 = 2.90 mm nominal
 panel-to-PCB seating         8.30 mm supplier nominal
 ```
 
-The corrected stack has `0.40 mm` more nominal thread than the rejected 2.00 mm panel assumption, and no washer thickness is deducted. This makes secure engagement more likely but does not prove it.
+The project owner directly attested that the corrected stack passes all required qualitative checks:
 
-## Required physical sample evidence
+1. the bushing enters the intended panel hole without forcing;
+2. the nut starts cleanly without cross-threading;
+3. the nut clamps before bottoming;
+4. the nut-only stack is secure;
+5. the jack cannot rotate or wobble;
+6. the housing is not crushed or distorted;
+7. tightening does not lift or tilt the soldered jack;
+8. tightening does not load the solder terminals;
+9. the PCB remains flat;
+10. the panel and jack align without lateral force;
+11. the 3.00 mm barrel relief clears the physical jack;
+12. all electrical terminal holes remain unobstructed.
 
-The physical sample must use the actual WQP518MA, the selected nut, no washer and a representative nominal `1.60 mm` panel or coupon.
+## Deferred mechanical-release evidence
 
-It must confirm:
+The following values remain deliberately unclaimed:
 
-1. the nut starts cleanly;
-2. the nut clamps before bottoming;
-3. the nut-only stack is secure;
-4. the jack cannot rotate or wobble;
-5. tightening does not lift or tilt the soldered jack;
-6. tightening does not load its solder terminals;
-7. the PCB remains flat;
-8. the panel and jack align without lateral force;
-9. the 3.00 mm barrel relief clears the physical jack;
-10. the electrical terminal holes remain unobstructed.
+- actual finished panel thickness;
+- exact assembled PCB-to-panel distance;
+- finished panel-hole diameter;
+- final panel material and supplier;
+- nut thickness and thread pitch unless later required.
 
-The actual PCB-to-panel distance must be recorded before PCB and panel geometry becomes irreversible. The panel material, supplier and finished thickness must be locked before fabrication release.
+The `8.30 mm` seating figure remains a supplier nominal, not a sample measurement. These omissions do not erase the qualitative fit pass, but they keep PCB placement, standoff selection, panel fabrication and purchasing blocked.
 
 ## Assignment decision
 
-There is **no footprint assignment before the panel stack passes** physical confirmation and independent review.
+There is **no footprint assignment before independent review of the corrected panel-stack record**.
 
 J40 and J70 retain blank footprint fields. The project symbol retains a blank default footprint.
+
+The independent reviewer must explicitly:
+
+1. approve the corrected nut-only qualitative fit and transfer the deferred dimensional evidence to the later mechanical-release gate;
+2. require named measurements or photographs; or
+3. return the record for revision.
 
 ## Current boundary
 
@@ -138,11 +155,12 @@ contact and switching contract        PASS
 supplier-controlled equivalence       PASS FOR CONTACT / PCB GEOMETRY
 official source footprint provenance  PASS
 numeric footprint geometry            PASS
-corrected panel stack                  DEFINED, NOT FIT-PROVEN
-physical sample                        REQUIRED
-independent review                     NOT READY
+corrected panel stack                  USER-ATTESTED PASS
+independent review                     REQUIRED
 schematic footprint assignment        BLOCKED
-pcb / panel fab / purchasing           blocked
+panel material / supplier lock        BLOCKED
+actual seating measurement            BLOCKED
+pcb / panel fab / purchasing           BLOCKED
 ```
 
 PCB placement, routing, panel fabrication and purchasing remain blocked.
