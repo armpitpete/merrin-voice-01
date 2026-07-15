@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Validate Gate-B lane 02 after independent panel-stack review.
+"""Validate the final assigned state of Gate-B lane 02.
 
-The lane is approved for a later bounded footprint-assignment patch, but this
-validator deliberately requires J40, J70 and the project symbol to remain
-unassigned in the current review-only state.
+J40 and J70 must use the reviewed numeric WQP518MA footprint, the project
+symbol default must remain blank, repository authority must describe that
+assigned state consistently, and all PCB, panel, purchasing and production
+authority must remain blocked.
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ REVIEW = ROOT / "INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md"
 CONTRACT = ROOT / "JACK_EXACT_PART_EDIT_CONTRACT.md"
 MEASUREMENT = ROOT / "WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md"
 INDEPENDENT_REVIEW = ROOT / "WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md"
+REGISTER = ROOT / "EXACT_PART_FOOTPRINT_VERIFICATION_REGISTER.md"
 SOURCE_FP = (
     ROOT
     / "jack-footprint-audits"
@@ -42,7 +44,10 @@ SOURCE_BLOB = "6c9440c957bf566ae79058cdab7afabfb86955d8"
 SOURCE_SHA256 = "8ae08dd1e353c7fdbea2827c890ecd150e6f5f528598770bec85a8f2422b98cc"
 NUMERIC_SHA256 = "e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685"
 FOOTPRINT_ID = "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric"
-REVIEWED_HEAD = "2d1e58e61b1a04653b17cd666dda2160808079cf"
+INDEPENDENT_REVIEW_HEAD = "2d1e58e61b1a04653b17cd666dda2160808079cf"
+ASSIGNMENT_COMMIT = "f34eea95c216cd31df4d4e3f1498adc4b9014ec9"
+ASSIGNMENT_VALIDATION_HEAD = "bbc54c59152fdab8ac42ad0035a163e2e383c92b"
+RESTORED_WORKFLOW_HEAD = "5e07b4657436c19db32ea9651ee68e510df402eb"
 
 
 def balanced_block(text: str, start: int) -> str:
@@ -71,28 +76,28 @@ def balanced_block(text: str, start: int) -> str:
 
 
 def sexp_blocks(text: str, token: str) -> list[str]:
-    result: list[str] = []
+    blocks: list[str] = []
     offset = 0
     while True:
         start = text.find(token, offset)
         if start == -1:
-            return result
+            return blocks
         block = balanced_block(text, start)
-        result.append(block)
+        blocks.append(block)
         offset = start + len(block)
 
 
 def instance_blocks(text: str) -> list[str]:
     marker = "\n\t(symbol\n\t\t(lib_id "
-    result: list[str] = []
+    blocks: list[str] = []
     offset = 0
     while True:
         found = text.find(marker, offset)
         if found == -1:
-            return result
+            return blocks
         start = found + 2
         block = balanced_block(text, start)
-        result.append(block)
+        blocks.append(block)
         offset = start + len(block)
 
 
@@ -152,9 +157,7 @@ def parse_pads(
         identifier = identifier_match.group(1)
         if identifier is None:
             identifier = identifier_match.group(2)
-        at = re.search(
-            r'\(at\s+([-\d.]+)\s+([-\d.]+)(?:\s+[-\d.]+)?\)', block
-        )
+        at = re.search(r'\(at\s+([-\d.]+)\s+([-\d.]+)(?:\s+[-\d.]+)?\)', block)
         size = re.search(r'\(size\s+([-\d.]+)\s+([-\d.]+)\)', block)
         drill = re.search(r'\(drill\s+([-\d.]+)\)', block)
         assert at and size and drill, block[:200]
@@ -184,22 +187,9 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def assert_generator_contracts(input_text: str, output_text: str) -> None:
-    for token in (
-        'add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40",',
-        'label_pin(sch, "J40", "1", "INPUT_TIP")',
-        'label_pin(sch, "J40", "2", "GND")',
-        'label_pin(sch, "J40", "3", "GND")',
-    ):
-        assert token in input_text, token
-
-    for token in (
-        'add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70",',
-        'label_pin(sch, "J70", "1", "OUTPUT_TIP")',
-        'sch.no_connects.add(position=pin_position(sch, "J70", "2"))',
-        'label_pin(sch, "J70", "3", "GND")',
-    ):
-        assert token in output_text, token
+def assert_contains(text: str, tokens: tuple[str, ...], label: str) -> None:
+    for token in tokens:
+        assert token in text, f"{label} missing: {token}"
 
 
 def main() -> None:
@@ -215,6 +205,7 @@ def main() -> None:
         CONTRACT,
         MEASUREMENT,
         INDEPENDENT_REVIEW,
+        REGISTER,
         SOURCE_FP,
         NUMERIC_FP,
     )
@@ -224,8 +215,7 @@ def main() -> None:
     audit = json.loads(AUDIT.read_text(encoding="utf-8"))
     assert audit["schema_version"] == 2
 
-    authority = audit["authority"]
-    assert authority == {
+    assert audit["authority"] == {
         "lane": "Gate B lane 02 — input and output jacks",
         "base_commit": "651d594e3c9993b2fdc6ca527328887458a7d849",
         "pcb_authorised": False,
@@ -270,11 +260,30 @@ def main() -> None:
         assert row["footprint"] == FOOTPRINT_ID, row
         assert row["block"].count(FOOTPRINT_ID) == 1, row
 
-    input_generator_text = INPUT_GENERATOR.read_text(encoding="utf-8")
-    output_generator_text = OUTPUT_GENERATOR.read_text(encoding="utf-8")
-    assert_generator_contracts(input_generator_text, output_generator_text)
-    assert input_generator_text.count(FOOTPRINT_ID) == 1
-    assert output_generator_text.count(FOOTPRINT_ID) == 1
+    input_generator = INPUT_GENERATOR.read_text(encoding="utf-8")
+    output_generator = OUTPUT_GENERATOR.read_text(encoding="utf-8")
+    assert_contains(
+        input_generator,
+        (
+            'add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J40",',
+            'label_pin(sch, "J40", "1", "INPUT_TIP")',
+            'label_pin(sch, "J40", "2", "GND")',
+            'label_pin(sch, "J40", "3", "GND")',
+        ),
+        "input generator",
+    )
+    assert_contains(
+        output_generator,
+        (
+            'add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70",',
+            'label_pin(sch, "J70", "1", "OUTPUT_TIP")',
+            'sch.no_connects.add(position=pin_position(sch, "J70", "2"))',
+            'label_pin(sch, "J70", "3", "GND")',
+        ),
+        "output generator",
+    )
+    assert input_generator.count(FOOTPRINT_ID) == 1
+    assert output_generator.count(FOOTPRINT_ID) == 1
 
     use = audit["schematic_use"]
     assert use["J40"]["normal_contact_required"] is True
@@ -297,15 +306,11 @@ def main() -> None:
     numeric = audit["project_numeric_footprint"]
     assert numeric["library_id"] == FOOTPRINT_ID
     assert numeric["sha256"] == NUMERIC_SHA256 == sha256(NUMERIC_FP)
-    assert (
-        numeric["assignment_status"]
-        == "ASSIGNED_TO_J40_J70"
-    )
+    assert numeric["assignment_status"] == "ASSIGNED_TO_J40_J70"
     numeric_pads, numeric_npth = parse_pads(NUMERIC_FP.read_text(encoding="utf-8"))
     assert set(numeric_pads) == {"1", "2", "3"}
     assert numeric_npth == [("", 0.0, 6.48, 3.0)]
-    mapping = {"1": "T", "2": "TN", "3": "S"}
-    for numeric_id, source_id in mapping.items():
+    for numeric_id, source_id in {"1": "T", "2": "TN", "3": "S"}.items():
         assert_pad(numeric_pads[numeric_id], numeric["pads"][numeric_id])
         assert numeric_pads[numeric_id] == source_pads[source_id]
 
@@ -322,18 +327,17 @@ def main() -> None:
     available_thread = mechanical["threaded_bushing_length_shown"] - 1.6
     close(available_thread, 2.9)
     close(available_thread, panel["available_thread_above_panel_before_nut_mm"])
-    assert "Hex Nuts" in panel["selected_nut"]
     assert panel["selected_washer"].startswith("NONE")
     assert panel["washer_thickness"].startswith("NOT_APPLICABLE")
-    assert (
-        panel["hardware_stack_status"]
-        == "INDEPENDENT_REVIEW_APPROVED_FOR_FOOTPRINT_ASSIGNMENT_GATE"
+    assert panel["hardware_stack_status"] == (
+        "INDEPENDENT_REVIEW_APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED"
     )
-    assert panel["independent_review_record"] == str(INDEPENDENT_REVIEW)
 
     attestation = audit["physical_fit_attestation"]
     assert attestation["superseded_attestation_status"] == "WITHDRAWN_WRONG_STACK"
-    assert attestation["current_stack"] == "1.60 mm nominal panel plus Thonk hex nut; no washer"
+    assert attestation["current_stack"] == (
+        "1.60 mm nominal panel plus Thonk hex nut; no washer"
+    )
     for key in (
         "bushing_passes_panel_hole_without_forcing",
         "secure_nut_engagement_through_1p60mm_panel",
@@ -350,89 +354,151 @@ def main() -> None:
     ):
         assert attestation[key] == "PASS", (key, attestation[key])
     assert attestation["exact_sample_measurements_recorded"] is False
-    assert (
-        attestation["independent_review_status"]
-        == "APPROVED_FOR_FOOTPRINT_ASSIGNMENT_GATE"
-    )
+    assert attestation["independent_review_status"] == "APPROVED_AND_ASSIGNMENT_APPLIED"
 
     independent = audit["independent_review"]
-    assert independent == {
-        "record": str(INDEPENDENT_REVIEW),
-        "reviewed_head": REVIEWED_HEAD,
-        "corrected_stack_identity": "PASS",
-        "qualitative_retention_and_stress_behaviour": "PASS",
-        "barrel_and_terminal_clearance": "PASS",
-        "evidence_limitations": "ACCEPTED_WITH_EXPLICIT_TRANSFER",
-        "decision": "APPROVED_FOR_NEXT_BOUNDED_FOOTPRINT_ASSIGNMENT_GATE",
-        "footprint_assignment_performed": True,
-        "assignment_commit": "f34eea95c216cd31df4d4e3f1498adc4b9014ec9",
+    assert independent["reviewed_head"] == INDEPENDENT_REVIEW_HEAD
+    assert independent["historical_pre_assignment_state"] == (
+        "J40_J70_BLANK_AT_REVIEW_HEAD_ONLY"
+    )
+    assert independent["footprint_assignment_performed"] is True
+    assert independent["assignment_commit"] == ASSIGNMENT_COMMIT
+    assert independent["pcb_placement_authorised"] is False
+    assert independent["panel_fabrication_authorised"] is False
+    assert independent["purchasing_authorised"] is False
+
+    validation = audit["validation"]
+    assignment_validation = validation["assignment_state_validation"]
+    restored_validation = validation["restored_workflow_validation"]
+    assert assignment_validation == {
+        "validated_head": ASSIGNMENT_VALIDATION_HEAD,
+        "jack_workflow_run": 29414296763,
+        "schematic_erc_run": 29414296913,
+        "current_stage_authority_run": 29414296878,
+        "input_sheet_erc_run": 29414296832,
+        "output_sheet_erc_run": 29414296789,
+        "final_top_review_run": 29414296776,
+        "codec_sheet_erc_run": 29414296796,
+        "result": "PASS",
+    }
+    assert restored_validation == {
+        "validated_head": RESTORED_WORKFLOW_HEAD,
+        "jack_workflow_run": 29414962885,
+        "schematic_erc_run": 29414962890,
+        "current_stage_authority_run": 29414962883,
+        "input_sheet_erc_run": 29414962907,
+        "output_sheet_erc_run": 29414962974,
+        "final_top_review_run": 29414962893,
+        "codec_sheet_erc_run": 29414962888,
+        "result": "PASS",
+    }
+    assert validation["current_head_requirement"] == (
+        "FRESH_UNTOUCHED_CI_REQUIRED_BEFORE_MERGE"
+    )
+    assert validation["footprint_assignment_remained_blank"] is False
+
+    decision = audit["decision"]
+    assert decision["footprints_assigned"] is True
+    assert decision["repository_authority"] == "SYNCHRONISED_TO_ASSIGNED_STATE"
+    assert decision["panel_release"] == (
+        "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE"
+    )
+    assert decision["overall"] == (
+        "FOOTPRINT_ASSIGNMENT_VALIDATED_READY_FOR_FRESH_CURRENT_HEAD_CI_AND_MERGE_REVIEW"
+    )
+
+    assignment = audit["footprint_assignment"]
+    assert assignment == {
+        "footprint": FOOTPRINT_ID,
+        "J40": "ASSIGNED",
+        "J70": "ASSIGNED",
+        "project_symbol_default": "BLANK",
+        "assignment_commit": ASSIGNMENT_COMMIT,
+        "post_assignment_validation": "PASS",
         "pcb_placement_authorised": False,
         "panel_fabrication_authorised": False,
         "purchasing_authorised": False,
     }
 
+    register_text = REGISTER.read_text(encoding="utf-8")
+    review_text = REVIEW.read_text(encoding="utf-8")
     measurement_text = MEASUREMENT.read_text(encoding="utf-8")
-    for token in (
-        "PANEL NOMINAL THICKNESS                  1.60 MM",
-        "MOUNTING HARDWARE                        THONK HEX NUT ONLY",
-        "WASHER                                   NONE",
-        "CORRECT NUT-ONLY PHYSICAL FIT            USER-ATTESTED PASS",
-        "INDEPENDENT REVIEW                       APPROVED FOR FOOTPRINT-ASSIGNMENT GATE",
-        "J40 footprint field                    ASSIGNED",
-        "J70 footprint field                    ASSIGNED",
-        "PCB placement, routing, panel fabrication and purchasing remain blocked",
-    ):
-        assert token in measurement_text, token
+    contract_text = CONTRACT.read_text(encoding="utf-8")
+
+    assert_contains(
+        register_text,
+        (
+            "STATUS                                      COMPLETE — READY FOR MERGE REVIEW",
+            "J40 FOOTPRINT FIELD                          ASSIGNED",
+            "J70 FOOTPRINT FIELD                          ASSIGNED",
+            "### Superseded pre-assignment history",
+            "PCB creation / placement / routing    BLOCKED",
+        ),
+        "verification register",
+    )
+    assert "ACTIVE — READY FOR FOOTPRINT ASSIGNMENT" not in register_text
+    assert "It remains unassigned" not in register_text
+
+    assert_contains(
+        review_text,
+        (
+            "J40 FOOTPRINT FIELD                         ASSIGNED",
+            "J70 FOOTPRINT FIELD                         ASSIGNED",
+            "OVERALL                                     READY FOR MERGE REVIEW",
+            "## Independent review and assignment history",
+            "bounded J40/J70 footprint assignment  COMPLETE",
+        ),
+        "exact-part review",
+    )
+    assert "FOOTPRINTS ASSIGNED                         NONE" not in review_text
+    assert "schematic footprint assignment        NOT YET PERFORMED" not in review_text
+
+    assert_contains(
+        measurement_text,
+        (
+            "J40 FOOTPRINT FIELD                      ASSIGNED",
+            "J70 FOOTPRINT FIELD                      ASSIGNED",
+            "## Superseded history",
+            "PCB creation / placement / routing     BLOCKED",
+        ),
+        "measurement record",
+    )
+    assert "J40 / J70 FOOTPRINT ASSIGNMENT           NOT YET PERFORMED" not in measurement_text
+    assert "Until the next bounded gate is deliberately applied" not in measurement_text
+
+    assert_contains(
+        contract_text,
+        (
+            "## Completed evidence and implementation",
+            "J40 footprint field                    ASSIGNED",
+            "J70 footprint field                    ASSIGNED",
+            "PR #47                                 DRAFT / UNMERGED",
+            "fresh untouched validation chain",
+        ),
+        "edit contract",
+    )
+    assert "## Next bounded patch" not in contract_text
 
     independent_text = INDEPENDENT_REVIEW.read_text(encoding="utf-8")
-    for token in (
-        f"reviewed head                {REVIEWED_HEAD}",
-        "CORRECTED 1.60 MM NUT-ONLY PHYSICAL FIT     APPROVED",
-        "FOOTPRINT ASSIGNMENT GATE                    AUTHORISED AS NEXT BOUNDED GATE",
-        "J40 / J70 FOOTPRINTS                         NOT ASSIGNED BY THIS REVIEW",
-        "PCB PLACEMENT / ROUTING                      BLOCKED",
-        "PANEL FABRICATION                            BLOCKED",
-        "PURCHASING                                   BLOCKED",
-    ):
-        assert token in independent_text, token
-
-    decision = audit["decision"]
-    assert decision == {
-        "contact_contract": "PASS",
-        "current_schematic_use": "PASS",
-        "supplier_controlled_wqp518ma_pj398sm_equivalence": "PASS_FOR_CONTACT_AND_FOOTPRINT_GEOMETRY",
-        "numeric_project_footprint": "PASS",
-        "panel_hole_tolerance": "DERIVED_TARGET_RECORDED",
-        "mounting_hardware": "HEX_NUT_ONLY_PHYSICAL_FIT_INDEPENDENTLY_APPROVED",
-        "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
-        "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
-        "footprints_assigned": True,
-        "overall": "FOOTPRINT_ASSIGNMENT_VALIDATED",
-    }
-
-    review_text = REVIEW.read_text(encoding="utf-8").lower()
-    contract_text = CONTRACT.read_text(encoding="utf-8").lower()
-    for token in (
-        "correct nut-only physical fit               approved",
-        "independent mechanical review               pass",
-        "bounded j40/j70 footprint assignment",
-        "j40 footprint field               assigned",
-        "j70 footprint field               assigned",
-        "pcb / panel fab / purchasing                blocked",
-    ):
-        assert token in review_text, token
-    assert "no footprint assignment before the panel stack passes" in contract_text
+    assert_contains(
+        independent_text,
+        (
+            f"reviewed head                {INDEPENDENT_REVIEW_HEAD}",
+            "CORRECTED 1.60 MM NUT-ONLY PHYSICAL FIT     APPROVED",
+            "J40 / J70 FOOTPRINTS                         NOT ASSIGNED BY THIS REVIEW",
+            "PCB PLACEMENT / ROUTING                      BLOCKED",
+        ),
+        "historical independent review",
+    )
 
     print("J40 switched-input and quiet-no-cable contact contract: PASS")
     print("J70 output contact and unused-normal contract: PASS")
-    print("Thonk supplier-controlled WQP518MA/PJ398SM equivalence: PASS")
-    print("Pinned official KiCad WQP/PJ398SM source geometry and hash: PASS")
-    print("Numeric 1/2/3 project-local footprint geometry and hash: PASS")
-    print("3 mm barrel-relief NPTH geometry and physical clearance: PASS")
-    print("Corrected 1.60 mm nut-only physical fit: INDEPENDENTLY APPROVED")
+    print("Pinned source and numeric footprint geometry: PASS")
     print("Bounded J40/J70 footprint assignment: PASS")
-    print("Project symbol default footprint remains blank: PASS")
-    print("PCB placement, routing, panel fabrication and purchasing remain blocked.")
+    print("Project symbol default remains blank: PASS")
+    print("Repository authority synchronised to assigned state: PASS")
+    print("Historical validation heads reconciled: PASS")
+    print("PCB, panel, purchasing and production authority remain blocked: PASS")
 
 
 if __name__ == "__main__":
