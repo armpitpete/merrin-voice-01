@@ -10,9 +10,22 @@ Verify the exact input and output jack models used by `J40` and `J70`, including
 - mechanical envelope;
 - PCB hole pattern and barrel relief;
 - panel-hole and panel-to-PCB geometry;
-- exact nut, washer and panel stack;
+- exact nut-only panel stack;
 - immutable KiCad footprint provenance;
 - symbol-to-footprint pad mapping.
+
+## Corrected mechanical authority
+
+```text
+panel nominal thickness      1.60 mm
+panel construction           provisional FR-4 PCB panel
+panel supplier               not locked; JLCPCB only a current possibility
+retaining hardware           selected Thonk hex nut
+washer                       none
+thread above nominal panel   2.90 mm before nut engagement
+```
+
+The former `2.00 mm aluminium + washer + nut` stack is rejected. No fit result from that superseded stack may be used to approve the corrected assembly.
 
 ## Allowed files
 
@@ -47,12 +60,13 @@ This bounded repair may:
 2. pin an official KiCad WQP/PJ398SM footprint snapshot to an immutable commit;
 3. create a project-local numeric footprint with `1=TIP`, `2=TIP_NORMAL`, `3=SLEEVE`;
 4. add a real `3.00 mm` NPTH barrel relief at the published barrel centre;
-5. select the supplier's compatible hex-nut and washer product variants;
-6. record derived panel-hole and seating targets;
-7. create a physical-sample measurement record for dimensions the supplier does not publish;
-8. keep both schematic footprint fields blank until the hardware stack is proven.
+5. select the supplier's compatible hex-nut product variant;
+6. record that no washer is used;
+7. record the provisional `1.60 mm` panel target and derived seating targets;
+8. create a physical-sample record for the corrected nut-only stack;
+9. keep both schematic footprint fields blank until the hardware stack is proven.
 
-A later bounded patch may assign the reviewed project-local footprint to J40 and J70 only after the sample record or a controlled hardware drawing proves the thread, nut, washer and 2 mm panel stack.
+A later bounded patch may assign the reviewed project-local footprint to J40 and J70 only after the corrected `1.60 mm panel + nut + no washer` sample record, or a controlled mechanical drawing, proves the stack.
 
 ## Check command
 
@@ -64,15 +78,15 @@ The complete KiCad 10 hierarchical ERC policy must remain at zero errors and zer
 
 ## Stop rule
 
-Stop for human measurement rather than assign the footprint if any of these remains unknown:
+Stop for physical confirmation rather than assign the footprint if any of these remains unknown:
 
-- bushing thread pitch;
-- nut thickness;
-- washer thickness;
-- secure engagement through the 2.00 mm panel;
-- actual panel-to-PCB seating distance;
-- whether panel clamping loads the solder joints or lifts the jack from the PCB.
+- secure nut-only engagement through the nominal `1.60 mm` panel;
+- whether the nut clamps before bottoming;
+- actual finished panel thickness once construction is locked;
+- actual panel-to-PCB seating distance before geometry becomes irreversible;
+- whether panel clamping loads the solder joints or lifts the jack from the PCB;
+- whether the 3.00 mm barrel relief clears the physical part.
 
-The current stop is therefore deliberate: the supplier-controlled electrical and PCB geometry may pass while mechanical stack acceptance remains blocked.
+The current stop is deliberate: the supplier-controlled electrical and PCB geometry may pass while the corrected mechanical stack remains unproven.
 
 PCB placement, routing, panel fabrication, purchasing and production remain blocked throughout this lane.
