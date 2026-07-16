@@ -7,6 +7,12 @@ on:
     paths:
       - "tools/apply_ssi2164_buffer_patch.py"
       - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "tools/apply_ssi2164_buffer_patch.py"
+      - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
 
 permissions:
   contents: write
@@ -16,6 +22,7 @@ env:
 
 jobs:
   apply-buffer:
+    if: github.head_ref == 'agent/ssi2164-buffered-control' || github.ref_name == 'agent/ssi2164-buffered-control'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
