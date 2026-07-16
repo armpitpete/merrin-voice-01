@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the final assigned state of Gate-B lane 02.
+"""Validate the approved-and-merged state of Gate-B lane 02.
 
-J40 and J70 must use the reviewed numeric WQP518MA footprint, the project
-symbol default must remain blank, repository authority must describe that
-assigned state consistently, and all PCB, panel, purchasing and production
-authority must remain blocked.
+J40 and J70 must retain the reviewed numeric WQP518MA footprint, the project
+symbol default must remain blank, PR #47 merge authority must be recorded
+exactly, and all PCB, panel, purchasing, production and SSI2164 authority must
+remain blocked or not started.
 """
 
 from __future__ import annotations
@@ -48,6 +48,8 @@ INDEPENDENT_REVIEW_HEAD = "2d1e58e61b1a04653b17cd666dda2160808079cf"
 ASSIGNMENT_COMMIT = "f34eea95c216cd31df4d4e3f1498adc4b9014ec9"
 ASSIGNMENT_VALIDATION_HEAD = "bbc54c59152fdab8ac42ad0035a163e2e383c92b"
 RESTORED_WORKFLOW_HEAD = "5e07b4657436c19db32ea9651ee68e510df402eb"
+REVIEWED_MERGE_HEAD = "ebaf7fbc50f5c07443d329519de0a38622f231b1"
+MAIN_SQUASH_COMMIT = "dd306209e9874dd6e9064c33973d99ecf9282690"
 
 
 def balanced_block(text: str, start: int) -> str:
@@ -215,19 +217,24 @@ def main() -> None:
     audit = json.loads(AUDIT.read_text(encoding="utf-8"))
     assert audit["schema_version"] == 2
 
-    assert audit["authority"] == {
+    authority = audit["authority"]
+    assert authority == {
         "lane": "Gate B lane 02 — input and output jacks",
         "base_commit": "651d594e3c9993b2fdc6ca527328887458a7d849",
+        "lane_status": "APPROVED_AND_MERGED",
+        "pr": 47,
+        "reviewed_head": REVIEWED_MERGE_HEAD,
+        "main_squash_commit": MAIN_SQUASH_COMMIT,
         "pcb_authorised": False,
         "panel_fabrication_authorised": False,
         "purchasing_authorised": False,
+        "ssi2164_lane_started": False,
     }
 
     supplier = audit["supplier_evidence"]
     assert supplier["drawing_model_label"] == "PJ398SM"
-    assert (
-        supplier["equivalence_scope"]
-        == "SUPPLIER_CONTROLLED_CONTACT_AND_FOOTPRINT_EQUIVALENCE_ACCEPTED"
+    assert supplier["equivalence_scope"] == (
+        "SUPPLIER_CONTROLLED_CONTACT_AND_FOOTPRINT_EQUIVALENCE_ACCEPTED"
     )
     assert supplier["manufacturer_controlled_wqp518ma_drawing_found"] is False
 
@@ -368,43 +375,49 @@ def main() -> None:
     assert independent["purchasing_authorised"] is False
 
     validation = audit["validation"]
-    assignment_validation = validation["assignment_state_validation"]
-    restored_validation = validation["restored_workflow_validation"]
-    assert assignment_validation == {
-        "validated_head": ASSIGNMENT_VALIDATION_HEAD,
-        "jack_workflow_run": 29414296763,
-        "schematic_erc_run": 29414296913,
-        "current_stage_authority_run": 29414296878,
-        "input_sheet_erc_run": 29414296832,
-        "output_sheet_erc_run": 29414296789,
-        "final_top_review_run": 29414296776,
-        "codec_sheet_erc_run": 29414296796,
-        "result": "PASS",
-    }
-    assert restored_validation == {
-        "validated_head": RESTORED_WORKFLOW_HEAD,
-        "jack_workflow_run": 29414962885,
-        "schematic_erc_run": 29414962890,
-        "current_stage_authority_run": 29414962883,
-        "input_sheet_erc_run": 29414962907,
-        "output_sheet_erc_run": 29414962974,
-        "final_top_review_run": 29414962893,
-        "codec_sheet_erc_run": 29414962888,
+    assert validation["assignment_state_validation"]["validated_head"] == (
+        ASSIGNMENT_VALIDATION_HEAD
+    )
+    assert validation["assignment_state_validation"]["result"] == "PASS"
+    assert validation["restored_workflow_validation"]["validated_head"] == (
+        RESTORED_WORKFLOW_HEAD
+    )
+    assert validation["restored_workflow_validation"]["result"] == "PASS"
+    assert validation["merge_review_validation"] == {
+        "validated_head": REVIEWED_MERGE_HEAD,
+        "jack_workflow_run": 29421831076,
+        "schematic_erc_run": 29421831023,
+        "current_stage_authority_run": 29421831021,
+        "input_sheet_erc_run": 29421831143,
+        "output_sheet_erc_run": 29421831024,
+        "final_top_review_run": 29421831213,
+        "codec_sheet_erc_run": 29421831322,
         "result": "PASS",
     }
     assert validation["current_head_requirement"] == (
-        "FRESH_UNTOUCHED_CI_REQUIRED_BEFORE_MERGE"
+        "POST_MERGE_AUTHORITY_CI_REQUIRED_BEFORE_CLOSURE_MERGE"
     )
     assert validation["footprint_assignment_remained_blank"] is False
 
+    merge = audit["merge_authority"]
+    assert merge == {
+        "pr": 47,
+        "merge_method": "SQUASH",
+        "reviewed_head": REVIEWED_MERGE_HEAD,
+        "main_squash_commit": MAIN_SQUASH_COMMIT,
+        "merged_at": "2026-07-16T08:32:15Z",
+        "status": "APPROVED_AND_MERGED",
+        "historical_pre_merge_state": "PR47_OPEN_DRAFT_UNMERGED_AT_REVIEW_HEAD_ONLY",
+    }
+
     decision = audit["decision"]
     assert decision["footprints_assigned"] is True
-    assert decision["repository_authority"] == "SYNCHRONISED_TO_ASSIGNED_STATE"
+    assert decision["repository_authority"] == "POST_MERGE_CLOSURE_SYNCHRONISED"
     assert decision["panel_release"] == (
         "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE"
     )
     assert decision["overall"] == (
-        "FOOTPRINT_ASSIGNMENT_VALIDATED_READY_FOR_FRESH_CURRENT_HEAD_CI_AND_MERGE_REVIEW"
+        "LANE_02_APPROVED_AND_MERGED_PENDING_POST_MERGE_AUTHORITY_REVIEW"
     )
 
     assignment = audit["footprint_assignment"]
@@ -428,56 +441,55 @@ def main() -> None:
     assert_contains(
         register_text,
         (
-            "STATUS                                      COMPLETE — READY FOR MERGE REVIEW",
-            "J40 FOOTPRINT FIELD                          ASSIGNED",
-            "J70 FOOTPRINT FIELD                          ASSIGNED",
-            "### Superseded pre-assignment history",
-            "PCB creation / placement / routing    BLOCKED",
+            "STATUS                                      APPROVED AND MERGED",
+            "PR                                          #47",
+            f"REVIEWED HEAD                               {REVIEWED_MERGE_HEAD}",
+            f"MAIN SQUASH COMMIT                          {MAIN_SQUASH_COMMIT}",
+            "SSI2164 lane                            NOT STARTED",
         ),
         "verification register",
     )
-    assert "ACTIVE — READY FOR FOOTPRINT ASSIGNMENT" not in register_text
-    assert "It remains unassigned" not in register_text
+    assert "COMPLETE — READY FOR MERGE REVIEW" not in register_text
+    assert "PR #47 merge                          AWAITING MERGE REVIEW" not in register_text
 
     assert_contains(
         review_text,
         (
-            "J40 FOOTPRINT FIELD                         ASSIGNED",
-            "J70 FOOTPRINT FIELD                         ASSIGNED",
-            "OVERALL                                     READY FOR MERGE REVIEW",
-            "## Independent review and assignment history",
-            "bounded J40/J70 footprint assignment  COMPLETE",
+            "PR #47                                      APPROVED AND MERGED",
+            "OVERALL                                     APPROVED AND MERGED",
+            f"MAIN SQUASH COMMIT                          {MAIN_SQUASH_COMMIT}",
+            "PR #47 merge                          COMPLETE",
+            "SSI2164 lane                          NOT STARTED",
         ),
         "exact-part review",
     )
-    assert "FOOTPRINTS ASSIGNED                         NONE" not in review_text
-    assert "schematic footprint assignment        NOT YET PERFORMED" not in review_text
+    assert "OVERALL                                     READY FOR MERGE REVIEW" not in review_text
+    assert "PR #47 remains draft and unmerged" not in review_text
 
     assert_contains(
         measurement_text,
         (
-            "J40 FOOTPRINT FIELD                      ASSIGNED",
-            "J70 FOOTPRINT FIELD                      ASSIGNED",
-            "## Superseded history",
-            "PCB creation / placement / routing     BLOCKED",
+            "PR #47                                   APPROVED AND MERGED",
+            f"MAIN SQUASH COMMIT                       {MAIN_SQUASH_COMMIT}",
+            "SSI2164 lane                           NOT STARTED",
+            "### Pre-merge review point",
         ),
         "measurement record",
     )
-    assert "J40 / J70 FOOTPRINT ASSIGNMENT           NOT YET PERFORMED" not in measurement_text
-    assert "Until the next bounded gate is deliberately applied" not in measurement_text
+    assert "PR #47 remains draft and unmerged" not in measurement_text
 
     assert_contains(
         contract_text,
         (
-            "## Completed evidence and implementation",
-            "J40 footprint field                    ASSIGNED",
-            "J70 footprint field                    ASSIGNED",
-            "PR #47                                 DRAFT / UNMERGED",
-            "fresh untouched validation chain",
+            "PR #47                                 APPROVED AND MERGED",
+            f"main squash commit                     {MAIN_SQUASH_COMMIT}",
+            "SSI2164 lane                           NOT STARTED",
+            "## Superseded states",
         ),
         "edit contract",
     )
-    assert "## Next bounded patch" not in contract_text
+    assert "PR #47                                 DRAFT / UNMERGED" not in contract_text
+    assert "merge review of PR #47" not in contract_text
 
     independent_text = INDEPENDENT_REVIEW.read_text(encoding="utf-8")
     assert_contains(
@@ -495,10 +507,11 @@ def main() -> None:
     print("J70 output contact and unused-normal contract: PASS")
     print("Pinned source and numeric footprint geometry: PASS")
     print("Bounded J40/J70 footprint assignment: PASS")
+    print("PR #47 reviewed-head and squash-merge authority: PASS")
     print("Project symbol default remains blank: PASS")
-    print("Repository authority synchronised to assigned state: PASS")
-    print("Historical validation heads reconciled: PASS")
+    print("Post-merge repository authority synchronised: PASS")
     print("PCB, panel, purchasing and production authority remain blocked: PASS")
+    print("SSI2164 lane remains not started: PASS")
 
 
 if __name__ == "__main__":

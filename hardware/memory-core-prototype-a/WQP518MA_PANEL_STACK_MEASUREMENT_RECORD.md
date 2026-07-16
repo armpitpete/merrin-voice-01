@@ -14,6 +14,8 @@ EXACT PCB-TO-PANEL SAMPLE READING        NOT RECORDED
 J40 FOOTPRINT FIELD                      ASSIGNED
 J70 FOOTPRINT FIELD                      ASSIGNED
 PROJECT SYMBOL DEFAULT                   BLANK
+PR #47                                   APPROVED AND MERGED
+MAIN SQUASH COMMIT                       dd306209e9874dd6e9064c33973d99ecf9282690
 PCB / PANEL FABRICATION / PURCHASING     BLOCKED
 ```
 
@@ -91,7 +93,7 @@ evidence limitations                     ACCEPTED WITH EXPLICIT TRANSFER
 corrected physical fit                   APPROVED
 ```
 
-The independent review authorised the later footprint-assignment gate. That assignment has now been performed and validated.
+The independent review authorised the later footprint-assignment gate. That assignment was performed, validated, approved and merged through PR #47.
 
 ## PCB-to-panel seating
 
@@ -117,17 +119,20 @@ The exact PCB-to-panel seating distance must be recorded before PCB placement, s
 | thread pitch | deferred unless the accepted fit cannot be reproduced |
 | repository-controlled photographs | optional unless later review requires them |
 
-## Current assignment boundary
+## Current assignment and merge boundary
 
 ```text
 J40 footprint field                    ASSIGNED
 J70 footprint field                    ASSIGNED
 project symbol default footprint       BLANK
 assignment commit                      f34eea95c216cd31df4d4e3f1498adc4b9014ec9
+reviewed PR head                       ebaf7fbc50f5c07443d329519de0a38622f231b1
+main squash commit                     dd306209e9874dd6e9064c33973d99ecf9282690
 post-assignment validation             PASS
 PCB creation / placement / routing     BLOCKED
 panel CAD / fabrication                BLOCKED
 purchasing / production                BLOCKED
+SSI2164 lane                           NOT STARTED
 ```
 
 ## Superseded history
@@ -141,6 +146,10 @@ status: WITHDRAWN — WRONG STACK
 
 ### Pre-assignment review point
 
-At the independent-review head, J40 and J70 were deliberately blank because that review only authorised a later assignment patch. That historical blank state was superseded by assignment commit `f34eea95c216cd31df4d4e3f1498adc4b9014ec9` and is not current authority.
+At the independent-review head, J40 and J70 were deliberately blank because that review only authorised a later assignment patch. That historical blank state was superseded by assignment commit `f34eea95c216cd31df4d4e3f1498adc4b9014ec9`.
 
-PR #47 remains draft and unmerged. PCB creation, placement, routing, panel CAD, fabrication, purchasing and production remain blocked.
+### Pre-merge review point
+
+PR #47 was reviewed at exact head `ebaf7fbc50f5c07443d329519de0a38622f231b1` while open and unmerged. That historical state was superseded by squash commit `dd306209e9874dd6e9064c33973d99ecf9282690`.
+
+PCB creation, placement, routing, panel CAD, fabrication, purchasing and production remain blocked.

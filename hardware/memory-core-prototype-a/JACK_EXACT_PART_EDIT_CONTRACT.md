@@ -2,7 +2,7 @@
 
 ## Goal
 
-Verify and assign the exact input and output jack footprints used by `J40` and `J70`, including:
+Verify, assign and close the exact input and output jack footprints used by `J40` and `J70`, including:
 
 - switched-contact behaviour;
 - physical contact numbering;
@@ -13,7 +13,8 @@ Verify and assign the exact input and output jack footprints used by `J40` and `
 - immutable KiCad footprint provenance;
 - symbol-to-footprint pad mapping;
 - bounded instance-specific footprint assignment;
-- post-assignment validation.
+- post-assignment validation;
+- reviewed merge authority.
 
 ## Current mechanical authority
 
@@ -55,7 +56,8 @@ The former `2.00 mm aluminium + washer + nut` stack is rejected and retained onl
 - no unrelated exact-part decisions;
 - no silent substitution between `WQP518MA`, `PJ398SM` and `PJ301M-12`;
 - no project-symbol default footprint assignment without a separate decision;
-- no PCB or panel release merely because the schematic footprint assignment passed.
+- no PCB or panel release merely because the schematic footprint assignment passed;
+- no SSI2164 work during this post-merge closure.
 
 ## Completed evidence and implementation
 
@@ -73,7 +75,9 @@ This lane has:
 10. assigned the numeric footprint to J40 and J70 only;
 11. kept the project symbol default footprint blank;
 12. updated both controlled generators and generated sheets;
-13. passed the lane validator and complete KiCad hierarchical ERC chain.
+13. passed the lane validator and complete KiCad hierarchical ERC chain;
+14. approved PR #47 at exact head `ebaf7fbc50f5c07443d329519de0a38622f231b1`;
+15. squash-merged PR #47 to `main` as `dd306209e9874dd6e9064c33973d99ecf9282690`.
 
 Assigned footprint:
 
@@ -87,9 +91,13 @@ Assignment commit:
 f34eea95c216cd31df4d4e3f1498adc4b9014ec9
 ```
 
-## Superseded pre-assignment gate
+## Superseded states
 
-The independent-review stage authorised assignment while deliberately leaving J40 and J70 blank. That state was correct for that historical review point but was superseded when the bounded assignment patch was applied. It is not current authority.
+The independent-review stage authorised assignment while deliberately leaving J40 and J70 blank. That state was correct for that historical review point but was superseded by the assignment patch.
+
+PR #47 was later reviewed while open and unmerged. That pre-merge state was superseded by squash commit `dd306209e9874dd6e9064c33973d99ecf9282690`.
+
+Neither superseded state is current authority.
 
 ## Check command
 
@@ -118,12 +126,15 @@ J40 footprint field                    ASSIGNED
 J70 footprint field                    ASSIGNED
 project symbol default                 BLANK
 post-assignment validation             PASS
+PR #47                                 APPROVED AND MERGED
+reviewed head                          ebaf7fbc50f5c07443d329519de0a38622f231b1
+main squash commit                     dd306209e9874dd6e9064c33973d99ecf9282690
 PCB creation / placement / routing     BLOCKED
 panel CAD / fabrication                BLOCKED
 purchasing / production                BLOCKED
-PR #47                                 DRAFT / UNMERGED
+SSI2164 lane                           NOT STARTED
 ```
 
-The next permitted action is merge review of PR #47 after a fresh untouched validation chain passes on the repository-authority synchronisation head.
+The next permitted action is review and merge of this post-merge authority closure. The SSI2164 lane remains separate and must not begin before that closure is deliberate.
 
 PCB creation, placement, routing, panel CAD, fabrication, purchasing and production remain blocked.

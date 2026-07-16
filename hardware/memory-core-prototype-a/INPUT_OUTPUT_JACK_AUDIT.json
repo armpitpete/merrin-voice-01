@@ -3,9 +3,14 @@
   "authority": {
     "lane": "Gate B lane 02 — input and output jacks",
     "base_commit": "651d594e3c9993b2fdc6ca527328887458a7d849",
+    "lane_status": "APPROVED_AND_MERGED",
+    "pr": 47,
+    "reviewed_head": "ebaf7fbc50f5c07443d329519de0a38622f231b1",
+    "main_squash_commit": "dd306209e9874dd6e9064c33973d99ecf9282690",
     "pcb_authorised": false,
     "panel_fabrication_authorised": false,
-    "purchasing_authorised": false
+    "purchasing_authorised": false,
+    "ssi2164_lane_started": false
   },
   "supplier_evidence": {
     "orderable_candidate": "Thonkiconn Mono 3.5mm Audio Jack — WQP518MA",
@@ -194,11 +199,31 @@
       "codec_sheet_erc_run": 29414962888,
       "result": "PASS"
     },
-    "evidence_interpretation": "The assignment-state head proves the engineering assignment. The restored-workflow head proves the normal read-only workflow and untouched validation chain. A fresh untouched chain is required on the repository-authority synchronisation head before merge.",
-    "current_head_requirement": "FRESH_UNTOUCHED_CI_REQUIRED_BEFORE_MERGE",
+    "merge_review_validation": {
+      "validated_head": "ebaf7fbc50f5c07443d329519de0a38622f231b1",
+      "jack_workflow_run": 29421831076,
+      "schematic_erc_run": 29421831023,
+      "current_stage_authority_run": 29421831021,
+      "input_sheet_erc_run": 29421831143,
+      "output_sheet_erc_run": 29421831024,
+      "final_top_review_run": 29421831213,
+      "codec_sheet_erc_run": 29421831322,
+      "result": "PASS"
+    },
+    "evidence_interpretation": "The assignment-state head proves the engineering assignment. The restored-workflow and reviewed merge heads prove the normal read-only workflow and untouched validation chain. The post-merge authority closure must pass the same untouched chain before closure review.",
+    "current_head_requirement": "POST_MERGE_AUTHORITY_CI_REQUIRED_BEFORE_CLOSURE_MERGE",
     "jack_validator": "PASS",
     "hierarchical_erc": "PASS — 0 errors / 0 warnings",
     "footprint_assignment_remained_blank": false
+  },
+  "merge_authority": {
+    "pr": 47,
+    "merge_method": "SQUASH",
+    "reviewed_head": "ebaf7fbc50f5c07443d329519de0a38622f231b1",
+    "main_squash_commit": "dd306209e9874dd6e9064c33973d99ecf9282690",
+    "merged_at": "2026-07-16T08:32:15Z",
+    "status": "APPROVED_AND_MERGED",
+    "historical_pre_merge_state": "PR47_OPEN_DRAFT_UNMERGED_AT_REVIEW_HEAD_ONLY"
   },
   "decision": {
     "contact_contract": "PASS",
@@ -210,8 +235,8 @@
     "panel_stack": "APPROVED_AND_FOOTPRINT_ASSIGNMENT_APPLIED",
     "panel_release": "BLOCKED_PENDING_MATERIAL_SUPPLIER_FINISHED_THICKNESS_HOLE_AND_SEATING_DISTANCE",
     "footprints_assigned": true,
-    "repository_authority": "SYNCHRONISED_TO_ASSIGNED_STATE",
-    "overall": "FOOTPRINT_ASSIGNMENT_VALIDATED_READY_FOR_FRESH_CURRENT_HEAD_CI_AND_MERGE_REVIEW"
+    "repository_authority": "POST_MERGE_CLOSURE_SYNCHRONISED",
+    "overall": "LANE_02_APPROVED_AND_MERGED_PENDING_POST_MERGE_AUTHORITY_REVIEW"
   },
   "footprint_assignment": {
     "footprint": "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric",
