@@ -63,7 +63,10 @@ Detailed records:
 ### Current authoritative state
 
 ```text
-STATUS                                      COMPLETE — READY FOR MERGE REVIEW
+STATUS                                      APPROVED AND MERGED
+PR                                          #47
+REVIEWED HEAD                               ebaf7fbc50f5c07443d329519de0a38622f231b1
+MAIN SQUASH COMMIT                          dd306209e9874dd6e9064c33973d99ecf9282690
 J40 INPUT CONTACT CONTRACT                  PASS
 J70 OUTPUT CONTACT CONTRACT                 PASS
 WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
@@ -79,7 +82,6 @@ PROJECT SYMBOL DEFAULT FOOTPRINT             BLANK
 CONTROLLED GENERATORS                        UPDATED
 POST-ASSIGNMENT VALIDATION                   PASS
 PCB / PANEL FAB / PURCHASING                 BLOCKED
-PR #47                                       DRAFT / UNMERGED
 ```
 
 Assigned footprint:
@@ -133,9 +135,11 @@ available thread             2.90 mm nominal before nut engagement
 panel-to-PCB seating         8.30 mm supplier nominal; not measured
 ```
 
-### Superseded pre-assignment history
+### Superseded history
 
-The independent mechanical review at `2d1e58e61b1a04653b17cd666dda2160808079cf` authorised footprint assignment as the next bounded gate. At that historical review point only, J40 and J70 remained blank. The assignment was subsequently applied and validated. That pre-assignment state is not current authority.
+The independent mechanical review at `2d1e58e61b1a04653b17cd666dda2160808079cf` authorised footprint assignment as a later bounded gate. At that historical review point only, J40 and J70 remained blank.
+
+Before merge, PR #47 was reviewed at exact head `ebaf7fbc50f5c07443d329519de0a38622f231b1` while still open and unmerged. That pre-merge state was superseded by squash commit `dd306209e9874dd6e9064c33973d99ecf9282690` and is not current authority.
 
 The earlier `2.00 mm aluminium + washer + nut` fit statement is withdrawn because it described the wrong stack.
 
@@ -152,17 +156,18 @@ Before PCB placement, standoff selection, panel CAD, fabrication or purchasing, 
 ### Current stop boundary
 
 ```text
-J40 / J70 footprint assignment        COMPLETE
-project symbol default                BLANK
-PCB creation / placement / routing    BLOCKED
-panel CAD / fabrication               BLOCKED
-purchasing / production               BLOCKED
-PR #47 merge                          AWAITING MERGE REVIEW
+Lane 02 exact-part authority            APPROVED AND MERGED
+J40 / J70 footprint assignment          COMPLETE
+project symbol default                  BLANK
+PCB creation / placement / routing      BLOCKED
+panel CAD / fabrication                 BLOCKED
+purchasing / production                 BLOCKED
+SSI2164 lane                            NOT STARTED
 ```
 
 ## Remaining Gate-B lanes
 
-Proceed one lane at a time after Lane 02 is merged and repository authority is synchronised:
+Proceed one lane at a time after this post-merge authority closure is reviewed and merged:
 
 1. SSI2164 package and control-law assumptions;
 2. OPA1679 package and decoupling requirements;
