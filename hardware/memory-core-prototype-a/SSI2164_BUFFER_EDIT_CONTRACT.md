@@ -26,13 +26,16 @@ PCB / panel / purchasing     BLOCKED
 buffer                         OPA4196 quad operational amplifier
 supply                         protected +/-12 V
 configuration                  four unity-gain followers
+ownership                      one shared five-unit U63 across sheets 05 and 06
 package target                 PW / TSSOP-14
 footprint assignment           BLOCKED pending exact footprint review
 local supply bypass            100 nF from each supply pin to ground
+pre-buffer filtering           existing 1 kΩ / capacitor networks
 post-buffer isolation          20 ohm per channel
-post-buffer clamps             retained at 0 V and +3.3 V boundaries
-SSI local series links         0 ohm
+post-buffer clamps             0 V and +3.3 V boundaries
 ```
+
+Sheet 05 owns OPA4196 units 1, 2 and 4 for Memory, Ghost and wet master. Sheet 06 owns unit 3 for Return and unit 5 for common power. Sheet 08 remains the TMUX1574 safe-selector and first-filter stage.
 
 The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 
@@ -47,14 +50,16 @@ The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 - `hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym`
 - `hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch`
 - `hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch`
-- `hardware/memory-core-prototype-a/08_CONTROLS_STATE.kicad_sch`
 - `hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md`
 - `hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md`
 - `tools/capture_memory_ghost_wet_sheet.py`
 - `tools/capture_return_break_limiter_sheet.py`
-- `tools/capture_controls_state_sheet.py`
+- `tools/apply_ssi2164_buffer_patch.py` while implementation is in progress only
 - `tools/validate_ssi2164_buffer_lane.py`
-- one dedicated read-only GitHub Actions workflow for this lane
+- `.github/workflows/temporary-apply-ssi2164-buffer.yml` while implementation is in progress only
+- one final dedicated read-only GitHub Actions workflow for this lane
+
+The temporary patch script and write-enabled workflow must be deleted before final review. Their workflow must fail closed on the exact branch, exact source hashes and exact allowed file set.
 
 ## Forbidden changes
 
@@ -62,6 +67,7 @@ The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 - no OPA4196 footprint assignment;
 - no OPA1679 package or decoupling changes;
 - no Return limiter/clamp-diode exact-part selection;
+- no top-level hierarchy or sheet-08 engineering changes;
 - no PCB creation, placement or routing;
 - no panel CAD or fabrication;
 - no purchasing or production authority;
@@ -70,13 +76,13 @@ The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 
 ## Expected electrical diff
 
-1. Add one OPA4196 quad buffer to sheet 08.
-2. Keep TMUX1574 safe selection and pre-buffer 1 kΩ / 10 nF filtering.
-3. Buffer each filtered control node at unity gain.
+1. Retain TMUX1574 safe selection and sheet-08 filtering unchanged.
+2. Add one shared OPA4196 U63 across sheets 05 and 06.
+3. Buffer the four local filtered control nodes at unity gain.
 4. Add 20 Ω post-buffer isolation per channel.
-5. Place the existing 0 V / +3.3 V clamps after the buffer.
-6. Change the four downstream SSI control-series resistors from 1 kΩ to 0 Ω links.
-7. Preserve all four SSI2164 control-pin and channel assignments.
+5. Place 0 V / +3.3 V clamps after each buffer.
+6. Preserve all four SSI2164 control-pin and channel assignments.
+7. Add 100 nF local decoupling from each U63 supply pin to ground.
 
 ## Checks
 
