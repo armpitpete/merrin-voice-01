@@ -57,9 +57,12 @@ jobs:
 
       - name: Regenerate authoritative sheets
         if: steps.state.outputs.applied == 'false'
+        shell: bash
         run: |
-          python tools/capture_return_break_limiter_sheet_v3.py
-          python tools/capture_memory_ghost_wet_sheet_v2.py
+          mkdir -p build/generator
+          set -o pipefail
+          python tools/capture_return_break_limiter_sheet_v3.py 2>&1 | tee build/generator/return-sheet.log
+          python tools/capture_memory_ghost_wet_sheet_v2.py 2>&1 | tee build/generator/memory-ghost-wet.log
 
       - name: Validate buffered-control lane
         run: |
@@ -94,6 +97,22 @@ jobs:
               raise SystemExit(f'ERC failed: {errors} errors, {warnings} warnings')
           print('SSI2164 buffer ERC: PASS — 0 errors / 0 warnings')
           PY
+
+      - name: Upload generator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssi2164-buffer-generator-diagnostics
+          path: build/generator
+          if-no-files-found: warn
+
+      - name: Upload ERC diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssi2164-buffer-erc-diagnostics
+          path: build/erc
+          if-no-files-found: error
 
       - name: Commit validated implementation
         if: steps.state.outputs.applied == 'false'
