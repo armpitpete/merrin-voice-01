@@ -9,25 +9,38 @@ Gate C — bench acceptance           NOT STARTED
 Gate D — PCB / production           BLOCKED
 ```
 
-Gate B may correct schematic assumptions and accept individually reviewed package mappings. It does not authorise PCB placement, routing, fabrication, purchasing or production claims.
+Gate B may verify parts and assign reviewed schematic footprints. It does not authorise PCB creation, placement, routing, panel CAD, fabrication, purchasing or production.
 
 ## Verification rule
 
 An active device or connector is accepted only when all of these are traceable:
 
-1. exact manufacturer and orderable part number;
-2. manufacturer datasheet;
-3. package designation and dimensional envelope;
-4. physical pin numbering and symbol mapping;
-5. electrical limits at the actual circuit bias and fault states;
+1. exact orderable identity;
+2. manufacturer or controlled-supplier evidence;
+3. mechanical designation and envelope;
+4. physical contact numbering and symbol mapping;
+5. switching behaviour in the actual circuit use;
 6. immutable upstream revision and SHA-256-locked project-local footprint bytes;
-7. independent dimensional comparison for every exact package;
-8. explicit temperature scope for datasheet-bound electrical claims;
-9. transfer of remaining physical and measured gates.
+7. reviewed package or connector geometry;
+8. panel and mounting-stack constraints where applicable;
+9. explicit transfer of unresolved physical and measured gates.
 
-A generic class name, typical graph, assumed CTR, moving library branch or footprint-name match is not acceptance evidence.
+A generic class name, supplier nickname, moving library branch or footprint-name match is not acceptance evidence by itself.
 
 ## Lane 01 — output mute and fault-control path
+
+```text
+STATUS                                  APPROVED AND MERGED
+PR                                      #46
+APPROVED HEAD                           c5b6551bbd6b577057bad571a9f051e8a39966c7
+MAIN SQUASH COMMIT                      651d594e3c9993b2fdc6ca527328887458a7d849
+Q70 MMBFJ113 / CASE 318-08              APPROVED
+Q71 PMV20XNE / TO-236AB                 APPROVED
+U70 VO617A-3X007T / OPTION-7 SMD-4      APPROVED
+KICAD 10 HIERARCHICAL ERC               PASS — 0 / 0
+MEASURED / FULL-TEMPERATURE BEHAVIOUR   GATE C
+PCB / ROUTING / FAB / PURCHASING        BLOCKED
+```
 
 Detailed records:
 
@@ -35,106 +48,125 @@ Detailed records:
 - `07_OUTPUT_MUTE_PROTECTION_VALIDATION.md`
 - `OUTPUT_MUTE_FOOTPRINT_DIMENSION_AUDIT.json`
 
-Current result:
+## Lane 02 — input and output jacks
+
+Detailed records:
+
+- `JACK_EXACT_PART_EDIT_CONTRACT.md`
+- `INPUT_OUTPUT_JACK_AUDIT.json`
+- `INPUT_OUTPUT_JACK_EXACT_PART_REVIEW.md`
+- `WQP518MA_PANEL_STACK_MEASUREMENT_RECORD.md`
+- `WQP518MA_PANEL_STACK_INDEPENDENT_REVIEW.md`
+- `jack-footprint-audits/KiCad_Official_Jack_3.5mm_QingPu_WQP-PJ398SM_Vertical_CircularHoles.kicad_mod`
+- `MerrinLab_PrototypeA.pretty/Jack_3.5mm_Thonkiconn_WQP518MA_Numeric.kicad_mod`
+
+### Current authoritative state
 
 ```text
-Q70 MMBFJ113 exact part / pin map                PASS, SUBJECT TO PR REVIEW
-Q71 PMV20XNE exact part / pin map                 PASS, SUBJECT TO PR REVIEW
-U70 VO617A-3X007T exact part / pin map            PASS, SUBJECT TO PR REVIEW
-POWERED HEALTHY-RELEASE TOPOLOGY                  PASS AT CALCULATED LEVEL
-Q70 CASE 318-08 INDEPENDENT DIMENSIONAL AUDIT     PASS
-Q71 TO-236AB INDEPENDENT DIMENSIONAL AUDIT        PASS
-U70 OPTION-7 SMD-4 DIMENSIONAL AUDIT              PASS
-U70 25 C DATASHEET-BOUND SATURATION PROOF         PASS — 8.93:1
-Q70 25 C DATASHEET-BOUND ATTENUATION              PASS — 61.50 dB
-IMMUTABLE KICAD FOOTPRINT PROVENANCE              PASS
-KICAD 10 HIERARCHICAL ERC                         PASS — 0 / 0
-COMMITTED-FILE NO-DIFF RERUN                      PASS
-MEASURED MUTE / POP / RAIL SEQUENCING             GATE C
-PCB / ROUTING / FABRICATION / PURCHASING          BLOCKED
+STATUS                                      COMPLETE — READY FOR MERGE REVIEW
+J40 INPUT CONTACT CONTRACT                  PASS
+J70 OUTPUT CONTACT CONTRACT                 PASS
+WQP518MA ORDERABLE JACK                      PASS FOR CONTACT / PCB GEOMETRY
+WQP518MA ↔ PJ398SM SUPPLIER EQUIVALENCE      PASS FOR CONTACT / PCB GEOMETRY
+OFFICIAL KICAD SOURCE FOOTPRINT              PINNED AND VERIFIED
+NUMERIC PROJECT-LOCAL FOOTPRINT              PASS — 1 / 2 / 3
+3 MM BARREL RELIEF NPTH                      PASS
+CORRECT 1.60 MM NUT-ONLY PHYSICAL FIT        PASS
+INDEPENDENT MECHANICAL REVIEW                PASS
+J40 FOOTPRINT FIELD                          ASSIGNED
+J70 FOOTPRINT FIELD                          ASSIGNED
+PROJECT SYMBOL DEFAULT FOOTPRINT             BLANK
+CONTROLLED GENERATORS                        UPDATED
+POST-ASSIGNMENT VALIDATION                   PASS
+PCB / PANEL FAB / PURCHASING                 BLOCKED
+PR #47                                       DRAFT / UNMERGED
 ```
 
-### Candidate register
-
-| Ref | Exact part | Manufacturer package | Physical pins | Assigned KiCad footprint |
-|---|---|---|---|---|
-| Q70 | onsemi `MMBFJ113` | SOT-23 / TO-236, CASE 318-08 | 1 D, 2 S, 3 G | `Package_TO_SOT_SMD:SOT-23` |
-| Q71 | Nexperia `PMV20XNE` | TO-236AB / SOT23 | 1 G, 2 S, 3 D | `Package_TO_SOT_SMD:SOT-23` |
-| U70 | Vishay `VO617A-3X007T` | option-7 SMD-4 | 1 A, 2 K, 3 E, 4 C | `Package_DIP:SMDIP-4_W7.62mm` |
-
-### Electrical evidence
+Assigned footprint:
 
 ```text
-minimum estimated VO617A LED current = 5.304 mA
-25 C saturated condition = IF 5 mA, IC 1 mA, VCE(sat) <= 0.4 V
-actual worst load at VCE = 0.4 V = 0.112 mA
-25 C saturation-current margin = 8.93:1
-full-temperature release behaviour = Gate C
-
-Q70 25 C datasheet-bound attenuation = 61.50 dB
-full-temperature and measured >=60 dB acceptance = Gate C
-
-healthy MUTE_GATE estimate = -10.545 V
-fault / +12 V loss crossing of -3 V = 12.57 ms
+MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
+1 = TIP
+2 = TIP_NORMAL
+3 = SLEEVE
+3.00 mm NPTH barrel relief
 ```
 
-### Q70 independent dimensional evidence
+Assignment commit:
 
 ```text
-body length maximum       3.04 mm
-body width maximum        1.40 mm
-overall lead span maximum 2.64 mm
-outer lead pitch range    1.78 to 2.04 mm
-lead width maximum        0.50 mm
-lead length maximum       0.69 mm
+f34eea95c216cd31df4d4e3f1498adc4b9014ec9
 ```
 
-Q70 has its own CASE 318-08 validation path and no longer inherits Q71's package result.
+### Contact contracts
 
-### Immutable footprint authority
+| Ref | Role | Contact 1 | Contact 2 | Contact 3 | Required switching behaviour |
+|---|---|---|---|---|---|
+| J40 | input | `TIP → INPUT_TIP` | `TIP_NORMAL → GND` | `SLEEVE → GND` | contacts 1–2 closed with no plug; open on insertion |
+| J70 | output | `TIP → OUTPUT_TIP` | no-connect | `SLEEVE → GND` | normal contact deliberately unused |
 
-The accepted project-local footprint bytes originate from the official `KiCad/kicad-footprints` repository at:
+### Controlled footprint authority
 
 ```text
-commit 7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd
+orderable jack        Thonkiconn WQP518MA
+controlled drawing    PJ398SM
+accepted scope         contacts, switching and PCB terminal geometry
+excluded scope         final panel construction and fabrication dimensions
+
+source repository      KiCad/kicad-footprints
+source commit          7ebfa6b23cc292a56f751b7b5f4a0e12eeef69dd
+source blob            6c9440c957bf566ae79058cdab7afabfb86955d8
+source SHA-256          8ae08dd1e353c7fdbea2827c890ecd150e6f5f528598770bec85a8f2422b98cc
+numeric SHA-256         e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 ```
+
+### Corrected mechanical stack
 
 ```text
-SOT-23
-Git blob 50a8c41bf25dc5843c0ceb95820dc83b930321f9
-SHA-256 db5b998f0d36708205a4b8edc0db1501deb0246a81b52e9cb036cfd58b7570d3
-
-SMDIP-4_W7.62mm
-Git blob f45a9a53110c40e6dfdcdae40d07a29856841be2
-SHA-256 23f55da451d042a66c22a94cf3e622a242f6e5c4c7ed22909a564699350bf30d
+panel nominal thickness      1.60 mm
+panel construction           provisional FR-4 PCB panel
+panel supplier               not locked; JLCPCB only a possibility
+nut                          selected Thonk hex nut
+washer                       none
+threaded bushing             4.50 mm supplier nominal
+available thread             2.90 mm nominal before nut engagement
+panel-to-PCB seating         8.30 mm supplier nominal; not measured
 ```
 
-Moving library branches and ambient workstation footprints are not Gate-B authority. Placement, neighbouring clearances, creepage strategy and assembly acceptance remain blocked.
+### Superseded pre-assignment history
 
-### Closure evidence
+The independent mechanical review at `2d1e58e61b1a04653b17cd666dda2160808079cf` authorised footprint assignment as the next bounded gate. At that historical review point only, J40 and J70 remained blank. The assignment was subsequently applied and validated. That pre-assignment state is not current authority.
 
-Committed head `8d0187bf2ed4bc3caceb9cc4844b2d50bef65b6a` passed dedicated workflow run `29347852152`, including:
+The earlier `2.00 mm aluminium + washer + nut` fit statement is withdrawn because it described the wrong stack.
+
+### Deferred mechanical-release gate
+
+Before PCB placement, standoff selection, panel CAD, fabrication or purchasing, lock or measure:
+
+1. final panel material and supplier;
+2. actual finished panel thickness or controlled supplier tolerance;
+3. actual assembled PCB-to-panel seating distance;
+4. finished panel-hole diameter and manufacturing tolerance;
+5. any resulting axis-offset correction.
+
+### Current stop boundary
 
 ```text
-independent Q70 / Q71 / U70 package validation PASS
-immutable source revision and footprint hashes PASS
-U70 25 C authority validation                  PASS
-exact electrical / pin / hierarchy checks      PASS
-KiCad 10 hierarchical ERC                      PASS — 0 / 0
-committed-file promotion                       NO DIFF
-complete affected workflow chain               PASS
+J40 / J70 footprint assignment        COMPLETE
+project symbol default                BLANK
+PCB creation / placement / routing    BLOCKED
+panel CAD / fabrication               BLOCKED
+purchasing / production               BLOCKED
+PR #47 merge                          AWAITING MERGE REVIEW
 ```
-
-Lane 01 is ready for another deliberate PR #46 approval-or-rejection review. It is not approved or merged by this repair.
 
 ## Remaining Gate-B lanes
 
-Proceed only after Lane 01 is deliberately merged:
+Proceed one lane at a time after Lane 02 is merged and repository authority is synchronised:
 
-1. input and output jacks;
-2. SSI2164 package and control-law assumptions;
-3. OPA1679 package and decoupling requirements;
-4. Return limiter and clamp diodes;
-5. service connector and test-point access.
+1. SSI2164 package and control-law assumptions;
+2. OPA1679 package and decoupling requirements;
+3. Return limiter and clamp diodes;
+4. service connector and test-point access.
 
-PCB placement, routing, fabrication and purchasing remain blocked.
+PCB creation, placement, routing, panel CAD, fabrication, purchasing and production remain blocked.

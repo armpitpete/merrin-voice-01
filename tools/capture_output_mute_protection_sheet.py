@@ -288,7 +288,7 @@ def build() -> None:
     add_two_pin(sch, "Device:D_Schottky", "D701", "BAT54-class +rail clamp", (350.52, 162.56), "OUTPUT_TIP", "RAIL_P12")
     add_two_pin(sch, "Device:D_Schottky", "D702", "BAT54-class -rail clamp", (365.76, 162.56), "RAIL_N12", "OUTPUT_TIP")
 
-    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70", "WQP518MA / THONKICONN OUTPUT", (386.08, 124.46))
+    add_part(sch, "MerrinLab_PrototypeA:WQP518MA_APPLICATION", "J70", "WQP518MA / THONKICONN OUTPUT", (386.08, 124.46), "MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric")
     label_pin(sch, "J70", "1", "OUTPUT_TIP")
     sch.no_connects.add(position=pin_position(sch, "J70", "2"))
     label_pin(sch, "J70", "3", "GND")
