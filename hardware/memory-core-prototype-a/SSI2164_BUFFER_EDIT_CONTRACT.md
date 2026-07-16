@@ -54,6 +54,8 @@ The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 - `hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md`
 - `tools/capture_memory_ghost_wet_sheet.py`
 - `tools/capture_return_break_limiter_sheet.py`
+- `tools/validate_memory_ghost_wet_capture.py`
+- `.github/workflows/kicad-return-sheet-erc.yml` only to permit both shared multi-unit references U60 and U63
 - `tools/apply_ssi2164_buffer_patch.py` while implementation is in progress only
 - `tools/validate_ssi2164_buffer_lane.py`
 - `.github/workflows/temporary-apply-ssi2164-buffer.yml` while implementation is in progress only
@@ -83,11 +85,13 @@ The temporary patch script and write-enabled workflow must be deleted before fin
 5. Place 0 V / +3.3 V clamps after each buffer.
 6. Preserve all four SSI2164 control-pin and channel assignments.
 7. Add 100 nF local decoupling from each U63 supply pin to ground.
+8. Update only the duplicate-reference validators so U60 and U63 are both recognised as intentional shared devices.
 
 ## Checks
 
 ```text
 python tools/validate_ssi2164_buffer_lane.py
+python tools/validate_memory_ghost_wet_capture.py
 python tools/validate_current_schematic_stage.py
 KiCad 10 hierarchical ERC
 ```
