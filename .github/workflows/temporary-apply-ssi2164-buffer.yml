@@ -6,12 +6,14 @@ on:
       - agent/ssi2164-buffered-control
     paths:
       - "tools/apply_ssi2164_buffer_patch.py"
+      - "tools/apply_ssi2164_buffer_coordinate_repair_patch.py"
       - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
   pull_request:
     branches:
       - main
     paths:
       - "tools/apply_ssi2164_buffer_patch.py"
+      - "tools/apply_ssi2164_buffer_coordinate_repair_patch.py"
       - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
 
 permissions:
@@ -51,9 +53,11 @@ jobs:
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
 
-      - name: Apply exact-hash source patch
+      - name: Apply exact-hash source and coordinate patches
         if: steps.state.outputs.applied == 'false'
-        run: python tools/apply_ssi2164_buffer_patch.py
+        run: |
+          python tools/apply_ssi2164_buffer_patch.py
+          python tools/apply_ssi2164_buffer_coordinate_repair_patch.py
 
       - name: Regenerate authoritative sheets
         if: steps.state.outputs.applied == 'false'
@@ -133,11 +137,14 @@ jobs:
             hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md \
             hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md \
             tools/capture_memory_ghost_wet_sheet.py \
+            tools/capture_memory_ghost_wet_sheet_v2.py \
             tools/capture_return_break_limiter_sheet.py \
+            tools/capture_return_break_limiter_sheet_v3.py \
+            tools/repair_ssi2164_buffer_opa4196_units.py \
             tools/validate_memory_ghost_wet_capture.py \
             tools/validate_ssi2164_buffer_lane.py \
             .github/workflows/kicad-return-sheet-erc.yml
           git diff --cached --name-only
-          test "$(git diff --cached --name-only | wc -l)" -eq 15
+          test "$(git diff --cached --name-only | wc -l)" -eq 18
           git commit -m "Buffer SSI2164 control voltages"
           git push origin HEAD:agent/ssi2164-buffered-control
