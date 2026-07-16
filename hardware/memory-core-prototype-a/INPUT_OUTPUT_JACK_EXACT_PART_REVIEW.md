@@ -20,8 +20,11 @@ J40 FOOTPRINT FIELD                         ASSIGNED
 J70 FOOTPRINT FIELD                         ASSIGNED
 PROJECT SYMBOL DEFAULT                      BLANK
 POST-ASSIGNMENT VALIDATION                  PASS
+PR #47                                      APPROVED AND MERGED
+REVIEWED HEAD                               ebaf7fbc50f5c07443d329519de0a38622f231b1
+MAIN SQUASH COMMIT                          dd306209e9874dd6e9064c33973d99ecf9282690
 PCB / PANEL FAB / PURCHASING                BLOCKED
-OVERALL                                     READY FOR MERGE REVIEW
+OVERALL                                     APPROVED AND MERGED
 ```
 
 The current authoritative stack is:
@@ -87,7 +90,7 @@ MerrinLab_PrototypeA:Jack_3.5mm_Thonkiconn_WQP518MA_Numeric
 SHA-256 e9e095c63fa39dfd306a45755b6e8e9048e795b8592a6eeba3bf6ab734ed3685
 ```
 
-The electrical pad centres, sizes and drills match the pinned official KiCad source geometry. J40 and J70 now use this numeric footprint. The project symbol default remains blank so the decision is instance-specific.
+The electrical pad centres, sizes and drills match the pinned official KiCad source geometry. J40 and J70 use this numeric footprint. The project symbol default remains blank so the decision is instance-specific.
 
 ## Corrected panel and hardware stack
 
@@ -104,24 +107,15 @@ panel-to-PCB seating         8.30 mm supplier nominal; not measured
 
 The project owner attested that the corrected stack passes clean insertion, clean nut start, clamping before bottoming, secure retention, no rotation or wobble, no housing distortion, no jack lift or tilt, no solder-terminal loading, no PCB bow, no forced alignment, 3.00 mm barrel-relief clearance and unobstructed terminal holes.
 
-## Independent review and assignment history
+## Review, assignment and merge history
 
-The corrected physical-fit record was reviewed at:
+The corrected physical-fit record was independently reviewed at:
 
 ```text
 2d1e58e61b1a04653b17cd666dda2160808079cf
 ```
 
-The review found:
-
-```text
-corrected stack identity                 PASS
-qualitative retention and stress checks  PASS
-barrel-relief and terminal clearance      PASS
-evidence limitations                      ACCEPTED WITH EXPLICIT TRANSFER
-```
-
-That review authorised assignment as a later bounded action. At the review point only, the footprint fields were blank. This is superseded pre-assignment history, not the current state.
+That review authorised assignment as a later bounded action. At that historical review point only, the footprint fields were blank.
 
 Assignment was applied in:
 
@@ -129,26 +123,30 @@ Assignment was applied in:
 f34eea95c216cd31df4d4e3f1498adc4b9014ec9
 ```
 
-Current assignment state:
+PR #47 was then approved at exact head:
 
 ```text
-J40 footprint field               ASSIGNED
-J70 footprint field               ASSIGNED
-project symbol default            BLANK
-controlled generators             UPDATED
-post-assignment validation        PASS
+ebaf7fbc50f5c07443d329519de0a38622f231b1
 ```
+
+and squash-merged to `main` as:
+
+```text
+dd306209e9874dd6e9064c33973d99ecf9282690
+```
+
+The earlier blank-footprint and unmerged states are superseded history, not current authority.
 
 ## Validation authority
 
-Two distinct validation stages are retained without conflation:
-
 ```text
-assignment-state validation head  bbc54c59152fdab8ac42ad0035a163e2e383c92b
+assignment-state validation head   bbc54c59152fdab8ac42ad0035a163e2e383c92b
 restored-workflow validation head  5e07b4657436c19db32ea9651ee68e510df402eb
+reviewed merge head                ebaf7fbc50f5c07443d329519de0a38622f231b1
+main squash commit                 dd306209e9874dd6e9064c33973d99ecf9282690
 ```
 
-The first validated the assigned engineering state and recorded the assignment evidence. The second restored the normal read-only workflow and passed the complete untouched chain. A fresh chain is required on the repository-authority synchronisation head before merge review.
+The assignment-state head proves the engineering assignment. The restored-workflow and reviewed merge heads passed the normal read-only validation chain. The current post-merge authority branch must also pass that untouched chain before closure review.
 
 ## Deferred mechanical-release evidence
 
@@ -173,11 +171,12 @@ official source footprint provenance  PASS
 numeric footprint geometry            PASS
 corrected panel stack                  INDEPENDENTLY APPROVED
 bounded J40/J70 footprint assignment  COMPLETE
+PR #47 merge                          COMPLETE
 project symbol default                BLANK
 PCB creation / placement / routing    BLOCKED
 panel CAD / fabrication               BLOCKED
 purchasing / production               BLOCKED
-PR #47 merge                          AWAITING REVIEW
+SSI2164 lane                          NOT STARTED
 ```
 
-PR #47 remains draft and unmerged.
+Lane 02 is approved and merged. This post-merge authority closure does not start the next Gate-B lane.
