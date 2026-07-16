@@ -1,0 +1,117 @@
+name: Temporary apply SSI2164 buffer
+
+on:
+  push:
+    branches:
+      - agent/ssi2164-buffered-control
+    paths:
+      - "tools/apply_ssi2164_buffer_patch.py"
+      - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
+
+permissions:
+  contents: write
+
+env:
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  apply-buffer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/ssi2164-buffered-control
+          fetch-depth: 0
+
+      - name: Enforce branch and implementation state
+        id: state
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git branch --show-current)" = "agent/ssi2164-buffered-control"
+          if [ -f hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json ]; then
+            echo "applied=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+
+      - name: Apply exact-hash source patch
+        if: steps.state.outputs.applied == 'false'
+        run: python tools/apply_ssi2164_buffer_patch.py
+
+      - name: Regenerate authoritative sheets
+        if: steps.state.outputs.applied == 'false'
+        run: |
+          python tools/capture_return_break_limiter_sheet_v3.py
+          python tools/capture_memory_ghost_wet_sheet_v2.py
+
+      - name: Validate buffered-control lane
+        run: |
+          python tools/validate_ssi2164_buffer_lane.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_current_schematic_stage.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          docker pull "$KICAD_IMAGE"
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output build/erc/ssi2164-buffer-erc.rpt \
+              hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch
+          cat build/erc/ssi2164-buffer-erc.rpt
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('build/erc/ssi2164-buffer-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', text)
+          if not summary:
+              raise SystemExit('ERC summary not found')
+          errors, warnings = map(int, summary.groups())
+          if errors or warnings:
+              raise SystemExit(f'ERC failed: {errors} errors, {warnings} warnings')
+          print('SSI2164 buffer ERC: PASS — 0 errors / 0 warnings')
+          PY
+
+      - name: Commit validated implementation
+        if: steps.state.outputs.applied == 'false'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            docs/v5.2-ssi2164-mcp4728-fail-safe-control.md \
+            docs/v5.2-power-current-and-thermal-budget.md \
+            docs/v5.2-return-limiter-and-opamp-allocation.md \
+            hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md \
+            hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json \
+            hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym \
+            hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch \
+            hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch \
+            hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md \
+            hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md \
+            tools/capture_memory_ghost_wet_sheet.py \
+            tools/capture_return_break_limiter_sheet.py \
+            tools/validate_memory_ghost_wet_capture.py \
+            tools/validate_ssi2164_buffer_lane.py \
+            .github/workflows/kicad-return-sheet-erc.yml
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | wc -l)" -eq 15
+          git commit -m "Buffer SSI2164 control voltages"
+          git push origin HEAD:agent/ssi2164-buffered-control
