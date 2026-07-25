@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "base_commit": "8df52377de753c8c910d67fc31405782d52a1be8",
+  "lane": "Gate B lane 03 — SSI2164 package and control law",
+  "buffer": {
+    "part": "OPA4196",
+    "reference": "U63",
+    "package_target": "PW_TSSOP_14",
+    "supply": "+/-12V",
+    "units_sheet05": [
+      1,
+      2,
+      4
+    ],
+    "units_sheet06": [
+      3,
+      5
+    ],
+    "footprint_assigned": false,
+    "output_isolation_ohm": 20,
+    "local_bypass_nf_each_rail": 100
+  },
+  "ssi2164": {
+    "reference": "U60",
+    "package_id": "PSL16",
+    "jedec": "MS-012-AC",
+    "orderable": [
+      "SSI2164S-TU",
+      "SSI2164S-RT"
+    ],
+    "control_impedance_kohm": {
+      "min": 9,
+      "nominal": 10,
+      "max": 11
+    },
+    "gain_constant_mv_per_db": -33,
+    "footprint_assigned": false
+  },
+  "calculation": {
+    "nominal_reference_v": 3.3,
+    "lower_resistor_only_reference_v": 3.244,
+    "worst_control_impedance_ohm": 9000,
+    "series_ohm": 20,
+    "nominal_vc_v": 3.292682926829268,
+    "nominal_attenuation_db": 99.77827050997782,
+    "lower_reference_vc_v": 3.236807095343681,
+    "lower_reference_attenuation_db": 98.08506349526306
+  },
+  "authority": {
+    "pcb": false,
+    "panel": false,
+    "fabrication": false,
+    "purchasing": false,
+    "production": false
+  },
+  "validation": {
+    "generated_scope_files": 18,
+    "lane_validator": "PASS",
+    "memory_ghost_validator": "PASS",
+    "current_stage_validator": "PASS",
+    "temporary_machinery_removed": true,
+    "committed_state_ci": "PASS",
+    "authority_workflow_run": 30175313367,
+    "uuid_normalized_regeneration": {
+      "changed_files": [
+        "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch",
+        "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      ],
+      "sheet05_uuid_count": 416,
+      "sheet06_uuid_count": 501,
+      "removed_uuid_lines": 917,
+      "added_uuid_lines": 917,
+      "semantic_lines_changed": 0,
+      "normalized_equal": true
+    },
+    "kicad_hierarchical_erc": {
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    }
+  },
+  "status": "IMPLEMENTED_VALIDATED_PENDING_INDEPENDENT_REVIEW"
+}

@@ -1,0 +1,267 @@
+name: SSI2164 buffered-control authority
+
+on:
+  push:
+    branches:
+      - agent/ssi2164-buffered-control
+    paths:
+      - ".github/workflows/ssi2164-buffered-control-authority.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
+      - "docs/v5.2-power-current-and-thermal-budget.md"
+      - "docs/v5.2-return-limiter-and-opamp-allocation.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_ssi2164_buffer_opa4196_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_ssi2164_buffer_lane.py"
+      - "tools/validate_current_schematic_stage.py"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ssi2164-buffered-control-authority.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
+      - "docs/v5.2-power-current-and-thermal-budget.md"
+      - "docs/v5.2-return-limiter-and-opamp-allocation.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_ssi2164_buffer_opa4196_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_ssi2164_buffer_lane.py"
+      - "tools/validate_current_schematic_stage.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  validate-committed-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out committed authority
+        uses: actions/checkout@v4
+
+      - name: Enforce final repository state
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test ! -e tools/apply_ssi2164_buffer_patch.py
+          test ! -e tools/apply_ssi2164_buffer_coordinate_repair_patch.py
+          test ! -e tools/apply_ssi2164_buffer_validator_multiplicity_patch.py
+          test ! -e .github/workflows/temporary-apply-ssi2164-buffer.yml
+          test "$(git status --short)" = ""
+
+      - name: Install pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+
+      - name: Validate committed files
+        run: |
+          python tools/validate_ssi2164_buffer_lane.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_current_schematic_stage.py
+
+      - name: Capture UUID-normalized committed sheets
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          output = Path('build/determinism')
+          output.mkdir(parents=True, exist_ok=True)
+          files = (
+              root / '05_MEMORY_GHOST_WET.kicad_sch',
+              root / '06_RETURN_BREAK_LIMITER.kicad_sch',
+          )
+          uuid_re = re.compile(r'(\(uuid ")[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}("\))')
+          value_re = re.compile(r'\(uuid "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"\)')
+          counts = {}
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              values = value_re.findall(text)
+              if not values or len(values) != len(set(values)):
+                  raise SystemExit(f'Committed UUID validity/uniqueness failed: {path}')
+              normalized = uuid_re.sub(r'\1<UUID>\2', text)
+              (output / f'{path.name}.committed.normalized').write_text(normalized, encoding='utf-8')
+              counts[path.name] = len(values)
+          (output / 'committed-uuid-counts.json').write_text(
+              json.dumps(counts, indent=2) + '\n', encoding='utf-8'
+          )
+          print(f'Captured UUID-normalized committed sheets: {counts}')
+          PY
+
+      - name: Regenerate authoritative sheets
+        run: |
+          python tools/capture_return_break_limiter_sheet_v3.py
+          python tools/capture_memory_ghost_wet_sheet_v2.py
+
+      - name: Prove UUID-normalized semantic regeneration
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git status --short > build/determinism/status.txt
+          git diff --name-status > build/determinism/name-status.txt
+          git diff --stat > build/determinism/stat.txt
+          git diff --no-ext-diff > build/determinism/regeneration.diff
+          git diff --check > build/determinism/diff-check.txt 2>&1
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          import subprocess
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          output = Path('build/determinism')
+          files = (
+              root / '05_MEMORY_GHOST_WET.kicad_sch',
+              root / '06_RETURN_BREAK_LIMITER.kicad_sch',
+          )
+          expected_changed = {str(path) for path in files}
+          changed = set(
+              subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
+          )
+          if changed != expected_changed:
+              raise SystemExit(
+                  f'Unexpected regeneration scope: missing={sorted(expected_changed - changed)} '
+                  f'unexpected={sorted(changed - expected_changed)}'
+              )
+
+          uuid_value = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+          uuid_re = re.compile(rf'(\(uuid "){uuid_value}("\))')
+          value_re = re.compile(rf'\(uuid "({uuid_value})"\)')
+          changed_line_re = re.compile(rf'^[+-]\s*\(uuid "{uuid_value}"\)$')
+
+          diff_lines = (output / 'regeneration.diff').read_text(encoding='utf-8').splitlines()
+          semantic_changes = []
+          removed_uuid_lines = 0
+          added_uuid_lines = 0
+          for line in diff_lines:
+              if line.startswith(('diff --git ', 'index ', '--- ', '+++ ', '@@')):
+                  continue
+              if not line.startswith(('+', '-')):
+                  continue
+              if not changed_line_re.fullmatch(line):
+                  semantic_changes.append(line)
+              elif line.startswith('-'):
+                  removed_uuid_lines += 1
+              else:
+                  added_uuid_lines += 1
+          if semantic_changes:
+              raise SystemExit(f'Non-UUID regeneration diff lines: {semantic_changes[:20]}')
+          if removed_uuid_lines != added_uuid_lines:
+              raise SystemExit(
+                  f'UUID replacement imbalance: removed={removed_uuid_lines} added={added_uuid_lines}'
+              )
+
+          proof = {
+              'changed_files': sorted(changed),
+              'removed_uuid_lines': removed_uuid_lines,
+              'added_uuid_lines': added_uuid_lines,
+              'sheets': {},
+          }
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              values = value_re.findall(text)
+              if not values or len(values) != len(set(values)):
+                  raise SystemExit(f'Regenerated UUID validity/uniqueness failed: {path}')
+              normalized = uuid_re.sub(r'\1<UUID>\2', text)
+              committed = (output / f'{path.name}.committed.normalized').read_text(encoding='utf-8')
+              if normalized != committed:
+                  raise SystemExit(f'UUID-normalized semantic mismatch: {path}')
+              proof['sheets'][path.name] = {'uuid_count': len(values), 'normalized_equal': True}
+
+          (output / 'semantic-proof.json').write_text(
+              json.dumps(proof, indent=2) + '\n', encoding='utf-8'
+          )
+          print(
+              'UUID-normalized regeneration: PASS — '
+              f'{removed_uuid_lines} UUID values replaced, zero semantic lines changed'
+          )
+          PY
+
+      - name: Revalidate regenerated files
+        run: |
+          python tools/validate_ssi2164_buffer_lane.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_current_schematic_stage.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          docker pull "$KICAD_IMAGE"
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top"
+          cat "$report"
+
+      - name: Enforce zero-error zero-warning ERC
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', report)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          if errors or warnings:
+              raise SystemExit(f'Committed SSI2164 authority has {errors} error(s) and {warnings} warning(s)')
+          print('Committed SSI2164 authority ERC: PASS — 0 errors, 0 warnings')
+          PY
+
+      - name: Upload committed-state evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssi2164-buffered-control-authority-evidence
+          path: build
+          if-no-files-found: error

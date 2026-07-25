@@ -104,3 +104,8 @@ It then passed:
 - the strict captured-sheet warning policy.
 
 `06_RETURN_BREAK_LIMITER` is closed at schematic-capture level. Physical footprint review, integrated Return safety review, measured loop gain, limiter threshold/recovery measurements, and the 30-minute worst-setting endurance test remain later gates.
+
+
+## SSI2164 buffered-control amendment
+
+The accepted sheet now includes the relevant units of shared `U63 / OPA4196 CONTROL BUFFER`. The OPA4196 presents a high-impedance load to the existing control filter and drives the SSI2164 VC pin through 20 Ω with post-buffer 0 V / +3.3 V clamps. The OPA4196 and SSI2164 footprints remain blank; PCB and mechanical authority are not granted.

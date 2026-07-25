@@ -53,11 +53,11 @@ FIXED_FEED_NOMINAL = FIXED_FEED_RF / FIXED_FEED_RIN
 
 
 def _effects(hidden: bool = False) -> str:
-    suffix = " hide" if hidden else ""
+    hidden_line = "\t\t\t hide\n" if hidden else ""
     return (
         "\t\t\t(effects\n"
         "\t\t\t\t(font (size 1.27 1.27))\n"
-        f"\t\t\t{suffix}\n"
+        f"{hidden_line}"
         "\t\t\t)\n"
     )
 
@@ -153,11 +153,63 @@ def render_ssi2164_multi_symbol() -> str:
     return "".join(out)
 
 
+def render_opa4196_multi_symbol() -> str:
+    name = "OPA4196_PW_MULTI"
+    units = {
+        1: (
+            helpers.SymbolPin("3", "+IN_A", "input", "left", 1),
+            helpers.SymbolPin("2", "-IN_A", "input", "left", 3),
+            helpers.SymbolPin("1", "OUT_A", "output", "right", 2),
+        ),
+        2: (
+            helpers.SymbolPin("5", "+IN_B", "input", "left", 1),
+            helpers.SymbolPin("6", "-IN_B", "input", "left", 3),
+            helpers.SymbolPin("7", "OUT_B", "output", "right", 2),
+        ),
+        3: (
+            helpers.SymbolPin("10", "+IN_C", "input", "left", 1),
+            helpers.SymbolPin("9", "-IN_C", "input", "left", 3),
+            helpers.SymbolPin("8", "OUT_C", "output", "right", 2),
+        ),
+        4: (
+            helpers.SymbolPin("12", "+IN_D", "input", "left", 1),
+            helpers.SymbolPin("13", "-IN_D", "input", "left", 3),
+            helpers.SymbolPin("14", "OUT_D", "output", "right", 2),
+        ),
+        5: (
+            helpers.SymbolPin("11", "V-", "power_in", "left", 3),
+            helpers.SymbolPin("4", "V+", "power_in", "right", 2),
+        ),
+    }
+    out = [
+        f'\t(symbol "{name}"\n',
+        "\t\t(exclude_from_sim no)\n",
+        "\t\t(in_bom yes)\n",
+        "\t\t(on_board yes)\n",
+        _property("Reference", "U", 11.43),
+        _property("Value", name, -11.43),
+        _property("Footprint", "", 0, True),
+        _property("Datasheet", "https://www.ti.com/lit/ds/symlink/opa4196.pdf", 0, True),
+        _property(
+            "Description",
+            "OPA4196 quad low-power rail-to-rail op amp; five-unit control-buffer symbol; PW TSSOP-14 pin map",
+            0,
+            True,
+        ),
+    ]
+    for unit, pins in units.items():
+        out.append(_render_ssi_unit(name, unit, pins))
+    out.append("\t)\n")
+    return "".join(out)
+
+
 def append_symbols() -> None:
     text = SYMBOL_LIBRARY.read_text(encoding="utf-8")
     additions = []
     if '(symbol "SSI2164S_MULTI"' not in text:
         additions.append(render_ssi2164_multi_symbol())
+    if '(symbol "OPA4196_PW_MULTI"' not in text:
+        additions.append(render_opa4196_multi_symbol())
     if not additions:
         return
     stripped = text.rstrip()
@@ -296,6 +348,25 @@ def build() -> None:
     label_component_pin(sch, ssi_power, "16", "RAIL_P12")
     no_connect_component_pin(sch, ssi_power, "1")  # MODE open = Class AB.
 
+    return_buffer = add_part(
+        sch,
+        "MerrinLab_PrototypeA:OPA4196_PW_MULTI",
+        "U63",
+        "OPA4196 CONTROL BUFFER",
+        (139.70, 114.30),
+        unit=3,
+    )
+    buffer_power = add_part(
+        sch,
+        "MerrinLab_PrototypeA:OPA4196_PW_MULTI",
+        "U63",
+        "OPA4196 CONTROL BUFFER",
+        (139.70, 160.02),
+        unit=5,
+    )
+    label_component_pin(sch, buffer_power, "4", "RAIL_P12")
+    label_component_pin(sch, buffer_power, "11", "RAIL_N12")
+
     # Correct sheet-03's ~0.747 receiver to ~0.249 before the Return VCA.
     add_two_pin(sch, "Device:R", "R600", "20k", (58.42, 83.82), "RETURN_DAC", "RETURN_DIV", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:R", "R601", "10k", (71.12, 91.44), "RETURN_DIV", "GND", "Resistor_SMD:R_0805_2012Metric")
@@ -304,10 +375,15 @@ def build() -> None:
     add_two_pin(sch, "Device:R", "R603", "220R stability", (96.52, 96.52), "SSI_IIN3", "SSI_STAB3", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C601", "1.2nF stability", (106.68, 96.52), "SSI_STAB3", "GND", "Capacitor_SMD:C_0805_2012Metric")
 
-    # Return control remains in the attenuation-only 0–3.3 V range.
-    add_two_pin(sch, "Device:R", "R604", "1k control isolate", (76.20, 114.30), "VCA_RETURN_CTRL", "SSI_VC3", "Resistor_SMD:R_0805_2012Metric")
-    add_upper_clamp(sch, "D600", "SSI_VC3", (91.44, 111.76))
-    add_lower_clamp(sch, "D601", "SSI_VC3", (91.44, 116.84))
+    # Return control is filtered, buffered at unity, isolated by 20 ohm, then clamped.
+    add_two_pin(sch, "Device:R", "R604", "1k pre-buffer filter", (76.20, 114.30), "VCA_RETURN_CTRL", "RETURN_CTRL_BUFFER_IN", "Resistor_SMD:R_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C602", "100nF control filter", (88.90, 121.92), "RETURN_CTRL_BUFFER_IN", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    label_component_pin(sch, return_buffer, "10", "RETURN_CTRL_BUFFER_IN")
+    label_component_pin(sch, return_buffer, "9", "RETURN_CTRL_BUFFER_OUT")
+    label_component_pin(sch, return_buffer, "8", "RETURN_CTRL_BUFFER_OUT")
+    add_two_pin(sch, "Device:R", "R604A", "20R buffer isolate", (101.60, 114.30), "RETURN_CTRL_BUFFER_OUT", "SSI_VC3", "Resistor_SMD:R_0805_2012Metric")
+    add_upper_clamp(sch, "D600", "SSI_VC3", (114.30, 111.76))
+    add_lower_clamp(sch, "D601", "SSI_VC3", (114.30, 116.84))
 
     add_part(sch, "MerrinLab_PrototypeA:OPA1679_PW_APPLICATION", "U61", "OPA1679 RETURN AUDIO", (218.44, 127.00))
     add_part(sch, "MerrinLab_PrototypeA:OPA1679_PW_APPLICATION", "U62", "OPA1679 REFERENCES / ABSENCE", (218.44, 238.76))
@@ -322,6 +398,8 @@ def build() -> None:
         add_two_pin(sch, "Device:C", f"C61{index*4+3}", "4.7uF - rail", (x + 30.48, 251.46), "RAIL_N12", "GND", "Capacitor_SMD:C_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C618", "100nF SSI + rail", (137.16, 139.70), "RAIL_P12", "GND", "Capacitor_SMD:C_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C619", "100nF SSI - rail", (149.86, 139.70), "RAIL_N12", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C642", "100nF OPA4196 + rail", (162.56, 139.70), "RAIL_P12", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C643", "100nF OPA4196 - rail", (175.26, 139.70), "RAIL_N12", "GND", "Capacitor_SMD:C_0805_2012Metric")
 
     # U61A: SSI2164 current-to-voltage conversion, unity magnitude at VC=0 V.
     label_pin(sch, "U61", "3", "GND")

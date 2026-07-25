@@ -125,7 +125,7 @@ def unit_text(rendered: str, unit: int) -> str:
     return rendered[start : min(ends) if ends else len(rendered)]
 
 
-def assert_unique_references(rows: list[dict[str, object]], multi_ref: str) -> None:
+def assert_unique_references(rows: list[dict[str, object]], multi_refs: set[str]) -> None:
     counts = Counter(
         str(row["reference"])
         for row in rows
@@ -134,7 +134,7 @@ def assert_unique_references(rows: list[dict[str, object]], multi_ref: str) -> N
     duplicates = sorted(
         reference
         for reference, count in counts.items()
-        if count > 1 and reference != multi_ref
+        if count > 1 and reference not in multi_refs
     )
     assert not duplicates, f"Duplicate references: {duplicates}"
 
@@ -198,8 +198,8 @@ def main() -> None:
     for path_name, row in all_ssi:
         assert row["footprint"] == "", (path_name, row["unit"], row["footprint"])
 
-    assert_unique_references(rows05, "U60")
-    assert_unique_references(rows06, "U60")
+    assert_unique_references(rows05, {"U60", "U63"})
+    assert_unique_references(rows06, {"U60", "U63"})
 
     text05 = SHEET05.read_text(encoding="utf-8")
     text06 = SHEET06.read_text(encoding="utf-8")

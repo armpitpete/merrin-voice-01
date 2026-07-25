@@ -27,6 +27,10 @@ physical = load(
     "memory_ghost_wet_ssi_repair",
     Path(__file__).with_name("repair_memory_ghost_wet_ssi_units.py"),
 )
+buffer = load(
+    "memory_ghost_wet_opa4196_repair",
+    Path(__file__).with_name("repair_ssi2164_buffer_opa4196_units.py"),
+)
 
 
 def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
@@ -49,6 +53,7 @@ def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
 def main() -> None:
     base.build()
     physical.main()
+    buffer.repair_sheet05()
     repair_output_directions(base.SHEET_FILE, base.HIER_OUTPUTS)
     print("Sheet-05 native output direction repaired: WET_MIX=output")
 

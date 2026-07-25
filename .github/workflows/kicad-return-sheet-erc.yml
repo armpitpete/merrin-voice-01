@@ -176,7 +176,7 @@ jobs:
           duplicate_refs = sorted(
               reference
               for reference, count in Counter(references).items()
-              if count > 1 and reference != 'U60'
+              if count > 1 and reference not in {'U60', 'U63'}
           )
           assert not duplicate_refs, duplicate_refs
           for reference in ('C610', 'C611', 'C640', 'C641'):

@@ -111,6 +111,14 @@ def add_two_pin(sch, lib_id, reference, value, position, net1, net2, footprint="
     label_pin(sch, reference, "2", net2)
 
 
+def add_upper_clamp(sch, reference, signal, position):
+    add_two_pin(sch, "Device:D_Schottky", reference, "BAT54-class upper clamp", position, "RAIL_3V3", signal)
+
+
+def add_lower_clamp(sch, reference, signal, position):
+    add_two_pin(sch, "Device:D_Schottky", reference, "BAT54-class lower clamp", position, signal, "GND")
+
+
 def add_hier(sch, name, position, shape, end):
     sch.add_hierarchical_label(name, position=position, shape=shape, size=1.27)
     sch.add_wire(start=position, end=end)
@@ -188,6 +196,15 @@ def build() -> None:
         (276.86, 111.76),
         unit=4,
     )
+    memory_buffer = add_part(
+        sch, "MerrinLab_PrototypeA:OPA4196_PW_MULTI", "U63", "OPA4196 CONTROL BUFFER", (101.60, 111.76), unit=1
+    )
+    ghost_buffer = add_part(
+        sch, "MerrinLab_PrototypeA:OPA4196_PW_MULTI", "U63", "OPA4196 CONTROL BUFFER", (101.60, 165.10), unit=2
+    )
+    wet_buffer = add_part(
+        sch, "MerrinLab_PrototypeA:OPA4196_PW_MULTI", "U63", "OPA4196 CONTROL BUFFER", (261.62, 157.48), unit=4
+    )
 
     for component, unit, prefix, position in (
         (memory, 1, "MEM", (116.84, 83.82)),
@@ -218,8 +235,14 @@ def build() -> None:
     add_two_pin(sch, "Device:R", "R500", "20k SSI input", (76.20, 83.82), "MEMORY_VCA_AC", "SSI_IIN1", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:R", "R501", "220R stability", (91.44, 96.52), "SSI_IIN1", "SSI_STAB1", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C501", "1.2nF stability", (104.14, 96.52), "SSI_STAB1", "GND", "Capacitor_SMD:C_0805_2012Metric")
-    add_two_pin(sch, "Device:R", "R502", "1k control isolate", (76.20, 111.76), "VCA_MEMORY_CTRL", "SSI_VC1", "Resistor_SMD:R_0805_2012Metric")
-    add_two_pin(sch, "Device:C", "C502", "100nF control filter", (91.44, 111.76), "SSI_VC1", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    add_two_pin(sch, "Device:R", "R502", "1k pre-buffer filter", (76.20, 111.76), "VCA_MEMORY_CTRL", "MEM_CTRL_BUFFER_IN", "Resistor_SMD:R_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C502", "100nF control filter", (91.44, 111.76), "MEM_CTRL_BUFFER_IN", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    label_component_pin(sch, memory_buffer, "3", "MEM_CTRL_BUFFER_IN")
+    label_component_pin(sch, memory_buffer, "2", "MEM_CTRL_BUFFER_OUT")
+    label_component_pin(sch, memory_buffer, "1", "MEM_CTRL_BUFFER_OUT")
+    add_two_pin(sch, "Device:R", "R525", "20R buffer isolate", (106.68, 111.76), "MEM_CTRL_BUFFER_OUT", "SSI_VC1", "Resistor_SMD:R_0805_2012Metric")
+    add_upper_clamp(sch, "D500", "SSI_VC1", (116.84, 109.22))
+    add_lower_clamp(sch, "D501", "SSI_VC1", (116.84, 114.30))
     label_pin(sch, "U50", "3", "GND")
     label_pin(sch, "U50", "2", "SSI_IOUT1")
     label_pin(sch, "U50", "1", "MEMORY_VCA")
@@ -230,8 +253,14 @@ def build() -> None:
     add_two_pin(sch, "Device:R", "R504", "20k SSI input", (76.20, 137.16), "GHOST_VCA_AC", "SSI_IIN2", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:R", "R505", "220R stability", (91.44, 149.86), "SSI_IIN2", "SSI_STAB2", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C505", "1.2nF stability", (104.14, 149.86), "SSI_STAB2", "GND", "Capacitor_SMD:C_0805_2012Metric")
-    add_two_pin(sch, "Device:R", "R506", "1k control isolate", (76.20, 165.10), "VCA_GHOST_CTRL", "SSI_VC2", "Resistor_SMD:R_0805_2012Metric")
-    add_two_pin(sch, "Device:C", "C506", "100nF control filter", (91.44, 165.10), "SSI_VC2", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    add_two_pin(sch, "Device:R", "R506", "1k pre-buffer filter", (76.20, 165.10), "VCA_GHOST_CTRL", "GHOST_CTRL_BUFFER_IN", "Resistor_SMD:R_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C506", "100nF control filter", (91.44, 165.10), "GHOST_CTRL_BUFFER_IN", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    label_component_pin(sch, ghost_buffer, "5", "GHOST_CTRL_BUFFER_IN")
+    label_component_pin(sch, ghost_buffer, "6", "GHOST_CTRL_BUFFER_OUT")
+    label_component_pin(sch, ghost_buffer, "7", "GHOST_CTRL_BUFFER_OUT")
+    add_two_pin(sch, "Device:R", "R526", "20R buffer isolate", (106.68, 165.10), "GHOST_CTRL_BUFFER_OUT", "SSI_VC2", "Resistor_SMD:R_0805_2012Metric")
+    add_upper_clamp(sch, "D502", "SSI_VC2", (116.84, 162.56))
+    add_lower_clamp(sch, "D503", "SSI_VC2", (116.84, 167.64))
     label_pin(sch, "U50", "5", "GND")
     label_pin(sch, "U50", "6", "SSI_IOUT2")
     label_pin(sch, "U50", "7", "GHOST_VCA")
@@ -250,8 +279,14 @@ def build() -> None:
     add_two_pin(sch, "Device:R", "R520", "20k SSI input", (261.62, 137.16), "WET_MASTER_AC", "SSI_IIN4", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:R", "R521", "220R stability", (284.48, 137.16), "SSI_IIN4", "SSI_STAB4", "Resistor_SMD:R_0805_2012Metric")
     add_two_pin(sch, "Device:C", "C521", "1.2nF stability", (297.18, 137.16), "SSI_STAB4", "GND", "Capacitor_SMD:C_0805_2012Metric")
-    add_two_pin(sch, "Device:R", "R522", "1k control isolate", (261.62, 157.48), "VCA_WET_CTRL", "SSI_VC4", "Resistor_SMD:R_0805_2012Metric")
-    add_two_pin(sch, "Device:C", "C522", "100nF control filter", (276.86, 157.48), "SSI_VC4", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    add_two_pin(sch, "Device:R", "R522", "1k pre-buffer filter", (246.38, 157.48), "VCA_WET_CTRL", "WET_CTRL_BUFFER_IN", "Resistor_SMD:R_0805_2012Metric")
+    add_two_pin(sch, "Device:C", "C522", "100nF control filter", (256.54, 165.10), "WET_CTRL_BUFFER_IN", "GND", "Capacitor_SMD:C_0805_2012Metric")
+    label_component_pin(sch, wet_buffer, "12", "WET_CTRL_BUFFER_IN")
+    label_component_pin(sch, wet_buffer, "13", "WET_CTRL_BUFFER_OUT")
+    label_component_pin(sch, wet_buffer, "14", "WET_CTRL_BUFFER_OUT")
+    add_two_pin(sch, "Device:R", "R527", "20R buffer isolate", (276.86, 157.48), "WET_CTRL_BUFFER_OUT", "SSI_VC4", "Resistor_SMD:R_0805_2012Metric")
+    add_upper_clamp(sch, "D504", "SSI_VC4", (287.02, 154.94))
+    add_lower_clamp(sch, "D505", "SSI_VC4", (287.02, 160.02))
     label_pin(sch, "U50", "12", "GND")
     label_pin(sch, "U50", "13", "SSI_IOUT4")
     label_pin(sch, "U50", "14", "WET_MASTER_OUT")
@@ -282,7 +317,8 @@ def build() -> None:
         "U60 unit 1 = Memory (2 IIN1, 3 VC1, 4 IOUT1).\n"
         "U60 unit 2 = Ghost (7 IIN2, 6 VC2, 5 IOUT2).\n"
         "U60 unit 4 = wet master (10 IIN4, 11 VC4, 12 IOUT4).\n"
-        "U60 units 3 and 5 remain on sheet 06; no second SSI2164 is created.",
+        "U60 units 3 and 5 remain on sheet 06; no second SSI2164 is created.\n"
+        "U63 OPA4196 units 1/2/4 buffer Memory/Ghost/Wet; units 3/5 remain on sheet 06.",
         position=(40.64, 190.50),
         size=1.1,
     )
