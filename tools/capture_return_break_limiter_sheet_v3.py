@@ -27,6 +27,10 @@ physical = load(
     "return_ssi_physical_repair",
     Path(__file__).with_name("repair_return_ssi_units.py"),
 )
+buffer = load(
+    "return_opa4196_physical_repair",
+    Path(__file__).with_name("repair_ssi2164_buffer_opa4196_units.py"),
+)
 
 
 def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
@@ -49,6 +53,7 @@ def repair_output_directions(path: Path, output_names: tuple[str, ...]) -> None:
 def main() -> None:
     reviewed.main()
     physical.main()
+    buffer.repair_sheet06()
     repair_output_directions(reviewed.base.SHEET_FILE, reviewed.base.HIER_OUTPUTS)
     print(
         "Sheet-06 native output directions repaired: "

@@ -4365,4 +4365,166 @@
 			)
 		)
 	)
+	(symbol "OPA4196_PW_MULTI"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "U"
+			(at 0 11.43 0)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Value" "OPA4196_PW_MULTI"
+			(at 0 -11.43 0)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+			 hide
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/opa4196.pdf"
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+			 hide
+			)
+		)
+		(property "Description" "OPA4196 quad low-power rail-to-rail op amp; five-unit control-buffer symbol; PW TSSOP-14 pin map"
+			(at 0 0 0)
+			(effects
+				(font (size 1.27 1.27))
+			 hide
+			)
+		)
+		(symbol "OPA4196_PW_MULTI_1_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "+IN_A" (effects (font (size 0.762 0.762))))
+				(number "3" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "-IN_A" (effects (font (size 0.762 0.762))))
+				(number "2" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_A" (effects (font (size 0.762 0.762))))
+				(number "1" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA4196_PW_MULTI_2_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "+IN_B" (effects (font (size 0.762 0.762))))
+				(number "5" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "-IN_B" (effects (font (size 0.762 0.762))))
+				(number "6" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_B" (effects (font (size 0.762 0.762))))
+				(number "7" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA4196_PW_MULTI_3_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "+IN_C" (effects (font (size 0.762 0.762))))
+				(number "10" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "-IN_C" (effects (font (size 0.762 0.762))))
+				(number "9" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_C" (effects (font (size 0.762 0.762))))
+				(number "8" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA4196_PW_MULTI_4_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin input line
+				(at -10.16 3.8099999999999996 0)
+				(length 3.81)
+				(name "+IN_D" (effects (font (size 0.762 0.762))))
+				(number "12" (effects (font (size 1.016 1.016))))
+			)
+			(pin input line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "-IN_D" (effects (font (size 0.762 0.762))))
+				(number "13" (effects (font (size 1.016 1.016))))
+			)
+			(pin output line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "OUT_D" (effects (font (size 0.762 0.762))))
+				(number "14" (effects (font (size 1.016 1.016))))
+			)
+		)
+		(symbol "OPA4196_PW_MULTI_5_1"
+			(rectangle
+				(start -6.35 6.35)
+				(end 6.35 -6.35)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+			(pin power_in line
+				(at -10.16 -1.2700000000000005 0)
+				(length 3.81)
+				(name "V-" (effects (font (size 0.762 0.762))))
+				(number "11" (effects (font (size 1.016 1.016))))
+			)
+			(pin power_in line
+				(at 10.16 1.2699999999999996 180)
+				(length 3.81)
+				(name "V+" (effects (font (size 0.762 0.762))))
+				(number "4" (effects (font (size 1.016 1.016))))
+			)
+		)
+	)
 )

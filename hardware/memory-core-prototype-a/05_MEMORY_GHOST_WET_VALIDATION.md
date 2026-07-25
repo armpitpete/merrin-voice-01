@@ -124,3 +124,8 @@ promotion
 It then passed the same native contract validator, KiCad 10 hierarchical ERC, and strict warning policy directly against committed files. The integrated Return workflow independently skipped Return generation and passed its shared-U60 ownership and ERC gates.
 
 `05_MEMORY_GHOST_WET` is closed at schematic-capture level. Exact packages, footprints, physical placement, measured gain/control law, noise, distortion, loop safety and endurance remain later independent gates.
+
+
+## SSI2164 buffered-control amendment
+
+The accepted sheet now includes the relevant units of shared `U63 / OPA4196 CONTROL BUFFER`. The OPA4196 presents a high-impedance load to the existing control filter and drives the SSI2164 VC pin through 20 Ω with post-buffer 0 V / +3.3 V clamps. The OPA4196 and SSI2164 footprints remain blank; PCB and mechanical authority are not granted.
