@@ -58,9 +58,26 @@
     "lane_validator": "PASS",
     "memory_ghost_validator": "PASS",
     "current_stage_validator": "PASS",
-    "kicad_hierarchical_erc": "PASS",
     "temporary_machinery_removed": true,
-    "committed_state_ci": "PENDING"
+    "committed_state_ci": "PASS",
+    "authority_workflow_run": 30175313367,
+    "uuid_normalized_regeneration": {
+      "changed_files": [
+        "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch",
+        "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      ],
+      "sheet05_uuid_count": 416,
+      "sheet06_uuid_count": 501,
+      "removed_uuid_lines": 917,
+      "added_uuid_lines": 917,
+      "semantic_lines_changed": 0,
+      "normalized_equal": true
+    },
+    "kicad_hierarchical_erc": {
+      "errors": 0,
+      "warnings": 0,
+      "status": "PASS"
+    }
   },
-  "status": "IMPLEMENTED_VALIDATED_PENDING_COMMITTED_STATE_CI"
+  "status": "IMPLEMENTED_VALIDATED_PENDING_INDEPENDENT_REVIEW"
 }
