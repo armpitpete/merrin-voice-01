@@ -2,29 +2,92 @@
 
 ## Decision
 
+The SSI2164 control ports are buffered with one shared OPA4196 quad operational amplifier, `U63`, powered from protected +/-12 V.
+
 ```text
-CONTROL-PORT LOADING DEFECT       CORRECTED
-BUFFER                            OPA4196 PW / TSSOP-14 TARGET
-SHARED REFERENCE                  U63
-UNITS 1/2/4                       SHEET 05
-UNITS 3/5                         SHEET 06
-NOMINAL 3.3 V ATTENUATION         99.8 dB
-LOW RAIL / 9 kΩ CALCULATION       98.1 dB
-SSI2164 PACKAGE                   PSL16 / JEDEC MS-012-AC
-SSI2164 FOOTPRINT                 BLANK
-OPA4196 FOOTPRINT                 BLANK
-PCB / PANEL / PURCHASING          BLOCKED
+U63 unit 1  Memory VC1 buffer   sheet 05
+U63 unit 2  Ghost VC2 buffer    sheet 05
+U63 unit 3  Return VC3 buffer   sheet 06
+U63 unit 4  wet-master VC4      sheet 05
+U63 unit 5  common power        sheet 06
 ```
 
-## Primary-source basis
+Each channel retains its 1 kΩ / capacitor pre-buffer filter, uses a unity-gain follower, adds 20 Ω output isolation, and clamps the post-buffer SSI2164 control node to the 0 V / +3.3 V domain.
 
-The SSI2164 manufacturer specifies a nominal 10 kΩ control-port impedance with a 9–11 kΩ range, a -33 mV/dB control constant and 3.3 V for approximately -100 dB attenuation. The SSI2164 orderable package is `SSI2164S-TU` or `SSI2164S-RT`, package ID `PSL16`, compliant with JEDEC MS-012-AC.
+## Electrical result
 
-Texas Instruments specifies the OPA4196 for 4.5–36 V operation, rail-to-rail input/output, 140 µA typical quiescent current per channel, unity-gain capacitive-load operation and PW TSSOP-14 availability. TI recommends 0.1 µF local supply bypass and 10–20 Ω output isolation for capacitive loads.
+At the lowest accepted SSI2164 control-port impedance:
+
+```text
+VC at 3.3 V request = 3.3 V × 9 kΩ / (9 kΩ + 20 Ω)
+                    = 3.2927 V
+attenuation         = 3.2927 V / 33 mV/dB
+                    = approximately 99.8 dB
+```
+
+Using the existing lower resistor-only +3.3 V estimate gives approximately 98.1 dB attenuation.
+
+## Physical-coordinate result
+
+The pinned schematic API mirrors custom multi-unit pin Y coordinates. The committed repair tool corrects only U63 input, feedback, output and common-power label attachments after native generation.
+
+Two intentional coincident label pairs are present:
+
+```text
+MEM_CTRL_BUFFER_IN    C502 pin 1 + U63A pin 3    91.44, 107.95
+GHOST_CTRL_BUFFER_IN  C506 pin 1 + U63B pin 5    91.44, 161.29
+```
+
+The lane validator expects multiplicity two only at those proven same-net junctions. Every other U63 physical coordinate remains unique.
+
+## Committed-state proof
+
+Final read-only authority workflow:
+
+```text
+.github/workflows/ssi2164-buffered-control-authority.yml
+workflow run 30175313367
+```
+
+Results:
+
+```text
+committed lane validator                 PASS
+committed Memory/Ghost/Wet validator     PASS
+committed current-stage validator        PASS
+UUID-normalized regeneration             PASS
+post-regeneration validators             PASS
+KiCad 10 hierarchical ERC errors         0
+KiCad 10 hierarchical ERC warnings       0
+```
+
+The pinned generator replaces KiCad serialization UUIDs during full regeneration. The authority workflow proved:
+
+```text
+sheet 05 UUID count       416 unique
+sheet 06 UUID count       501 unique
+removed UUID lines        917
+added UUID lines          917
+non-UUID lines changed    0
+normalized content        exactly equal
+```
+
+## Repository state
+
+- Implementation-only patch scripts are removed.
+- The write-enabled temporary workflow is removed.
+- The retained authority workflow is read-only.
+- SSI2164 and OPA4196 footprints remain blank.
+- PCB, routing, panel, fabrication, purchasing and production remain blocked.
 
 ## Remaining gates
 
-- exact SSI2164 and OPA4196 land-pattern review;
+- independent exact-head review of PR #49;
+- owner authorisation before marking the PR ready;
+- owner authorisation before merge;
+- exact SSI2164 and OPA4196 land-pattern review in a later protected lane;
 - exact post-buffer clamp-diode selection;
 - regulator-reference tolerance in the complete attenuation bound;
 - bench measurement of unity, attenuation, startup and fault behaviour.
+
+Do not mark PR #49 ready or merge it if the head, base, final file scope, validators, semantic-regeneration proof or ERC result changes.
