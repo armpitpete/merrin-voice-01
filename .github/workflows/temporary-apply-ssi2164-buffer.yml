@@ -112,10 +112,6 @@ jobs:
                   continue
               changed.append(record[3:].decode("utf-8"))
 
-          unexpected = sorted(set(changed) - allowed)
-          if unexpected:
-              raise SystemExit(f"Unexpected generated files: {unexpected}")
-
           output = Path("build/validation")
           output.mkdir(parents=True, exist_ok=True)
           (output / "generated-files.txt").write_text(
@@ -131,6 +127,14 @@ jobs:
                   digest = hashlib.sha256(path.read_bytes()).hexdigest()
                   hashes.append(f"{digest}  {name}\n")
           (output / "generated-sha256.txt").write_text("".join(hashes), encoding="utf-8")
+
+          unexpected = sorted(set(changed) - allowed)
+          (output / "generated-unexpected.txt").write_text(
+              "".join(f"{path}\n" for path in unexpected),
+              encoding="utf-8",
+          )
+          if unexpected:
+              raise SystemExit(f"Unexpected generated files: {unexpected}")
 
           subprocess.run(["git", "diff", "--check"], check=True)
           print(f"Generated authority scope contains {len(changed)} allowed files")
