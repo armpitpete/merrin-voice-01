@@ -70,6 +70,72 @@ jobs:
           python tools/capture_return_break_limiter_sheet_v3.py 2>&1 | tee build/generator/return-sheet.log
           python tools/capture_memory_ghost_wet_sheet_v2.py 2>&1 | tee build/generator/memory-ghost-wet.log
 
+      - name: Capture and enforce generated authority scope
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import subprocess
+          from pathlib import Path
+
+          allowed = {
+              "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md",
+              "docs/v5.2-power-current-and-thermal-budget.md",
+              "docs/v5.2-return-limiter-and-opamp-allocation.md",
+              "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md",
+              "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json",
+              "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym",
+              "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch",
+              "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch",
+              "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md",
+              "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md",
+              "tools/capture_memory_ghost_wet_sheet.py",
+              "tools/capture_memory_ghost_wet_sheet_v2.py",
+              "tools/capture_return_break_limiter_sheet.py",
+              "tools/capture_return_break_limiter_sheet_v3.py",
+              "tools/repair_ssi2164_buffer_opa4196_units.py",
+              "tools/validate_memory_ghost_wet_capture.py",
+              ".github/workflows/kicad-return-sheet-erc.yml",
+              "tools/validate_ssi2164_buffer_lane.py",
+          }
+
+          raw = subprocess.check_output(
+              ["git", "status", "--porcelain=v1", "-z"],
+              text=False,
+          )
+          changed: list[str] = []
+          for record in raw.split(b"\0"):
+              if not record:
+                  continue
+              changed.append(record[3:].decode("utf-8"))
+
+          unexpected = sorted(set(changed) - allowed)
+          if unexpected:
+              raise SystemExit(f"Unexpected generated files: {unexpected}")
+
+          output = Path("build/validation")
+          output.mkdir(parents=True, exist_ok=True)
+          (output / "generated-files.txt").write_text(
+              "".join(f"{path}\n" for path in sorted(changed)),
+              encoding="utf-8",
+          )
+          (output / "generated-status.txt").write_bytes(raw.replace(b"\0", b"\n"))
+
+          hashes = []
+          for name in sorted(changed):
+              path = Path(name)
+              if path.is_file():
+                  digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                  hashes.append(f"{digest}  {name}\n")
+          (output / "generated-sha256.txt").write_text("".join(hashes), encoding="utf-8")
+
+          subprocess.run(["git", "diff", "--check"], check=True)
+          print(f"Generated authority scope contains {len(changed)} allowed files")
+          PY
+
       - name: Validate SSI2164 buffered-control lane
         id: buffer_lane
         continue-on-error: true
