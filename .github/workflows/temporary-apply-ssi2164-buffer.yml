@@ -126,10 +126,15 @@ jobs:
           python tools/validate_memory_ghost_wet_capture.py | tee build/validation/validate-memory-ghost-wet-capture.log
           python tools/validate_current_schematic_stage.py | tee build/validation/validate-current-schematic-stage.log
 
-      - name: Commit validated non-workflow implementation
+      - name: Diagnose validated implementation promotion
+        id: promotion
+        continue-on-error: true
         shell: bash
         run: |
-          set -Eeuo pipefail
+          set -o pipefail
+          exec > >(tee build/validation/promotion.log) 2>&1
+          set -x
+          git status --short
           git add -- \
             docs/v5.2-power-current-and-thermal-budget.md \
             docs/v5.2-return-limiter-and-opamp-allocation.md \
@@ -148,12 +153,17 @@ jobs:
             tools/repair_ssi2164_buffer_opa4196_units.py \
             tools/validate_memory_ghost_wet_capture.py \
             tools/validate_ssi2164_buffer_lane.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 17
+          git diff --cached --name-status
+          staged_count="$(git diff --cached --name-only | wc -l)"
+          echo "staged_count=$staged_count"
+          test "$staged_count" -eq 17
           git diff --cached --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Implement validated SSI2164 buffered control"
-          git push origin "HEAD:agent/ssi2164-buffered-control"
+          git log -1 --oneline
+          git remote -v
+          git push --verbose origin "HEAD:agent/ssi2164-buffered-control"
 
       - name: Upload implementation evidence
         if: always()
@@ -162,3 +172,10 @@ jobs:
           name: ssi2164-buffer-implementation-evidence
           path: build
           if-no-files-found: error
+
+      - name: Fail if promotion failed
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "${{ steps.promotion.outcome }}" = "success"
