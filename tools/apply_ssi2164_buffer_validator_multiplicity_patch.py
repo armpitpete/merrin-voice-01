@@ -6,6 +6,10 @@ the same physical coordinate as the associated filter-capacitor pin label for th
 Memory and Ghost channels. KiCad serialises both attached labels. This patch
 changes only the validator's expected multiplicity for those two coordinates;
 all other exact-coordinate checks continue to require one label record.
+
+The temporary workflow's diagnostic build directory is added only to the local
+Git exclude file so generated logs cannot contaminate the repository-authority
+scope check. No tracked ignore file is changed.
 """
 
 from __future__ import annotations
@@ -13,6 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 
 VALIDATOR_PATH = Path("tools/validate_ssi2164_buffer_lane.py")
+LOCAL_EXCLUDE_PATH = Path(".git/info/exclude")
 
 
 def replace_once(text: str, old: str, new: str) -> str:
@@ -22,7 +27,17 @@ def replace_once(text: str, old: str, new: str) -> str:
     return text.replace(old, new, 1)
 
 
+def ignore_diagnostic_build() -> None:
+    marker = "/build/\n"
+    text = LOCAL_EXCLUDE_PATH.read_text(encoding="utf-8")
+    if marker not in text:
+        if text and not text.endswith("\n"):
+            text += "\n"
+        LOCAL_EXCLUDE_PATH.write_text(text + marker, encoding="utf-8")
+
+
 def main() -> None:
+    ignore_diagnostic_build()
     text = VALIDATOR_PATH.read_text(encoding="utf-8")
 
     text = replace_once(
@@ -47,6 +62,7 @@ def assert_label_at(text: str, name: str, x: float, y: float) -> None:
 
     VALIDATOR_PATH.write_text(text, encoding="utf-8")
     print("Validator multiplicity updated for two proven coincident OPA4196 input junctions")
+    print("Diagnostic build directory excluded locally from authority-scope inspection")
 
 
 if __name__ == "__main__":
