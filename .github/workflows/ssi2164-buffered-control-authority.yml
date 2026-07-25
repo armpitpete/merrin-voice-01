@@ -1,0 +1,156 @@
+name: SSI2164 buffered-control authority
+
+on:
+  push:
+    branches:
+      - agent/ssi2164-buffered-control
+    paths:
+      - ".github/workflows/ssi2164-buffered-control-authority.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
+      - "docs/v5.2-power-current-and-thermal-budget.md"
+      - "docs/v5.2-return-limiter-and-opamp-allocation.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_ssi2164_buffer_opa4196_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_ssi2164_buffer_lane.py"
+      - "tools/validate_current_schematic_stage.py"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ssi2164-buffered-control-authority.yml"
+      - ".github/workflows/kicad-return-sheet-erc.yml"
+      - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
+      - "docs/v5.2-power-current-and-thermal-budget.md"
+      - "docs/v5.2-return-limiter-and-opamp-allocation.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
+      - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
+      - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
+      - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
+      - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
+      - "tools/capture_memory_ghost_wet_sheet.py"
+      - "tools/capture_memory_ghost_wet_sheet_v2.py"
+      - "tools/capture_return_break_limiter_sheet.py"
+      - "tools/capture_return_break_limiter_sheet_v3.py"
+      - "tools/repair_ssi2164_buffer_opa4196_units.py"
+      - "tools/validate_memory_ghost_wet_capture.py"
+      - "tools/validate_ssi2164_buffer_lane.py"
+      - "tools/validate_current_schematic_stage.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+
+jobs:
+  validate-committed-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out committed authority
+        uses: actions/checkout@v4
+
+      - name: Enforce final repository state
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test ! -e tools/apply_ssi2164_buffer_patch.py
+          test ! -e tools/apply_ssi2164_buffer_coordinate_repair_patch.py
+          test ! -e tools/apply_ssi2164_buffer_validator_multiplicity_patch.py
+          test ! -e .github/workflows/temporary-apply-ssi2164-buffer.yml
+          test "$(git status --short)" = ""
+
+      - name: Install pinned schematic generator
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
+          python -m pip install --disable-pip-version-check \
+            "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
+
+      - name: Validate committed files
+        run: |
+          python tools/validate_ssi2164_buffer_lane.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_current_schematic_stage.py
+
+      - name: Regenerate authoritative sheets
+        run: |
+          python tools/capture_return_break_limiter_sheet_v3.py
+          python tools/capture_memory_ghost_wet_sheet_v2.py
+
+      - name: Prove deterministic regeneration
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git diff --check
+          git diff --exit-code
+          test "$(git status --short)" = ""
+
+      - name: Revalidate regenerated files
+        run: |
+          python tools/validate_ssi2164_buffer_lane.py
+          python tools/validate_memory_ghost_wet_capture.py
+          python tools/validate_current_schematic_stage.py
+
+      - name: Run KiCad 10 hierarchical ERC
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p build/erc
+          chmod a+rwx build/erc
+          top="hardware/memory-core-prototype-a/MerrinGriefSynthMemoryCoreA.kicad_sch"
+          report="build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt"
+          docker pull "$KICAD_IMAGE"
+          docker run --rm \
+            --volume "$PWD:/work" \
+            --workdir /work \
+            "$KICAD_IMAGE" \
+            kicad-cli sch erc \
+              --severity-all \
+              --output "$report" \
+              "$top"
+          cat "$report"
+
+      - name: Enforce zero-error zero-warning ERC
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          report = Path('build/erc/MerrinGriefSynthMemoryCoreA-erc.rpt').read_text(encoding='utf-8')
+          summary = re.search(r'\*\* ERC messages:\s+(\d+)\s+Errors\s+(\d+)\s+Warnings', report)
+          if not summary:
+              raise SystemExit('ERC summary was not found')
+          errors = int(summary.group(1))
+          warnings = int(summary.group(2))
+          if errors or warnings:
+              raise SystemExit(f'Committed SSI2164 authority has {errors} error(s) and {warnings} warning(s)')
+          print('Committed SSI2164 authority ERC: PASS — 0 errors, 0 warnings')
+          PY
+
+      - name: Upload committed-state evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssi2164-buffered-control-authority-evidence
+          path: build/erc
+          if-no-files-found: error
