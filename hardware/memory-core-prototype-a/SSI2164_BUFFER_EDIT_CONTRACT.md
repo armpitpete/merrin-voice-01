@@ -98,11 +98,16 @@ Implementation-only patch scripts and the write-enabled temporary workflow are a
 python tools/validate_ssi2164_buffer_lane.py
 python tools/validate_memory_ghost_wet_capture.py
 python tools/validate_current_schematic_stage.py
+capture UUID-normalized committed sheets 05 and 06
 regenerate sheets 05 and 06 from committed generators
 git diff --check
-git diff --exit-code
+prove every changed line is a KiCad UUID replacement
+prove UUID-normalized regenerated content is exactly identical
+rerun all three validators
 KiCad 10 hierarchical ERC
 ```
+
+The pinned schematic generator assigns fresh KiCad object UUIDs during full sheet regeneration. UUID values are therefore treated as serialization metadata, not semantic circuit content. Regeneration is accepted only when every non-UUID byte remains identical, UUID structure remains valid and unique, all validators pass, and hierarchical ERC remains at zero errors and zero warnings.
 
 The lane validator must assert every U63 label at its exact physical pin coordinate on sheets 05 and 06, including explicit multiplicity for intentional coincident same-net labels.
 
@@ -115,6 +120,7 @@ Stop immediately if:
 - a U63 coordinate cannot be derived uniquely from the locked symbol geometry;
 - the controlled generators, repair tool and generated sheets disagree;
 - ERC or any existing validation fails;
-- deterministic regeneration changes a committed authority file;
+- regeneration changes any UUID-normalized schematic content;
+- regeneration produces a non-UUID diff line or duplicate UUID;
 - an unlisted file must change;
 - PCB, panel, purchasing or production authority would be required.
