@@ -126,12 +126,11 @@ jobs:
           python tools/validate_memory_ghost_wet_capture.py | tee build/validation/validate-memory-ghost-wet-capture.log
           python tools/validate_current_schematic_stage.py | tee build/validation/validate-current-schematic-stage.log
 
-      - name: Commit validated implementation
+      - name: Commit validated non-workflow implementation
         shell: bash
         run: |
           set -Eeuo pipefail
           git add -- \
-            .github/workflows/kicad-return-sheet-erc.yml \
             docs/v5.2-power-current-and-thermal-budget.md \
             docs/v5.2-return-limiter-and-opamp-allocation.md \
             docs/v5.2-ssi2164-mcp4728-fail-safe-control.md \
@@ -149,6 +148,7 @@ jobs:
             tools/repair_ssi2164_buffer_opa4196_units.py \
             tools/validate_memory_ghost_wet_capture.py \
             tools/validate_ssi2164_buffer_lane.py
+          test "$(git diff --cached --name-only | wc -l)" -eq 17
           git diff --cached --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
