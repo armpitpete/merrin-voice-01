@@ -61,11 +61,12 @@ The OPA4196 is separate from the seven-package OPA1679 audio allocation.
 - `.github/workflows/kicad-return-sheet-erc.yml` only to permit both shared multi-unit references U60 and U63
 - `tools/apply_ssi2164_buffer_patch.py` while implementation is in progress only
 - `tools/apply_ssi2164_buffer_coordinate_repair_patch.py` while coordinate repair is in progress only
+- `tools/apply_ssi2164_buffer_validator_multiplicity_patch.py` while validator repair is in progress only
 - `tools/validate_ssi2164_buffer_lane.py`
 - `.github/workflows/temporary-apply-ssi2164-buffer.yml` while implementation is in progress only
 - one final dedicated read-only GitHub Actions workflow for this lane
 
-The two temporary patch scripts and write-enabled workflow must be deleted before final review. Their workflow must fail closed on the exact branch, exact source hashes and exact allowed file set.
+The three temporary patch scripts and temporary implementation workflow must be deleted before final review. Their workflow must fail closed on the exact branch, exact source hashes and exact allowed file set.
 
 ## Forbidden changes
 
@@ -92,6 +93,7 @@ The two temporary patch scripts and write-enabled workflow must be deleted befor
 8. Update only the duplicate-reference validators so U60 and U63 are both recognised as intentional shared devices.
 9. Repair only the mirrored native coordinates of U63 input, feedback, output and power labels after generation.
 10. Make both authoritative wrappers invoke the same fail-closed U63 repair so regeneration is reproducible.
+11. Accept exactly two serialised labels only at the proven coincident Memory and Ghost buffer-input junctions; all other exact-coordinate assertions remain unique.
 
 ## Checks
 
@@ -102,7 +104,7 @@ python tools/validate_current_schematic_stage.py
 KiCad 10 hierarchical ERC
 ```
 
-The lane validator must assert every U63 label at its exact physical pin coordinate on sheets 05 and 06.
+The lane validator must assert every U63 label at its exact physical pin coordinate on sheets 05 and 06, including explicit multiplicity for intentional coincident same-net labels.
 
 ## Stop rule
 
