@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "base_commit": "8df52377de753c8c910d67fc31405782d52a1be8",
-  "lane": "Gate B lane 03 \u2014 SSI2164 package and control law",
+  "lane": "Gate B lane 03 — SSI2164 package and control law",
   "buffer": {
     "part": "OPA4196",
     "reference": "U63",
@@ -53,5 +53,14 @@
     "purchasing": false,
     "production": false
   },
-  "status": "IMPLEMENTED_PENDING_CI_AND_INDEPENDENT_REVIEW"
+  "validation": {
+    "generated_scope_files": 18,
+    "lane_validator": "PASS",
+    "memory_ghost_validator": "PASS",
+    "current_stage_validator": "PASS",
+    "kicad_hierarchical_erc": "PASS",
+    "temporary_machinery_removed": true,
+    "committed_state_ci": "PENDING"
+  },
+  "status": "IMPLEMENTED_VALIDATED_PENDING_COMMITTED_STATE_CI"
 }
