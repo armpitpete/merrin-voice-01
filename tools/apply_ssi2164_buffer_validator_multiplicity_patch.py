@@ -7,9 +7,9 @@ Memory and Ghost channels. KiCad serialises both attached labels. This patch
 changes only the validator's expected multiplicity for those two coordinates;
 all other exact-coordinate checks continue to require one label record.
 
-The temporary workflow's diagnostic build directory is added only to the local
-Git exclude file so generated logs cannot contaminate the repository-authority
-scope check. No tracked ignore file is changed.
+The temporary workflow's diagnostic build and Python-cache artefacts are added
+only to the local Git exclude file so they cannot contaminate the repository-
+authority scope check. No tracked ignore file is changed.
 """
 
 from __future__ import annotations
@@ -27,17 +27,19 @@ def replace_once(text: str, old: str, new: str) -> str:
     return text.replace(old, new, 1)
 
 
-def ignore_diagnostic_build() -> None:
-    marker = "/build/\n"
+def ignore_diagnostic_artifacts() -> None:
+    markers = ("/build/\n", "__pycache__/\n", "*.py[cod]\n")
     text = LOCAL_EXCLUDE_PATH.read_text(encoding="utf-8")
-    if marker not in text:
-        if text and not text.endswith("\n"):
-            text += "\n"
-        LOCAL_EXCLUDE_PATH.write_text(text + marker, encoding="utf-8")
+    if text and not text.endswith("\n"):
+        text += "\n"
+    for marker in markers:
+        if marker not in text:
+            text += marker
+    LOCAL_EXCLUDE_PATH.write_text(text, encoding="utf-8")
 
 
 def main() -> None:
-    ignore_diagnostic_build()
+    ignore_diagnostic_artifacts()
     text = VALIDATOR_PATH.read_text(encoding="utf-8")
 
     text = replace_once(
@@ -62,7 +64,7 @@ def assert_label_at(text: str, name: str, x: float, y: float) -> None:
 
     VALIDATOR_PATH.write_text(text, encoding="utf-8")
     print("Validator multiplicity updated for two proven coincident OPA4196 input junctions")
-    print("Diagnostic build directory excluded locally from authority-scope inspection")
+    print("Diagnostic build and Python-cache artefacts excluded locally from authority scope")
 
 
 if __name__ == "__main__":
