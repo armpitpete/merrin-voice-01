@@ -9,6 +9,14 @@ on:
       - "tools/apply_ssi2164_buffer_coordinate_repair_patch.py"
       - "tools/apply_ssi2164_buffer_validator_multiplicity_patch.py"
       - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "tools/apply_ssi2164_buffer_patch.py"
+      - "tools/apply_ssi2164_buffer_coordinate_repair_patch.py"
+      - "tools/apply_ssi2164_buffer_validator_multiplicity_patch.py"
+      - ".github/workflows/temporary-apply-ssi2164-buffer.yml"
 
 permissions:
   contents: write
@@ -18,7 +26,7 @@ env:
 
 jobs:
   implement-validated-buffer:
-    if: github.ref_name == 'agent/ssi2164-buffered-control'
+    if: github.head_ref == 'agent/ssi2164-buffered-control' || github.ref_name == 'agent/ssi2164-buffered-control'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -33,11 +41,14 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          test "$GITHUB_REF_NAME" = "agent/ssi2164-buffered-control"
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          expected="$GITHUB_SHA"
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            expected="${{ github.event.pull_request.head.sha }}"
+          fi
+          test "$(git rev-parse HEAD)" = "$expected"
           test ! -f hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json
           test "$(git status --short)" = ""
-          echo "Exact implementation head confirmed: $GITHUB_SHA"
+          echo "Exact implementation head confirmed: $expected"
 
       - name: Install pinned schematic generator
         run: |
