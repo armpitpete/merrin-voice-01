@@ -92,32 +92,129 @@ jobs:
           python tools/validate_memory_ghost_wet_capture.py
           python tools/validate_current_schematic_stage.py
 
+      - name: Capture UUID-normalized committed sheets
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          output = Path('build/determinism')
+          output.mkdir(parents=True, exist_ok=True)
+          files = (
+              root / '05_MEMORY_GHOST_WET.kicad_sch',
+              root / '06_RETURN_BREAK_LIMITER.kicad_sch',
+          )
+          uuid_re = re.compile(r'(\(uuid ")[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}("\))')
+          value_re = re.compile(r'\(uuid "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"\)')
+          counts = {}
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              values = value_re.findall(text)
+              if not values or len(values) != len(set(values)):
+                  raise SystemExit(f'Committed UUID validity/uniqueness failed: {path}')
+              normalized = uuid_re.sub(r'\1<UUID>\2', text)
+              (output / f'{path.name}.committed.normalized').write_text(normalized, encoding='utf-8')
+              counts[path.name] = len(values)
+          (output / 'committed-uuid-counts.json').write_text(
+              json.dumps(counts, indent=2) + '\n', encoding='utf-8'
+          )
+          print(f'Captured UUID-normalized committed sheets: {counts}')
+          PY
+
       - name: Regenerate authoritative sheets
         run: |
           python tools/capture_return_break_limiter_sheet_v3.py
           python tools/capture_memory_ghost_wet_sheet_v2.py
 
-      - name: Capture deterministic-regeneration evidence
+      - name: Prove UUID-normalized semantic regeneration
         shell: bash
         run: |
-          set -uo pipefail
-          mkdir -p build/determinism
+          set -Eeuo pipefail
           git status --short > build/determinism/status.txt
           git diff --name-status > build/determinism/name-status.txt
           git diff --stat > build/determinism/stat.txt
           git diff --no-ext-diff > build/determinism/regeneration.diff
           git diff --check > build/determinism/diff-check.txt 2>&1
-          check_rc=$?
-          git diff --exit-code > build/determinism/diff-exit.txt 2>&1
-          diff_rc=$?
-          cat build/determinism/status.txt
-          cat build/determinism/name-status.txt
-          cat build/determinism/stat.txt
-          if [ "$check_rc" -ne 0 ] || [ "$diff_rc" -ne 0 ] || [ -s build/determinism/status.txt ]; then
-            echo "Deterministic regeneration failed: check_rc=$check_rc diff_rc=$diff_rc"
-            exit 1
-          fi
-          echo "Deterministic regeneration: PASS"
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import re
+          import subprocess
+          from pathlib import Path
+
+          root = Path('hardware/memory-core-prototype-a')
+          output = Path('build/determinism')
+          files = (
+              root / '05_MEMORY_GHOST_WET.kicad_sch',
+              root / '06_RETURN_BREAK_LIMITER.kicad_sch',
+          )
+          expected_changed = {str(path) for path in files}
+          changed = set(
+              subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
+          )
+          if changed != expected_changed:
+              raise SystemExit(
+                  f'Unexpected regeneration scope: missing={sorted(expected_changed - changed)} '
+                  f'unexpected={sorted(changed - expected_changed)}'
+              )
+
+          uuid_value = r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+          uuid_re = re.compile(rf'(\(uuid "){uuid_value}("\))')
+          value_re = re.compile(rf'\(uuid "({uuid_value})"\)')
+          changed_line_re = re.compile(rf'^[+-]\s*\(uuid "{uuid_value}"\)$')
+
+          diff_lines = (output / 'regeneration.diff').read_text(encoding='utf-8').splitlines()
+          semantic_changes = []
+          removed_uuid_lines = 0
+          added_uuid_lines = 0
+          for line in diff_lines:
+              if line.startswith(('diff --git ', 'index ', '--- ', '+++ ', '@@')):
+                  continue
+              if not line.startswith(('+', '-')):
+                  continue
+              if not changed_line_re.fullmatch(line):
+                  semantic_changes.append(line)
+              elif line.startswith('-'):
+                  removed_uuid_lines += 1
+              else:
+                  added_uuid_lines += 1
+          if semantic_changes:
+              raise SystemExit(f'Non-UUID regeneration diff lines: {semantic_changes[:20]}')
+          if removed_uuid_lines != added_uuid_lines:
+              raise SystemExit(
+                  f'UUID replacement imbalance: removed={removed_uuid_lines} added={added_uuid_lines}'
+              )
+
+          proof = {
+              'changed_files': sorted(changed),
+              'removed_uuid_lines': removed_uuid_lines,
+              'added_uuid_lines': added_uuid_lines,
+              'sheets': {},
+          }
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              values = value_re.findall(text)
+              if not values or len(values) != len(set(values)):
+                  raise SystemExit(f'Regenerated UUID validity/uniqueness failed: {path}')
+              normalized = uuid_re.sub(r'\1<UUID>\2', text)
+              committed = (output / f'{path.name}.committed.normalized').read_text(encoding='utf-8')
+              if normalized != committed:
+                  raise SystemExit(f'UUID-normalized semantic mismatch: {path}')
+              proof['sheets'][path.name] = {'uuid_count': len(values), 'normalized_equal': True}
+
+          (output / 'semantic-proof.json').write_text(
+              json.dumps(proof, indent=2) + '\n', encoding='utf-8'
+          )
+          print(
+              'UUID-normalized regeneration: PASS — '
+              f'{removed_uuid_lines} UUID values replaced, zero semantic lines changed'
+          )
+          PY
 
       - name: Revalidate regenerated files
         run: |
