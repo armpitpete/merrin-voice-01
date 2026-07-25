@@ -14,10 +14,10 @@ permissions:
   contents: write
 
 env:
-  KICAD_IMAGE: ghcr.io/kicad/kicad:10.0.4@sha256:770e2fa006695077b5ba218742d5c3137896af91257b2ca971243fa56b01bb86
+  PYTHONDONTWRITEBYTECODE: "1"
 
 jobs:
-  implement-validated-authority:
+  implement-validated-buffer:
     if: github.ref_name == 'agent/ssi2164-buffered-control'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -29,7 +29,7 @@ jobs:
           ref: agent/ssi2164-buffered-control
           fetch-depth: 0
 
-      - name: Enforce exact implementation state
+      - name: Enforce exact pre-implementation state
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -46,33 +46,30 @@ jobs:
           python -m pip install --disable-pip-version-check \
             "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
 
-      - name: Apply bounded implementation patches
+      - name: Apply bounded patches
         shell: bash
         run: |
           set -Eeuo pipefail
           mkdir -p build/generator build/validation
           python tools/apply_ssi2164_buffer_patch.py 2>&1 | tee build/generator/electrical-patch.log
           python tools/apply_ssi2164_buffer_coordinate_repair_patch.py 2>&1 | tee build/generator/coordinate-patch.log
-          python tools/apply_ssi2164_buffer_validator_multiplicity_patch.py 2>&1 | tee build/generator/validator-and-format-patch.log
+          python tools/apply_ssi2164_buffer_validator_multiplicity_patch.py 2>&1 | tee build/generator/validator-format-patch.log
 
       - name: Regenerate authoritative sheets
         shell: bash
         run: |
           set -Eeuo pipefail
-          set -o pipefail
           python tools/capture_return_break_limiter_sheet_v3.py 2>&1 | tee build/generator/return-sheet.log
           python tools/capture_memory_ghost_wet_sheet_v2.py 2>&1 | tee build/generator/memory-ghost-wet.log
 
-      - name: Enforce exact generated authority scope
+      - name: Enforce exact generated scope
         shell: bash
         run: |
           set -Eeuo pipefail
           python - <<'PY'
           from __future__ import annotations
 
-          import hashlib
           import subprocess
-          from pathlib import Path
 
           expected = {
               ".github/workflows/kicad-return-sheet-erc.yml",
@@ -106,275 +103,24 @@ jobs:
                   f"Generated scope mismatch; missing={sorted(expected - changed)} "
                   f"unexpected={sorted(changed - expected)}"
               )
-
-          output = Path("build/validation")
-          output.mkdir(parents=True, exist_ok=True)
-          (output / "generated-files.txt").write_text(
-              "".join(f"{name}\n" for name in sorted(changed)),
-              encoding="utf-8",
-          )
-          hashes = []
-          for name in sorted(changed):
-              path = Path(name)
-              digest = hashlib.sha256(path.read_bytes()).hexdigest()
-              hashes.append(f"{digest}  {name}\n")
-          (output / "generated-sha256.txt").write_text("".join(hashes), encoding="utf-8")
-
-          check = subprocess.run(["git", "diff", "--check"], text=True, capture_output=True)
-          (output / "generated-diff-check.txt").write_text(
-              check.stdout + check.stderr,
-              encoding="utf-8",
-          )
-          if check.returncode:
-              raise SystemExit(check.stdout + check.stderr)
           print("Exact 18-file generated authority scope: PASS")
           PY
+          git diff --check
 
-      - name: Validate generated SSI2164 lane
-        id: buffer_lane
+      - name: Run exact validators
         shell: bash
         run: |
           set -Eeuo pipefail
-          python -u tools/validate_ssi2164_buffer_lane.py 2>&1 | tee build/validation/validate-ssi2164-buffer-lane.log
+          python tools/validate_ssi2164_buffer_lane.py | tee build/validation/validate-ssi2164-buffer-lane.log
+          python tools/validate_memory_ghost_wet_capture.py | tee build/validation/validate-memory-ghost-wet-capture.log
+          python tools/validate_current_schematic_stage.py | tee build/validation/validate-current-schematic-stage.log
 
-      - name: Validate Memory Ghost wet capture
-        id: memory_ghost
+      - name: Commit validated implementation
         shell: bash
         run: |
           set -Eeuo pipefail
-          python -u tools/validate_memory_ghost_wet_capture.py 2>&1 | tee build/validation/validate-memory-ghost-wet-capture.log
-
-      - name: Validate current schematic stage
-        id: current_stage
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          python -u tools/validate_current_schematic_stage.py 2>&1 | tee build/validation/validate-current-schematic-stage.log
-
-      - name: Prepare final read-only authority state
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          python - <<'PY'
-          from __future__ import annotations
-
-          import json
-          from pathlib import Path
-
-          root = Path("hardware/memory-core-prototype-a")
-          audit_path = root / "SSI2164_BUFFER_AUDIT.json"
-          audit = json.loads(audit_path.read_text(encoding="utf-8"))
-          if audit["status"] != "IMPLEMENTED_PENDING_CI_AND_INDEPENDENT_REVIEW":
-              raise SystemExit(f"Unexpected audit status: {audit['status']}")
-          audit["status"] = "IMPLEMENTED_VALIDATED_PENDING_INDEPENDENT_REVIEW"
-          audit["validation"] = {
-              "generated_scope_files": 18,
-              "lane_validator": "PASS",
-              "memory_ghost_validator": "PASS",
-              "current_stage_validator": "PASS",
-              "temporary_workflow": "PASS",
-              "committed_state_ci": "PENDING",
-          }
-          audit_path.write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
-
-          contract_path = root / "SSI2164_BUFFER_EDIT_CONTRACT.md"
-          contract = contract_path.read_text(encoding="utf-8")
-          old_block = '''- `tools/apply_ssi2164_buffer_patch.py` while implementation is in progress only
-- `tools/apply_ssi2164_buffer_coordinate_repair_patch.py` while coordinate repair is in progress only
-- `tools/apply_ssi2164_buffer_validator_multiplicity_patch.py` while validator repair is in progress only
-- `tools/validate_ssi2164_buffer_lane.py`
-- `.github/workflows/temporary-apply-ssi2164-buffer.yml` while implementation is in progress only
-- one final dedicated read-only GitHub Actions workflow for this lane
-
-The three temporary patch scripts and temporary implementation workflow must be deleted before final review. Their workflow must fail closed on the exact branch, exact source hashes and exact allowed file set.
-'''
-          new_block = '''- `tools/validate_ssi2164_buffer_lane.py`
-- `.github/workflows/ssi2164-buffered-control-authority.yml` as the final read-only lane authority
-
-Implementation-only patch scripts and workflow are absent from the final review state. The retained final workflow is read-only and fails closed on deterministic regeneration, exact validators and blocked downstream authority.
-'''
-          if contract.count(old_block) != 1:
-              raise SystemExit("Could not promote the edit contract to final authority")
-          contract = contract.replace(old_block, new_block, 1)
-          marker = "11. Accept exactly two serialised labels only at the proven coincident Memory and Ghost buffer-input junctions; all other exact-coordinate assertions remain unique.\n"
-          addition = marker + "12. Emit the project symbol library without tab-only or trailing-whitespace lines.\n"
-          if contract.count(marker) != 1:
-              raise SystemExit("Could not add the final symbol-format rule")
-          contract = contract.replace(marker, addition, 1)
-          contract_path.write_text(contract, encoding="utf-8")
-          PY
-
-          cat > .github/workflows/ssi2164-buffered-control-authority.yml <<'YAML'
-          name: SSI2164 buffered-control authority
-
-          on:
-            push:
-              branches:
-                - agent/ssi2164-buffered-control
-              paths:
-                - ".github/workflows/ssi2164-buffered-control-authority.yml"
-                - ".github/workflows/kicad-return-sheet-erc.yml"
-                - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
-                - "docs/v5.2-power-current-and-thermal-budget.md"
-                - "docs/v5.2-return-limiter-and-opamp-allocation.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
-                - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
-                - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
-                - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
-                - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
-                - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
-                - "tools/capture_memory_ghost_wet_sheet.py"
-                - "tools/capture_memory_ghost_wet_sheet_v2.py"
-                - "tools/capture_return_break_limiter_sheet.py"
-                - "tools/capture_return_break_limiter_sheet_v3.py"
-                - "tools/repair_ssi2164_buffer_opa4196_units.py"
-                - "tools/validate_memory_ghost_wet_capture.py"
-                - "tools/validate_ssi2164_buffer_lane.py"
-            pull_request:
-              branches:
-                - main
-              paths:
-                - ".github/workflows/ssi2164-buffered-control-authority.yml"
-                - ".github/workflows/kicad-return-sheet-erc.yml"
-                - "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md"
-                - "docs/v5.2-power-current-and-thermal-budget.md"
-                - "docs/v5.2-return-limiter-and-opamp-allocation.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md"
-                - "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json"
-                - "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym"
-                - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch"
-                - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch"
-                - "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md"
-                - "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md"
-                - "tools/capture_memory_ghost_wet_sheet.py"
-                - "tools/capture_memory_ghost_wet_sheet_v2.py"
-                - "tools/capture_return_break_limiter_sheet.py"
-                - "tools/capture_return_break_limiter_sheet_v3.py"
-                - "tools/repair_ssi2164_buffer_opa4196_units.py"
-                - "tools/validate_memory_ghost_wet_capture.py"
-                - "tools/validate_ssi2164_buffer_lane.py"
-            workflow_dispatch:
-
-          permissions:
-            contents: read
-
-          env:
-            PYTHONDONTWRITEBYTECODE: "1"
-
-          jobs:
-            validate-committed-authority:
-              runs-on: ubuntu-latest
-              timeout-minutes: 30
-
-              steps:
-                - name: Check out committed authority
-                  uses: actions/checkout@v4
-
-                - name: Enforce final repository state
-                  shell: bash
-                  run: |
-                    set -Eeuo pipefail
-                    test ! -e tools/apply_ssi2164_buffer_patch.py
-                    test ! -e tools/apply_ssi2164_buffer_coordinate_repair_patch.py
-                    test ! -e tools/apply_ssi2164_buffer_validator_multiplicity_patch.py
-                    test ! -e .github/workflows/temporary-apply-ssi2164-buffer.yml
-                    test "$(git status --short)" = ""
-
-                - name: Install pinned schematic generator
-                  run: |
-                    sudo apt-get update
-                    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kicad-symbols
-                    python -m pip install --disable-pip-version-check \
-                      "git+https://github.com/circuit-synth/kicad-sch-api.git@505bca23e91cf3fa6e3b66976e529e775eada3ba"
-
-                - name: Validate committed files
-                  run: |
-                    python tools/validate_ssi2164_buffer_lane.py
-                    python tools/validate_memory_ghost_wet_capture.py
-                    python tools/validate_current_schematic_stage.py
-
-                - name: Regenerate authoritative sheets
-                  run: |
-                    python tools/capture_return_break_limiter_sheet_v3.py
-                    python tools/capture_memory_ghost_wet_sheet_v2.py
-
-                - name: Prove deterministic regeneration
-                  shell: bash
-                  run: |
-                    set -Eeuo pipefail
-                    git diff --check
-                    git diff --exit-code
-                    test "$(git status --short)" = ""
-
-                - name: Revalidate regenerated files
-                  run: |
-                    python tools/validate_ssi2164_buffer_lane.py
-                    python tools/validate_memory_ghost_wet_capture.py
-                    python tools/validate_current_schematic_stage.py
-          YAML
-
-          rm -f \
-            tools/apply_ssi2164_buffer_patch.py \
-            tools/apply_ssi2164_buffer_coordinate_repair_patch.py \
-            tools/apply_ssi2164_buffer_validator_multiplicity_patch.py \
-            .github/workflows/temporary-apply-ssi2164-buffer.yml
-
-      - name: Enforce and commit final authority scope
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          python - <<'PY'
-          from __future__ import annotations
-
-          import subprocess
-
-          expected = {
-              ".github/workflows/kicad-return-sheet-erc.yml",
-              ".github/workflows/ssi2164-buffered-control-authority.yml",
-              ".github/workflows/temporary-apply-ssi2164-buffer.yml",
-              "docs/v5.2-power-current-and-thermal-budget.md",
-              "docs/v5.2-return-limiter-and-opamp-allocation.md",
-              "docs/v5.2-ssi2164-mcp4728-fail-safe-control.md",
-              "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET.kicad_sch",
-              "hardware/memory-core-prototype-a/05_MEMORY_GHOST_WET_VALIDATION.md",
-              "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER.kicad_sch",
-              "hardware/memory-core-prototype-a/06_RETURN_BREAK_LIMITER_VALIDATION.md",
-              "hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym",
-              "hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json",
-              "hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md",
-              "hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md",
-              "tools/apply_ssi2164_buffer_coordinate_repair_patch.py",
-              "tools/apply_ssi2164_buffer_patch.py",
-              "tools/apply_ssi2164_buffer_validator_multiplicity_patch.py",
-              "tools/capture_memory_ghost_wet_sheet.py",
-              "tools/capture_memory_ghost_wet_sheet_v2.py",
-              "tools/capture_return_break_limiter_sheet.py",
-              "tools/capture_return_break_limiter_sheet_v3.py",
-              "tools/repair_ssi2164_buffer_opa4196_units.py",
-              "tools/validate_memory_ghost_wet_capture.py",
-              "tools/validate_ssi2164_buffer_lane.py",
-          }
-          raw = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"])
-          changed = {
-              record[3:].decode("utf-8")
-              for record in raw.split(b"\0")
-              if record
-          }
-          if changed != expected:
-              raise SystemExit(
-                  f"Final scope mismatch; missing={sorted(expected - changed)} "
-                  f"unexpected={sorted(changed - expected)}"
-              )
-          print("Exact 24-file final authority scope: PASS")
-          PY
-
           git add -- \
             .github/workflows/kicad-return-sheet-erc.yml \
-            .github/workflows/ssi2164-buffered-control-authority.yml \
-            .github/workflows/temporary-apply-ssi2164-buffer.yml \
             docs/v5.2-power-current-and-thermal-budget.md \
             docs/v5.2-return-limiter-and-opamp-allocation.md \
             docs/v5.2-ssi2164-mcp4728-fail-safe-control.md \
@@ -385,10 +131,6 @@ Implementation-only patch scripts and workflow are absent from the final review 
             hardware/memory-core-prototype-a/MerrinLab_PrototypeA.kicad_sym \
             hardware/memory-core-prototype-a/SSI2164_BUFFER_AUDIT.json \
             hardware/memory-core-prototype-a/SSI2164_BUFFER_CONTROL_REVIEW.md \
-            hardware/memory-core-prototype-a/SSI2164_BUFFER_EDIT_CONTRACT.md \
-            tools/apply_ssi2164_buffer_coordinate_repair_patch.py \
-            tools/apply_ssi2164_buffer_patch.py \
-            tools/apply_ssi2164_buffer_validator_multiplicity_patch.py \
             tools/capture_memory_ghost_wet_sheet.py \
             tools/capture_memory_ghost_wet_sheet_v2.py \
             tools/capture_return_break_limiter_sheet.py \
@@ -396,7 +138,6 @@ Implementation-only patch scripts and workflow are absent from the final review 
             tools/repair_ssi2164_buffer_opa4196_units.py \
             tools/validate_memory_ghost_wet_capture.py \
             tools/validate_ssi2164_buffer_lane.py
-
           git diff --cached --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
