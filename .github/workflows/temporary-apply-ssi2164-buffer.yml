@@ -136,7 +136,16 @@ jobs:
           if unexpected:
               raise SystemExit(f"Unexpected generated files: {unexpected}")
 
-          subprocess.run(["git", "diff", "--check"], check=True)
+          check = subprocess.run(
+              ["git", "diff", "--check"],
+              text=True,
+              capture_output=True,
+          )
+          diff_check = check.stdout + check.stderr
+          (output / "generated-diff-check.txt").write_text(diff_check, encoding="utf-8")
+          if check.returncode != 0:
+              raise SystemExit(f"git diff --check failed:\n{diff_check}")
+
           print(f"Generated authority scope contains {len(changed)} allowed files")
           PY
 
